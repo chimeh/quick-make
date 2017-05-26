@@ -3,6 +3,8 @@
 #ifndef _HAL_NETLINK_H
 #define _HAL_NETLINK_H
 
+
+
 /* RFC3549. Linux Netlink as a IP services Protocol. */
 
 /*
@@ -16,14 +18,21 @@
 #define HAL_GROUP_LINK  (1 << 0)
 
 
+
 /* Netlink message header. */
 struct hal_nlmsghdr {
-    u_int32_t nlmsg_len;        /* Length of message including header. */
-    u_int16_t nlmsg_type;       /* Message content. */
-    u_int16_t nlmsg_flags;      /* Flags. */
-    u_int32_t nlmsg_seq;        /* Sequence number. */
-    u_int32_t nlmsg_pid;        /* Sending process pid. */
+    /* u_int32_t */ unsigned int nlmsg_len;
+    /* Length of message including header. */
+    /* u_int16_t */ unsigned short nlmsg_type;
+    /* Message content. */
+    /* u_int16_t */ unsigned short nlmsg_flags;
+    /* Flags. */
+    /* u_int32_t */ unsigned int nlmsg_seq;
+    /* Sequence number. */
+    /* u_int32_t */ unsigned int nlmsg_pid;
+    /* Sending process pid. */
 };
+
 
 #define HAL_NLMSGHDR_SIZE            sizeof(struct hal_nlmsghdr)
 
@@ -35,11 +44,11 @@ struct hal_nlmsgerr {
 
 /* Sockaddr for Netlink. */
 struct hal_sockaddr_nl {
-    u_int16_t nl_family;
-    u_int16_t pad1;
-    u_int32_t nl_pid;
-    u_int32_t nl_groups;
-    u_char padding[14];
+    /* u_int16_t */ unsigned short nl_family;
+    /* u_int16_t */ unsigned short pad1;
+    /* u_int32_t */ unsigned int nl_pid;
+    /* u_int32_t */ unsigned int nl_groups;
+    /* u_char   */ unsigned char padding[14];
 };
 
 /* Flags. */

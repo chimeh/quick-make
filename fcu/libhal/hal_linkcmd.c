@@ -17,6 +17,20 @@
 
 void *hal_comm_zg;
 
+/* 
+   Asynchronous messages. 
+*/
+struct halsock hallink = { -1, 0, {0}, "hallink-listen" };
+
+/* 
+   Command channel. 
+*/
+struct halsock hallink_cmd = { -1, 0, {0}, "hallink-cmd" };
+
+/* 
+   if-arbiter command channel.
+*/
+struct halsock hallink_poll = { -1, 0, {0}, "hallink-poll" };
 
 int hal_comm_initialized = 0;
 
@@ -33,7 +47,7 @@ int hal_socket(struct halsock *nl, unsigned long groups,
 
     sock = socket(AF_HSL, SOCK_RAW, 0);
     if (sock < 0) {
-        hal_err(hal_comm_zg, "Can't open %s socket: %s", nl->name,
+        hal_err(hal_zg, "Can't open %s socket: %s", nl->name,
                 strerror(errno));
         return -1;
     }
@@ -41,7 +55,7 @@ int hal_socket(struct halsock *nl, unsigned long groups,
     if (non_block) {
         ret = hal_sock_set_nonblocking(sock, 1 /* non_block */ );
         if (ret < 0) {
-            hal_err(hal_comm_zg, "Can't set %s socket flags: %s", nl->name,
+            hal_err(hal_zg, "Can't set %s socket flags: %s", nl->name,
                     strerror(errno));
             close(sock);
             return -1;
@@ -55,7 +69,7 @@ int hal_socket(struct halsock *nl, unsigned long groups,
     /* Bind the socket to the netlink(RFC 3549) structure for anything. */
     ret = bind(sock, (struct sockaddr *) &snl, sizeof(snl));
     if (ret < 0) {
-        hal_err(hal_comm_zg, "Can't bind %s socket to group 0x%x: %s",
+        hal_err(hal_zg, "Can't bind %s socket to group 0x%x: %s",
                 nl->name, snl.nl_groups, strerror(errno));
         close(sock);
         return -1;
@@ -65,7 +79,7 @@ int hal_socket(struct halsock *nl, unsigned long groups,
     namelen = sizeof snl;
     ret = getsockname(sock, (struct sockaddr *) &snl, &namelen);
     if (ret < 0 || namelen != sizeof snl) {
-        hal_err(hal_comm_zg, "Can't get %s socket name: %s", nl->name,
+        hal_err(hal_zg, "Can't get %s socket name: %s", nl->name,
                 strerror(errno));
         close(sock);
         return -1;
@@ -94,7 +108,7 @@ static int hal_recv_cb(struct hal_nlmsghdr *h, void *data)
 {
     struct hal_nlmsgerr *err = (struct hal_nlmsgerr *) HAL_NLMSG_DATA(h);
 
-    hal_warn(hal_comm_zg, "hal_recv_cb: ignoring message type 0x%04x",
+    hal_warn(hal_zg, "hal_recv_cb: ignoring message type 0x%04x",
              h->nlmsg_type);
 
     if (err)
@@ -123,7 +137,7 @@ int hal_talk(struct halsock *nl, struct hal_nlmsghdr *n,
     /* Send message to netlink(RFC 3549) interface. */
     status = sendmsg(nl->sock, &msg, 0);
     if (status < 0) {
-        hal_err(hal_comm_zg, "hallink_talk sendmsg() error: %s",
+        hal_err(hal_zg, "hallink_talk sendmsg() error: %s",
                 strerror(errno));
         return -1;
     }
@@ -206,12 +220,12 @@ hal_read_parser_invokecb(struct halsock *nl,
                 continue;
             if (errno == EWOULDBLOCK)
                 break;
-            hal_err(hal_comm_zg, "%s recvmsg overrun: %s", nl->name,
+            hal_err(hal_zg, "%s recvmsg overrun: %s", nl->name,
                     strerror(errno));
             continue;
         }
         if (len == 0) {
-            hal_err(hal_comm_zg, "%s EOF", nl->name);
+            hal_err(hal_zg, "%s EOF", nl->name);
             return -1;
         }
         for (h = (struct hal_nlmsghdr *) buf; HAL_NLMSG_OK(h, len);
@@ -228,11 +242,11 @@ hal_read_parser_invokecb(struct halsock *nl,
                     (struct hal_nlmsgerr *) HAL_NLMSG_DATA(h);
                 if (h->nlmsg_len <
                     HAL_NLMSG_LENGTH(sizeof(struct hal_nlmsgerr))) {
-                    hal_err(hal_comm_zg, "%s error: message truncated",
+                    hal_err(hal_zg, "%s error: message truncated",
                             nl->name);
                     return -1;
                 }
-                hal_err(hal_comm_zg,
+                hal_err(hal_zg,
                         "%s error: %s, type=%u, seq=%u, pid=%d",
                         nl->name, strerror(-err->error),
                         err->msg.nlmsg_type, err->msg.nlmsg_seq,
@@ -241,7 +255,7 @@ hal_read_parser_invokecb(struct halsock *nl,
             }
             if (0) {
                 /* OK we got netlink(RFC 3549) message. */
-                hal_info(hal_comm_zg,
+                hal_info(hal_zg,
                          "hal_read_parser_invokecb: %s type %u, seq=%u, pid=%d",
                          nl->name, h->nlmsg_type, h->nlmsg_seq,
                          h->nlmsg_pid);
@@ -250,7 +264,7 @@ hal_read_parser_invokecb(struct halsock *nl,
             /* Skip unsolicited messages originating from command socket. */
             if (nl != &hallink_cmd
                 && h->nlmsg_pid == hallink_cmd.snl.nl_pid) {
-                hal_info(hal_comm_zg,
+                hal_info(hal_zg,
                          "hallink_parse_info: %s packet comes from %s",
                          nl->name, hallink_cmd.name);
 
@@ -258,18 +272,18 @@ hal_read_parser_invokecb(struct halsock *nl,
             }
             error = (*cb) (h, data);
             if (error < 0) {
-                hal_err(hal_comm_zg, "%s cb function error", nl->name);
+                hal_err(hal_zg, "%s cb function error", nl->name);
                 ret = error;
             }
         }
 
         /* After error care. */
         if (msg.msg_flags & MSG_TRUNC) {
-            hal_err(hal_comm_zg, "%s error: message truncated", nl->name);
+            hal_err(hal_zg, "%s error: message truncated", nl->name);
             continue;
         }
         if (len) {
-            hal_err(hal_comm_zg, "%s error: data remnant size %d", nl->name,
+            hal_err(hal_zg, "%s error: data remnant size %d", nl->name,
                     len);
             return -1;
         }
