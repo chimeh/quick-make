@@ -48,7 +48,7 @@ struct hal_sockaddr_nl {
     /* u_int16_t */ unsigned short pad1;
     /* u_int32_t */ unsigned int nl_pid;
     /* u_int32_t */ unsigned int nl_groups;
-    /* u_char   */ unsigned char padding[14];
+    /* u_char   */  unsigned char padding[14];
 };
 
 /* Flags. */

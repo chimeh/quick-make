@@ -9,16 +9,11 @@
 #include <errno.h>
 
 #include "hal_netlink.h"
+#include "hal_log.h"
 #include "hal_comm.h"
 
-#define hal_info(zg, ...)
-#define hal_warn(zg, ...)
-#define hal_err(zg, ...)
 
-void *hal_comm_zg;
-
-
-int hal_comm_initialized = 0;
+void *hal_comm_zg = NULL;
 
 /* 
    Make socket for netlink(RFC 3549) interface. 
@@ -103,6 +98,11 @@ static int hal_recv_cb(struct hal_nlmsghdr *h, void *data)
         return 0;
 }
 
+enum hal_match_cmp hal_match_always(const struct hal_nlmsghdr *msgh,
+                                    void *mtdata)
+{
+    return HAL_NL_CMP_IS_MATCH;
+}
 /* 
    sendmsg() to netlink(RFC 3549) socket then recvmsg().
 */
@@ -129,26 +129,23 @@ int hal_talk(struct halsock *nl, struct hal_nlmsghdr *n,
     }
 
     if (cb)
-        status = hal_read_parser_invokecb(nl, cb, data);
+        status =
+            hal_read_parser_invokecb(nl, hal_match_always, NULL, cb, data);
     else
-        status = hal_read_parser_invokecb(nl, hal_recv_cb, data);
+        status =
+            hal_read_parser_invokecb(nl, hal_match_always, NULL,
+                                     hal_recv_cb, data);
 
     return status;
 }
 
-/* 
-   Read thread callback. 
-*/
-static int _hal_callbacks(struct hal_nlmsghdr *h, void *data)
-{
-    return 0;
-}
+
 
 /*
   Send HAL generic  message to HSL.
 */
 int
-hal_msg_generic_request(struct halsock *phalsock, int msg,
+hal_msg_generic_request(struct halsock *nl, int msg,
                         int (*cb) (struct hal_nlmsghdr *, void *),
                         void *data)
 {
@@ -157,7 +154,7 @@ hal_msg_generic_request(struct halsock *phalsock, int msg,
     struct {
         struct hal_nlmsghdr nlh;
     } req;
-    if (!phalsock) {
+    if (!nl) {
         return -1;
     }
     memset(&req.nlh, 0, sizeof(struct hal_nlmsghdr));
@@ -167,15 +164,17 @@ hal_msg_generic_request(struct halsock *phalsock, int msg,
     nlh->nlmsg_len = HAL_NLMSG_LENGTH(0);
     nlh->nlmsg_flags = HAL_NLM_F_CREATE | HAL_NLM_F_REQUEST;
     nlh->nlmsg_type = msg;
-    nlh->nlmsg_seq = ++phalsock->seq;
+    nlh->nlmsg_seq = ++nl->seq;
 
     /* Request list of interfaces. */
-    ret = hal_talk(phalsock, nlh, cb, data);
+    ret = hal_talk(nl, nlh, cb, data);
     if (ret < 0)
         return ret;
 
     return 0;
 }
+
+
 
 /*
   Send HAL generic poll message to HSL.
@@ -187,13 +186,17 @@ hal_msg_generic_request(struct halsock *phalsock, int msg,
 */
 int
 hal_read_parser_invokecb(struct halsock *nl,
-                         int (*cb) (struct hal_nlmsghdr *, void *),
-                         void *data)
+                         enum hal_match_cmp (*match) (const struct
+                                                      hal_nlmsghdr * msgh,
+                                                      void *mtdata),
+                         void *mtdata, int (*cb) (struct hal_nlmsghdr *,
+                                                  void *), void *cbdata)
 {
     int len;
     int ret = 0;
     int error;
     while (1) {
+        enum hal_match_cmp match_cmp;
         char buf[4096];
         struct iovec iov = { buf, sizeof(buf) };
         struct hal_sockaddr_nl snl;
@@ -246,20 +249,21 @@ hal_read_parser_invokecb(struct halsock *nl,
                          nl->name, h->nlmsg_type, h->nlmsg_seq,
                          h->nlmsg_pid);
             }
+            if (match) {
+                match_cmp = (*match) ((struct hal_nlmsghdr *) h, mtdata);
+                if (match_cmp == HAL_NL_CMP_IS_MATCH) {
+                    if (cb) {
+                        error = (*cb) (h, cbdata);
+                        if (error < 0) {
+                            hal_err(hal_comm_zg, "%s cb function error",
+                                    nl->name);
+                            ret = error;
+                        }
+                    }
+                }
 
-            /* Skip unsolicited messages originating from command socket. */
-            if (nl != &hallink_cmd
-                && h->nlmsg_pid == hallink_cmd.snl.nl_pid) {
-                hal_info(hal_comm_zg,
-                         "hallink_parse_info: %s packet comes from %s",
-                         nl->name, hallink_cmd.name);
-
-                continue;
-            }
-            error = (*cb) (h, data);
-            if (error < 0) {
-                hal_err(hal_comm_zg, "%s cb function error", nl->name);
-                ret = error;
+            } else {
+                hal_err(hal_comm_zg, "match cmp is NULL", match);
             }
         }
 
@@ -269,70 +273,15 @@ hal_read_parser_invokecb(struct halsock *nl,
             continue;
         }
         if (len) {
-            hal_err(hal_comm_zg, "%s error: data remnant size %d", nl->name,
-                    len);
+            hal_err(hal_comm_zg, "%s error: data remnant size %d",
+                    nl->name, len);
             return -1;
         }
     }
     return ret;
 }
 
-/*
-  Read thread for async messages.
-*/
-int hal_read_parser_invokecb_thread(struct thread *thread)
-{
-    int ret = 0;
-    int sock;
-    void *zg;
 
-    //sock = THREAD_FD(thread);
-    //zg = THREAD_ARG(thread);
-    hallink.t_read = NULL;
-
-    ret = hal_read_parser_invokecb(&hallink, _hal_callbacks, NULL);
-
-    hallink.t_read = hal_read_parser_invokecb_thread;
-
-    return ret;
-}
-
-/* 
-   Initialize HAL-HSL transport.
-*/
-int hal_comm_init(void *zg)
-{
-    unsigned long groups;
-
-    groups = HAL_GROUP_LINK;
-
-    /* Open sockets to HSL. */
-    //hal_socket (&hallink, groups, 0);
-    hal_socket(&hallink_cmd, 0, 0);
-    //hal_socket (&hallink_poll, 0, 0);
-
-    /* Register HAL socket. */
-    //if (hallink.sock > 0) {
-    //  hallink.t_read = thread_add_read (zg, hal_read_parser_invokecb_thread, zg, hallink.sock);
-    //}
-
-    hal_comm_initialized = 1;
-    return 0;
-}
-
-/* 
-   Deinitialize HAL-HSL transport.
-*/
-int hal_comm_deinit(void *zg)
-{
-    /* Close sockets to HSL. */
-    //hal_close (&hallink);
-    hal_close(&hallink_cmd);
-    //hal_close (&hallink_poll);
-
-    hal_comm_initialized = 0;
-    return 0;
-}
 
 int hal_sock_set_nonblocking(int sock, int nonblock)
 {

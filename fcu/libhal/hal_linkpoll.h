@@ -1,12 +1,12 @@
 /* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
 
-#ifndef _HAL_LINKCMD_H_
-#define _HAL_LINKCMD_H_
+#ifndef _HAL_LINKPOLL_H_
+#define _HAL_LINKPOLL_H_
 
 /* 
    Command channel. 
 */
-struct halsock hal_linkcmd;
+extern struct halsock hal_linkcmd;
 
 /*
    Function prototypes.
@@ -15,4 +15,4 @@ struct halsock hal_linkcmd;
 int hal_linkcmd_init(void *zg);
 int hal_linkcmd_deinit(void *zg);
 
-#endif  /* _HAL_LINKCMD_H */
+#endif  /* _HAL_LINKPOLL_H_ */
