@@ -1,0 +1,37 @@
+###############################################
+##
+## Broadcom Reference Rule
+##
+###############################################
+
+INCLUDEDIR=$(ZEBOS)
+
+SYSINC1 = $(INCLUDEDIR)/platform/linux
+SYSINC2 = $(INCLUDEDIR)/hsl
+SYSINC3 = $(INCLUDEDIR)/hsl/L2
+SYSINC4 = $(INCLUDEDIR)/hsl/L3
+SYSINC5 = $(INCLUDEDIR)/hsl/common
+SYSINC6 = $(INCLUDEDIR)/hsl/ipmc
+SYSINC7 = $(INCLUDEDIR)/hsl/broadcom
+SYSINC8 = $(INCLUDEDIR)/hsl/broadcom/L2
+SYSINC9 = $(INCLUDEDIR)/hsl/broadcom/linux
+SYSINC10 = $(INCLUDEDIR)/hsl/broadcom/linux/L2
+SYSINC11 = $(INCLUDEDIR)/hsl/broadcom/linux/L3
+SYSINC12 = $(INCLUDEDIR)/hsl/broadcom/linux/L4
+SYSINC13 = $(INCLUDEDIR)/hal
+SYSINC14 = $(INCLUDEDIR)/hal/L2
+SYSINC15 = $(INCLUDEDIR)/hal/L3
+SYSINC16 = $(INCLUDEDIR)/hal/hsl    
+SYSINC17 = $(INCLUDEDIR)/           
+SYSINC18 = $(INCLUDEDIR)/hsl/openflow
+SYSINC19 = $(INCLUDEDIR)/lib/openflow
+SYSINC20 = $(INCLUDEDIR)/hal/openflow   
+                                            
+
+CFLAGS += -O2 -D__KERNEL__ -DLINUX -DMODULE
+CFLAGS += -I$(SYSINC1) -I$(SYSINC2) -I$(SYSINC3) -I$(SYSINC4) \
+	-I$(SYSINC5) -I$(SYSINC6) -I$(SYSINC7) -I$(SYSINC8) \
+	-I$(SYSINC9) -I$(SYSINC10) -I$(SYSINC11) -I$(SYSINC12) \
+	-I$(SYSINC13) -I$(SYSINC14) -I$(SYSINC15) -I$(SYSINC16) -I$(SYSINC17) \
+	-I$(SYSINC18) -I$(SYSINC19) -I$(SYSINC20)
+
