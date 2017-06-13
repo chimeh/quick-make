@@ -50,7 +50,6 @@
 #include <sal/core/spl.h>
 #include "sal/appl/editline/editline.h"
 
-#include <soc/cm.h>
 
 #include <sal/types.h>
 #include <sal/core/thread.h>
@@ -58,7 +57,6 @@
 
 #include <sal/appl/io.h>
 
-#include <soc/debug.h>
 
 #include <stdarg.h>
 
@@ -226,7 +224,7 @@ static FILE *file_fp = 0;		/* Non-NULL indicates file opened */
 static char *file_nm = NULL;		/* Non-NULL indicates file selected */
 #endif /* !NO_FILEIO */
 
-static uint32 current_dk = DK_ERR | DK_WARN; /* Start with errors enabled */
+static uint32 current_dk = 0; /* Start with errors enabled */
 
 static int console_enabled = 1;
 

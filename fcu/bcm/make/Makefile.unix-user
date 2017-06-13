@@ -81,7 +81,7 @@ OPTFLAGS_DEFAULT = -O2
 OSTYPE = LINUX
 
 # Linux
-LIBS= -lnsl -lpthread -lm -lrt
+#LIBS=  -lpthread -lm -lrt
 
 #
 # ORIGIN is used to Optionally select different CFLAGS. It is used to import
@@ -146,7 +146,7 @@ endif
 
 ifneq ($(LINUX_MAKE_SHARED_LIB),1)
 ifndef LINK_STATIC
-LINK_STATIC = 1
+LINK_STATIC = 0
 endif
 endif
 

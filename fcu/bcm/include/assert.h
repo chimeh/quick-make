@@ -1,5 +1,5 @@
 /*
- * $Id: socintf.h 1.3 Broadcom SDK $
+ * $Id: assert.h 1.1 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,15 +42,42 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:        socintf.h
- * Purpose:     
+ * This version of assert.h should appear in the compiler include path
+ * ahead of any other version of assert.h to ensure that _sal_assert is
+ * used for all assertion failures.
  */
 
-#ifndef   _SOCINTF_H_
-#define   _SOCINTF_H_
+#ifndef _ASSERT_H
+#define _ASSERT_H
 
-extern int setup_socket(int port);
-extern int wait_for_cnxn(int sockfd);
-extern int conn(char* servier, int port); 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-#endif /* _SOCINTF_H_ */
+#if defined(__STDC__) || defined(__BORLAND__)
+extern void _sal_assert(const char *, const char *, int);
+#else
+extern void _sal_assert();
+#endif
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* _ASSERT_H */
+
+#undef	assert
+
+#ifdef	NDEBUG
+
+#define	assert(EX) ((void)0)
+
+#else
+
+#if defined(__STDC__)
+#define	assert(EX) (void)((EX) || (_sal_assert(#EX, __FILE__, __LINE__), 0))
+#else
+#define	assert(EX) (void)((EX) || (_sal_assert("EX", __FILE__, __LINE__), 0))
+#endif	/* __STDC__ */
+
+#endif	/* NDEBUG */

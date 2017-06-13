@@ -48,7 +48,7 @@ LOCALDIR = systems/linux/kernel/modules
 
 include ${SDK}/make/Make.config
 
-subdirs=shared uk-proxy bcm-diag-full bcm-core bcm-net bcm-diag
+subdirs= uk-proxy  bcm-core 
 
 include ${SDK}/make/Make.subdirs
 

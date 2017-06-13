@@ -47,7 +47,6 @@
 #include <stdlib.h>
 
 
-#include <soc/debug.h>
 
 
 #include <sal/core/libc.h>

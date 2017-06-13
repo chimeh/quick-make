@@ -50,13 +50,9 @@ DIAG_LIBS = \
 	${APPL_LIBS} \
 	libkern.a 
 
-BCM_LIBS = $(DIAG_LIBS) $(DRV_LIBS)
+BCM_LIBS = 
 BCM_LIBS_BLD = $(addprefix $(LIBDIR)/,$(BCM_LIBS))
-ifdef BUILD_MACSEC
-BCM_LIBS_BLD += ${CORE_EXT_LIBS}
-else
-BCM_LIBS_BLD += ${EXTERNAL_LIBS}
-endif
+
 
 ifneq ($(kernel_version),2_6)
 MODULE = $(LIBDIR)/linux-bcm-core.o
@@ -81,7 +77,6 @@ $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	cp ${SDK}/make/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
-	cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers
 	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
 endif
 

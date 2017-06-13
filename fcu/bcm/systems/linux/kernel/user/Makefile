@@ -45,7 +45,7 @@
 
 include ${SDK}/make/Make.config
 
-subdirs= shared bcm-diag-proxy
+subdirs=  bcm-diag-proxy
 
 include ${SDK}/make/Make.subdirs
 

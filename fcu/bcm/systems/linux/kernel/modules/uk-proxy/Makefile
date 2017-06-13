@@ -46,7 +46,7 @@ LOCALDIR = systems/linux/kernel/modules/uk-proxy
 
 include ${SDK}/make/Make.config
 
-KERN_LIBS = $(LIBDIR)/libkern.a
+KERN_LIBS =
 
 ifeq ($(kernel_version),2_4)
 MODULE = $(LIBDIR)/linux-uk-proxy.o

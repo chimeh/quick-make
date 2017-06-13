@@ -67,6 +67,7 @@
  * If the image is compile with NO_FILEIO or SAL_CONFIG_FILE_DISABLE
  * defined, then the runtime values are not loaded from an external file.
  */
+#define SAL_CONFIG_FILE_DISABLE
 
 #ifdef __KERNEL__
 #include <linux/string.h>
@@ -86,7 +87,6 @@
 #include <sal/appl/config.h>
 #include <sal/appl/io.h>
 #include <sal/appl/sal.h>
-#include <shared/util.h>
 
 #ifdef  NO_FILEIO
 #undef  SAL_CONFIG_FILE_DISABLE

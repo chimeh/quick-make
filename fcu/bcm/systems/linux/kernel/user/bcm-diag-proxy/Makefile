@@ -50,12 +50,7 @@ CFLAGS += -I../../modules/include
 
 BCM_PROXY = $(LIBDIR)/bcm.user.proxy
 
-USER_LIBS = \
-	libsal_appl.a \
-	$(COND_LIB_EDITLINE) \
-	libsal_appl_plat.a \
-	libsal_core.a libsal_core_plat.a \
-	libuser.a
+USER_LIBS = 
 
 USER_LIBS_BLD = $(addprefix $(LIBDIR)/,$(USER_LIBS))
 
@@ -73,14 +68,14 @@ $(BCM_PROXY): $(BLDDIR)/.tree $(BOBJS) $(USER_LIBS_BLD)
 .PHONY: user_libs
 
 user_libs:
-	$(MAKE) -C $(SDK)/src/sal
-	$(MAKE) -C $(SDK)/systems/linux/kernel/user/shared
+#	$(MAKE) -C $(SDK)/src/sal
+#	$(MAKE) -C $(SDK)/systems/linux/kernel/user/shared
 
 include $(SDK)/make/Make.depend
 
 # Make.depend is before clean:: so that Make.depend's clean:: runs first.
 
 clean::
-	$(MAKE) -C $(SDK)/src/sal $@
-	$(MAKE) -C $(SDK)/systems/linux/kernel/user/shared $@
+#	$(MAKE) -C $(SDK)/src/sal $@
+#	$(MAKE) -C $(SDK)/systems/linux/kernel/user/shared $@
 	$(RM) $(BOBJS) $(BCM_PROXY)

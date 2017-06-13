@@ -62,33 +62,7 @@ ifneq (,$(findstring -DBCM_RPC_SUPPORT,$(CFGFLAGS)))
 BCM_LIB += libbcm_rpc.$(libext)
 BCM_LIB += libbcm_compat.$(libext)
 endif
-ifneq (,$(findstring -DBCM_ESW_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_esw.$(libext)
-endif
-ifneq (,$(findstring -DBCM_SHADOW_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_shadow.$(libext)
-endif
-ifneq (,$(findstring -DBCM_ROBO_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_robo.$(libext)
-endif
-ifneq (,$(findstring -DBCM_SBX_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_sbx.$(libext)
-endif
-ifneq (,$(findstring -DBCM_EA_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_ea.$(libext)    
-ifneq (,$(findstring -DBCM_PIONEER_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_eapioneer.$(libext)
-endif
-ifneq (,$(findstring -DBCM_TK371X_SUPPORT,$(CFGFLAGS)))   
-BCM_LIB += libbcm_eatk371x.$(libext)
-endif
-endif
-ifneq (,$(findstring -DBCM_PETRA_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_dpp.$(libext)
-endif
-ifneq (,$(findstring -DBCM_DFE_SUPPORT,$(CFGFLAGS)))
-BCM_LIB += libbcm_dfe.$(libext)
-endif
+
 
 ifdef BCM_5675_A0
 BCM_LIB_HERC = libherc.$(libext)
