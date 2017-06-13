@@ -1,4 +1,5 @@
-# $Id: Makefile 1.18 Broadcom SDK $
+# -*- Makefile -*-
+# $Id: Makefile 1.22 Broadcom SDK $
 # $Copyright: Copyright 2012 Broadcom Corporation.
 # This program is the proprietary software of Broadcom Corporation
 # and/or its licensors, and may only be used, duplicated, modified
@@ -41,20 +42,64 @@
 # WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
 #
-# Makefile for Switch on a Chip (SOC) driver and diagnostics
-#
+LOCALDIR = systems/linux/kernel/modules/bcm-core
 
 include ${SDK}/make/Make.config
 
-export TARGET
-export BLDDIR
-export LIBDIR
+DIAG_LIBS = \
+	${APPL_LIBS} \
+	libkern.a 
 
+BCM_LIBS = $(DIAG_LIBS) $(DRV_LIBS)
+BCM_LIBS_BLD = $(addprefix $(LIBDIR)/,$(BCM_LIBS))
+ifdef BUILD_MACSEC
+BCM_LIBS_BLD += ${CORE_EXT_LIBS}
+else
+BCM_LIBS_BLD += ${EXTERNAL_LIBS}
+endif
 
-subdirs = customer
+ifneq ($(kernel_version),2_6)
+MODULE = $(LIBDIR)/linux-bcm-core.o
+else
+KERNEL_MODULE_DIR = kernel_module
 
+THIS_MOD_NAME := linux-bcm-core
+MODULE = $(LIBDIR)/$(THIS_MOD_NAME).o
+KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
 
-override MAKEFLAGS += TARGET=$(TARGET)
+build: $(MODULE) $(KMODULE)
+endif
 
-include ${SDK}/make/Make.subdirs
+KBUILD_EXTRA_SYMBOLS := ${BLDDIR}/../../../../bde/linux/kernel/kernel_module/Module.symvers
 
+# BCM Core Driver
+
+$(MODULE): $(BLDDIR)/.tree $(BOBJS) $(BCM_LIBS_BLD) $(BLDDIR)/version.o
+	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) --start-group $(BCM_LIBS_BLD) --end-group $(BLDDIR)/version.o -o $@
+ifeq ($(kernel_version),2_6)
+$(KMODULE): $(MODULE)
+	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
+	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
+	cp ${SDK}/make/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
+	cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers
+	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
+endif
+
+# Build version
+
+${BLDDIR}/version.c: ${BLDDIR}/.tree $(BOBJS) $(BCM_LIBS_BLD)
+	${PERL} ${SDK}/tools/version.pl > $@
+${BLDDIR}/version.o: ${BLDDIR}/version.c
+	${CC} ${CFLAGS} -c $< -o $@
+
+include ${SDK}/make/Make.depend
+
+# Make.depend is before clean:: so that Make.depend's clean:: runs first.
+
+clean::
+	$(RM) $(BLDDIR)/version.c $(BLDDIR)/version.o
+	$(RM) $(BOBJS) $(MODULE)
+
+ifeq ($(kernel_version),2_6)
+.PHONY: build
+endif

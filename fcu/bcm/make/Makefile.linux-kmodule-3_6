@@ -1,4 +1,4 @@
-# $Id: Makefile 1.18 Broadcom SDK $
+# $Id: Makefile.linux-kmodule-3_6 1.2 Broadcom SDK $
 # $Copyright: Copyright 2012 Broadcom Corporation.
 # This program is the proprietary software of Broadcom Corporation
 # and/or its licensors, and may only be used, duplicated, modified
@@ -40,21 +40,63 @@
 # THE AMOUNT ACTUALLY PAID FOR THE SOFTWARE ITSELF OR USD 1.00,
 # WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
-#
-# Makefile for Switch on a Chip (SOC) driver and diagnostics
-#
 
-include ${SDK}/make/Make.config
+# Due to the extensive use of driver libraries, the SDK usually builds
+# kernel modules from a precompiled object. To avoid various warnings
+# and conflicts, the pre-compiled object must be named differently
+# from the target module, and the object file itself should be
+# appended with "_shipped".
 
-export TARGET
-export BLDDIR
-export LIBDIR
+# If a module exports any symbols, then the exporting source file must
+# be compiled within the kernel source tree for correct generation of
+# module symbol versions. The symbol source file should be passed to
+# this Makefile via the MODULE_SYM variable.
+
+MODULE := $(MOD_NAME).o
+KMODULE := $(MOD_NAME).ko
+PRE_COMPILED_OBJ := obj_$(MOD_NAME).o
+
+obj-m := $(MODULE)
+$(MOD_NAME)-y := $(MODULE_SYM) $(PRE_COMPILED_OBJ)
 
 
-subdirs = customer
+ifeq (,$(CROSS_COMPILE))
 
+export CROSS_COMPILE
 
-override MAKEFLAGS += TARGET=$(TARGET)
+endif
 
-include ${SDK}/make/Make.subdirs
+SAVE_CFLAGS := ${CFLAGS}
 
+include $(SDK)/make/Make.config
+
+PWD := $(shell pwd)
+
+ifneq ($(ARCH),)
+# ELDK does not seem to `automatically' define ARCH where other gccs may
+A := ARCH=$(ARCH)
+export ARCH
+endif
+
+# Standard SDK include path for building source files that export
+# kernel symbols.
+
+override EXTRA_CFLAGS = -I${SDK}/include -I${SDK}/systems/linux/kernel/modules/include -I${SDK}/systems/bde/linux/include
+
+# The precopiled object needs a dummy command file to avoid warnings
+# from the Kbuild scripts (modpost stage).
+# Kernels before 2.6.17 do not support external module symbols files,
+# so we create a dummy to prevent build failures.
+	
+$(KMODULE):
+	rm -f *.o *.ko .*.cmd
+	rm -fr .tmp_versions
+	ln -s $(LIBDIR)/$(MODULE) $(PRE_COMPILED_OBJ)_shipped
+	echo "suppress warning" > .$(PRE_COMPILED_OBJ).cmd
+	$(MAKE) -C $(KERNDIR) CROSS_COMPILE=$(CROSS_COMPILE) M=$(PWD) modules
+	if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
+	cp -f $(KMODULE) $(LIBDIR)
+	rm -f $(PRE_COMPILED_OBJ)_shipped
+
+EXTRA_CFLAGS = $(CFLAGS)
+CFLAGS := ${SAVE_CFLAGS}

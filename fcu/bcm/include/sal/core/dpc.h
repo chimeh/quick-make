@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: dpc.h 1.3 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,28 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File: 	dpc.h
+ * Purpose: 	Deferred Procedure Call module
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef _SAL_DPC_H
+#define	_SAL_DPC_H
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+#include <sal/core/time.h>
+#include <sal/core/thread.h>
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
+typedef void (*sal_dpc_fn_t)(void *owner, void *, void *, void *, void *);
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+extern int sal_dpc_init(void);
+extern void sal_dpc_term(void);
+extern int sal_dpc_config(int, int);
+
+extern int sal_dpc(sal_dpc_fn_t, void *owner, void *, void *, void *, void *);
+extern int sal_dpc_time(sal_usecs_t usec,
+			sal_dpc_fn_t,
+			void *owner, void *, void *, void *, void *);
+
+extern void sal_dpc_cancel(void *owner);
+
+#endif	/* !_SAL_DPC_H */
+

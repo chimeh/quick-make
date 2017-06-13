@@ -97,8 +97,8 @@ sdk/build/$TARGET.  For example:
 	make drv.o
 
 To compile a driver that only supports specific chips, see instructions
-in $SDK/make/Make.local.template.  Copy Make.local.template to
-Make.local and make the required modifications.  By default, the driver
+in $SDK/make/Make.var.template.  Copy Make.var.template to
+Make.var and make the required modifications.  By default, the driver
 will be built to include code for all supported chips.  You may be able
 to save some code space by customizing in support for only one or two
 chips.

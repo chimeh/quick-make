@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: example.h 1.2 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,13 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
+ * File:	example.h
  * Purpose:     To provide an example on how to add customer-specific APIs 
  *              by placing addtional code in the files in src/customer 
- *              directory
+ *              and include/customer directories
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef __CUSTOMER_EXAMPLE_H__
+#define __CUSTOMER_EXAMPLE_H__
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
-
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
-
-int
-example_bcm(void)
-{
-    return 0;
-}
+#endif /* __CUSTOMER_EXAMPLE_H__ */

@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: generic.h 1.2 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,38 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File:        generic.h
+ * Purpose:     Generic defines, based only on C types.
  */
+
+#ifndef   _SAL_GENERIC_H_
+#define   _SAL_GENERIC_H_
 
 /*
- * Here are the typical include files that might be needed
+ * Create a mask given the width and shift.
+ * The width must be <= 32.
+ * The mask is "in place", that is, is shifted accordingly.
  */
-
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+#define SAL_MASK_MAKE(width, shift)  \
+    ((((1 << (width)) - 1) | (1 << (width - 1))) << (shift))
 
 /*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
+ * Extract a field given the value, mask and shift.
+ * The mask is assumed to be "in place" -- already shifted.
+ * That is, it is from SAL_MASK_MAKE.
  */
-#include <sal/core/libc.h>
+#define SAL_MASK_VAL_GET(val, mask, shift) (((val) & (mask)) >> (shift))
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+/*
+ * Set a field given the current value (val),
+ * field value (fval) mask and shift.
+ * The mask is assumed to be "in place" -- already shifted.
+ * That is, it is from SAL_MASK_MAKE.
+ */
+#define SAL_MASK_VAL_SET(val, fval, mask, shift) \
+        do { \
+            (val) &= (~(mask)); \
+            (val) |= (((fval) << (shift)) & (mask)); \
+        } while (0)
+
+#endif /* _SAL_GENERIC_H_ */

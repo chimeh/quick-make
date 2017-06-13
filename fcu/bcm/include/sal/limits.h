@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: limits.h 1.4 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,18 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File:        limits.h
+ * Purpose:     
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef   _SAL_LIMITS_H_
+#define   _SAL_LIMITS_H_
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+#define SAL_CHAR_BIT    8
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
+#define SAL_UINT32_MAX  0xffffffff
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+#define SAL_INT32_MAX   0x7fffffff
+#define SAL_INT32_MIN   0x80000000
+
+#endif /* _SAL_LIMITS_H_ */

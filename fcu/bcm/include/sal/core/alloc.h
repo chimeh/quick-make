@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: alloc.h 1.8 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,43 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File: 	alloc.h
+ * Purpose: 	Memory allocation
  */
+
+#ifndef _SAL_ALLOC_H
+#define _SAL_ALLOC_H
 
 /*
- * Here are the typical include files that might be needed
+ * SAL Memory and Cache Support
+ *
+ *    NOTE: This driver was developed only on fully cache-coherent
+ *    systems.  Therefore, we are certain to have missed a lot of places
+ *    where we should be calling sal_dma_flush or sal_dma_inval before
+ *    or after DMA operations.
  */
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+extern void	*sal_alloc(unsigned int, char *);
+extern void 	sal_free(void *);
 
 /*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
+ * DMA Memory allocation
+ *
  */
-#include <sal/core/libc.h>
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+extern void	*sal_dma_alloc(unsigned int, char *);
+extern void	sal_dma_free(void *);
+
+extern void     sal_dma_flush(void* addr, int len);
+extern void     sal_dma_inval(void* addr, int len);
+extern void	*sal_dma_vtop(void* addr);
+extern void	*sal_dma_ptov(void* addr);
+
+#ifdef BROADCOM_DEBUG
+#ifdef INCLUDE_BCM_SAL_PROFILE
+extern void
+sal_alloc_resource_usage_get(unsigned int *alloc_curr, unsigned int *alloc_max);
+#endif
+#endif
+
+#endif	/* !_SAL_ALLOC_H */

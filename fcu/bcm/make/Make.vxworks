@@ -264,7 +264,7 @@ endif
 
 
 #
-# Build version generator.  If NO_VERSION=1 is specified in Make.local
+# Build version generator.  If NO_VERSION=1 is specified in Make.var
 # or on command line, then use the existing version.c.  If that doesn't
 # exist, copy the default one from config.
 #

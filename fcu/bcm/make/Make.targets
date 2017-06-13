@@ -1072,7 +1072,7 @@ DIAG_LIBS_BLD=$(addprefix ${LIBDIR}/,${DIAG_LIBS})
 # Conditional Libraries
 #
 #   These libraries are based on which build flags are selected
-#   in Makefile.<target> or Make.local if personalized.
+#   in Makefile.<target> or Make.var if personalized.
 #
 
 ifneq (,$(findstring -DINCLUDE_I2C,$(CFGFLAGS)))

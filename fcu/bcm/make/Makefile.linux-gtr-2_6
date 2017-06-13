@@ -1,4 +1,4 @@
-# $Id: Makefile 1.18 Broadcom SDK $
+# $Id: Makefile.linux-gtr-2_6 1.5 Broadcom SDK $
 # $Copyright: Copyright 2012 Broadcom Corporation.
 # This program is the proprietary software of Broadcom Corporation
 # and/or its licensors, and may only be used, duplicated, modified
@@ -40,21 +40,62 @@
 # THE AMOUNT ACTUALLY PAID FOR THE SOFTWARE ITSELF OR USD 1.00,
 # WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
-#
-# Makefile for Switch on a Chip (SOC) driver and diagnostics
-#
-
-include ${SDK}/make/Make.config
-
-export TARGET
-export BLDDIR
-export LIBDIR
 
 
-subdirs = customer
+
+# Default Linux include directory
+ifeq (,$(LINUX_INCLUDE))
+LINUX_INCLUDE := $(KERNDIR)/include
+endif
+
+CFGFLAGS += -DSYS_BE_PIO=1 -DSYS_BE_PACKET=0 -DSYS_BE_OTHER=1
+ENDIAN = BE_HOST=1
+CFGFLAGS += -D$(ENDIAN) 
+
+# Extra variables.
+EXTRA_CFLAGS = -D"KBUILD_STR(s)=\#s" $(basename_flags) $(modname_flags)
+
+ARCH = x86
+KBUILD_VERBOSE = 1
+
+export ARCH KBUILD_VERBOSE 
+
+# From linux/arch/ppc/Makefile
+comma = ,
+basetarget = $(basename $(notdir $@))
+modname = $(basetarget)
+
+name-fix = $(subst $(comma),_,$(subst -,_,$1))
+basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
+modname_flags  = $(if $(filter 1,$(words $(modname))),\
+                 -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
 
 
-override MAKEFLAGS += TARGET=$(TARGET)
 
-include ${SDK}/make/Make.subdirs
 
+
+ifdef SBX_CHIPS
+CFLAGS += -DBDE_LINUX_NON_INTERRUPTIBLE 
+endif
+
+ifdef DPP_CHIPS
+CFLAGS += -DDUNE_BCM -D__DUNE_GTR_BCM_CPU__ -D__DUNE_LINUX_BCM_CPU_PCIE__ -D__DUNE_LINUX_BCM_CPU_PCP_DMA__
+CFGFLAGS += -DSOC_CM_FUNCTION
+endif
+
+ifdef DFE_CHIPS
+CFLAGS += -DDUNE_BCM -D__DUNE_GTR_BCM_CPU__ -D__DUNE_LINUX_BCM_CPU_PCIE__
+CFGFLAGS += -DSOC_CM_FUNCTION
+endif
+
+ifdef SHADOW_PLX
+CFLAGS += -DBCM_PLX9656_LOCAL_BUS -DBDE_LINUX_NON_INTERRUPTIBLE -DSHADOW_SVK
+endif
+
+ifeq (,$(KFLAGS))
+KFLAGS := -DMODULE
+endif
+
+ifneq ($(targetplat),user)
+include ${SDK}/make/Makefile.linux-kernel-2_6
+endif

@@ -1,4 +1,4 @@
-# $Id: Makefile 1.18 Broadcom SDK $
+# $Id: Makefile.linux-x86-generic-common-2_6 1.2 Broadcom SDK $
 # $Copyright: Copyright 2012 Broadcom Corporation.
 # This program is the proprietary software of Broadcom Corporation
 # and/or its licensors, and may only be used, duplicated, modified
@@ -40,21 +40,36 @@
 # THE AMOUNT ACTUALLY PAID FOR THE SOFTWARE ITSELF OR USD 1.00,
 # WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
-#
-# Makefile for Switch on a Chip (SOC) driver and diagnostics
-#
 
-include ${SDK}/make/Make.config
+# Default kernel source directory
+ifeq (,$(KERNDIR))
+KERNDIR := /lib/modules/$(shell uname -r)/build
+export KERNDIR
+endif
 
-export TARGET
-export BLDDIR
-export LIBDIR
+# Default architecture
+ifeq (,$(ARCH))
+ARCH = $(shell uname -p)
+ifneq (x86_64,$(ARCH))
+ARCH = i386
+endif
+endif
 
+# Noisy kernel build
+KBUILD_VERBOSE = 1
 
-subdirs = customer
+export ARCH KBUILD_VERBOSE KERNDIR
 
+# Default Linux include directory
+ifeq (,$(LINUX_INCLUDE))
+LINUX_INCLUDE := $(KERNDIR)/include
+endif
 
-override MAKEFLAGS += TARGET=$(TARGET)
+# autoconf.h was moved in later kernels
+AUTOCONF = $(KERNDIR)/include/generated/autoconf.h
+ifeq (,$(shell ls $(AUTOCONF) 2>/dev/null))
+AUTOCONF = $(KERNDIR)/include/linux/autoconf.h
+endif
 
-include ${SDK}/make/Make.subdirs
-
+# gcc system include path
+SYSINC = $(shell gcc -print-search-dirs | grep install | cut -c 10-)include

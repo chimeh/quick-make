@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: spl.h 1.4 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,19 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File: 	spl.h
+ * Purpose: 	Interrupt Blocking
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef _SAL_SPL_H
+#define _SAL_SPL_H
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+extern int	sal_spl_init(void);
+extern int	sal_spl(int level);
+extern int	sal_splhi(void);
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
+extern int      sal_int_locked(void);
+extern int      sal_int_context(void);
+extern int      sal_no_sleep(void);
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+#endif	/* !_SAL_SPL_H */

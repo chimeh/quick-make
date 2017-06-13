@@ -1,5 +1,6 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: 761bf82cbb2fb4ad302d45e180a0ec18d9671375 $
+ *
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +43,51 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File:	i2c.h
+ * Purpose: Implementation of I2C bus commands
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef	_SAL_I2C_H
+#define	_SAL_I2C_H
+
+#include <sal/types.h>
 
 /* 
- * Asserts really help making the code more robust and easy to debug
+ * unit     - I2C controller 
+ * slave    - slave address on the I2C bus
+ * addr     - internal address on the slave
+ * addr_len - length of internal address
+ * buf      - buffer to hold the read data
+ * buf_len  - length of data to read
  */
-#include <assert.h>
+extern int
+sal_i2c_read(int unit, uint16 slave, uint32 addr, uint8 addr_len, uint8 *buf, 
+             uint8 buf_len);
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
+/* 
+ * unit     - I2C controller 
+ * slave    - slave address on the I2C bus
+ * addr     - internal address on the slave
+ * addr_len - length of internal address
+ * buf      - buffer to hold the read data
+ * buf_len  - length of data to write
  */
-#include <sal/core/libc.h>
+extern int
+sal_i2c_write(int unit, uint16 slave, uint32 addr, uint8 addr_len, uint8 *buf, 
+              uint8 buf_len);
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+#define SAL_I2C_FAST_ACCESS     (0x1)
+/* 
+ * unit     - I2C controller 
+ * flags    - SAL_I2C_* flags 
+ */
+extern int
+sal_i2c_config_set(int unit, uint32 flags);
+
+/* 
+ * unit     - I2C controller 
+ * flags    - SAL_I2C_* flags 
+ */
+extern int
+sal_i2c_config_get(int unit, uint32 *flags);
+#endif /* _SAL_I2C_H */

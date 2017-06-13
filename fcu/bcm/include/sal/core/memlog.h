@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: memlog.h 1.1 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,54 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File: 	memlog.h
+ * Purpose: 	Supports memlog memory leak tool
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef _SAL_MEMLOG_H
+#define _SAL_MEMLOG_H
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+#if defined(MEMLOG_SUPPORT) && defined(__GNUC__)
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
+#include <stdio.h>
+#include <unistd.h>
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+#define MEM_LOG_BUF_SIZE 512
+
+extern int memlog_fd;
+extern char memlog_buf[MEM_LOG_BUF_SIZE];
+
+#define MEMLOG_ALLOC(func,ptr,size,string) \
+    { \
+        int n; \
+        if (memlog_fd > 0) { \
+            if ((string) != NULL) { \
+                n = snprintf(memlog_buf, MEM_LOG_BUF_SIZE, "%s %p %p %d %s\n", \
+                    (func), __builtin_return_address(0), (ptr), (size), (string)); \
+            } else {\
+                n = snprintf(memlog_buf, MEM_LOG_BUF_SIZE, "%s %p %p %d NULL\n", \
+                    (func), __builtin_return_address(0), (ptr), (size)); \
+            } \
+            write(memlog_fd, memlog_buf, n); \
+            fsync(memlog_fd); \
+        } \
+    }
+
+#define MEMLOG_FREE(func,ptr) \
+    { \
+        int n; \
+        if (memlog_fd > 0) { \
+            n = snprintf(memlog_buf, MEM_LOG_BUF_SIZE, "%s %p\n", (func), (ptr)); \
+            write(memlog_fd, memlog_buf, n); \
+            fsync(memlog_fd); \
+        } \
+    }
+
+#else
+
+#define MEMLOG_ALLOC(func,ptr,size,string)
+#define MEMLOG_FREE(func,ptr)
+
+#endif
+
+#endif	/* !_SAL_MEMLOG_H */

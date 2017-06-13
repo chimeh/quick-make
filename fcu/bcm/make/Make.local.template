@@ -1,4 +1,4 @@
-# $Id: Make.local.template 1.181.6.1 Broadcom SDK $
+# $Id: Make.var.template 1.181.6.1 Broadcom SDK $
 # $Copyright: Copyright 2012 Broadcom Corporation.
 # This program is the proprietary software of Broadcom Corporation
 # and/or its licensors, and may only be used, duplicated, modified
@@ -42,11 +42,11 @@
 # ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
 #
 
-# Usage for Make.local.template and Make.local:
+# Usage for Make.var.template and Make.var:
 #
-# Make.local.template is checked into the tree, but Make.local is never
-# checked in.  Copy Make.local.template to Make.local, then change
-# Make.local to select the desired compilation options (mostly debugging
+# Make.var.template is checked into the tree, but Make.var is never
+# checked in.  Copy Make.var.template to Make.var, then change
+# Make.var to select the desired compilation options (mostly debugging
 # features).
 #
 # Note on CFGFLAGS usage:

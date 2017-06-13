@@ -1,5 +1,5 @@
 /*
- * $Id: example.c 1.2 Broadcom SDK $
+ * $Id: thread.h 1.13 Broadcom SDK $
  * $Copyright: Copyright 2012 Broadcom Corporation.
  * This program is the proprietary software of Broadcom Corporation
  * and/or its licensors, and may only be used, duplicated, modified
@@ -42,29 +42,51 @@
  * WHICHEVER IS GREATER. THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING
  * ANY FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.$
  *
- * File:	example.c
- * Purpose:     To provide an example on how to add customer-specific APIs 
- *              by placing addtional code in the files in src/customer 
- *              directory
+ * File: 	thread.h
+ * Purpose: 	SAL thread definitions
  */
 
-/*
- * Here are the typical include files that might be needed
- */
+#ifndef _SAL_THREAD_H
+#define _SAL_THREAD_H
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <assert.h>
+#include <sdk_config.h>
 
-/*
- * SAL makes it portable across many platforms. For the driver "add-ons" only
- * the Core SAL is needed.
- */
-#include <sal/core/libc.h>
+typedef struct sal_thread_s{
+    char thread_opaque_type;
+} *sal_thread_t;
 
-int
-example_bcm(void)
-{
-    return 0;
-}
+#define SAL_THREAD_ERROR	((sal_thread_t) -1)
+#ifndef SAL_THREAD_STKSZ
+#define	SAL_THREAD_STKSZ	16384	/* Default Stack Size */
+#endif
+
+#define SAL_THREAD_NAME_MAX_LEN     80 
+extern sal_thread_t sal_thread_create(char *, int, int, 
+				  void (f)(void *), void *);
+extern int sal_thread_destroy(sal_thread_t);
+extern sal_thread_t sal_thread_self(void);
+extern char* sal_thread_name(sal_thread_t thread,
+				 char *thread_name, int thread_name_size);
+extern void sal_thread_exit(int);
+extern void sal_thread_yield(void);
+extern void sal_thread_main_set(sal_thread_t thread);
+extern sal_thread_t sal_thread_main_get(void);
+
+
+#define sal_msleep(x)    sal_usleep((x) * 1000)
+extern void sal_sleep(int sec);
+extern void sal_usleep(unsigned int usec);
+extern void sal_udelay(unsigned int usec);
+
+#ifdef BROADCOM_DEBUG
+#ifdef INCLUDE_BCM_SAL_PROFILE
+extern void
+sal_thread_resource_usage_get(
+                unsigned int *sal_thread_count_curr,
+                unsigned int *sal_stack_size_curr,
+                unsigned int *sal_thread_count_max,
+                unsigned int *sal_stack_size_max);
+#endif
+#endif
+
+#endif	/* !_SAL_THREAD_H */
