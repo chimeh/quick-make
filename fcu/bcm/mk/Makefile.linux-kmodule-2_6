@@ -201,7 +201,7 @@ endif
 
 SAVE_CFLAGS := ${CFLAGS}
 
-include $(SDK)/make/Make.config
+include $(SDK)/mk/Make.config
 
 PWD := $(shell pwd)
 

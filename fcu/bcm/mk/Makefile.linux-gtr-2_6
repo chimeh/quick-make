@@ -97,5 +97,5 @@ KFLAGS := -DMODULE
 endif
 
 ifneq ($(targetplat),user)
-include ${SDK}/make/Makefile.linux-kernel-2_6
+include ${SDK}/mk/Makefile.linux-kernel-2_6
 endif

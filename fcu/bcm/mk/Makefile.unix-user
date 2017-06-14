@@ -49,7 +49,7 @@
 # Get cross tools and platform specific settings
 
 ifneq (,$(platform))
-include ${SDK}/make/Makefile.linux-$(platform)
+include ${SDK}/mk/Makefile.linux-$(platform)
 endif
 
 

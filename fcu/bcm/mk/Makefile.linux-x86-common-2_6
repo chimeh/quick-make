@@ -61,5 +61,5 @@ modname_flags  = $(if $(filter 1,$(words $(modname))),\
 ifneq ($(targetplat),user)
 # By default we exclude -Werror from x86 kernel builds
 BCM_CFLAGS   = -Wall
-include ${SDK}/make/Makefile.linux-kernel-2_6
+include ${SDK}/mk/Makefile.linux-kernel-2_6
 endif

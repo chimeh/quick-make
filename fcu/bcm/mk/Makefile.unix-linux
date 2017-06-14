@@ -43,7 +43,7 @@
 #
 # Build rules for Linux/x86 (Little Endian) with PLI support
 
-include ${SDK}/make/Makefile.unix-common
+include ${SDK}/mk/Makefile.unix-common
 
 # When using GDB on Linux, you may want to use "setenv GDB 1" to disable
 # editline.  For best results put "set environment GDB 1" in your .gdbinit.
