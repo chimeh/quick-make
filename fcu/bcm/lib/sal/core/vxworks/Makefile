@@ -4,9 +4,9 @@
 #
 LOCALDIR = src/sal/core/vxworks
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 lib = libsal_core_plat
-include ${SDK}/make/Make.lib
+include ${SDK}/mk/Make.lib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

@@ -1,11 +1,11 @@
 
 #
-LOCALDIR = systems/linux/kernel/modules/shared
+LOCALDIR = app/linuxkern/shared
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 lib = libkern
 
-include ${SDK}/make/Make.kernlib
+include ${SDK}/mk/Make.kernlib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

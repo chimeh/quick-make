@@ -46,4 +46,4 @@ ADD_TO_CFLAGS += -DLINUX_SAL_SEM_OVERRIDE
 
 export ADD_TO_CFLAGS
 
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux

@@ -1,8 +1,8 @@
 
 #
-LOCALDIR = systems/linux/kernel/modules/bcm-core
+LOCALDIR = app/linuxkern/bcm-core
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 DIAG_LIBS = \
 	${APPL_LIBS} \
@@ -38,7 +38,7 @@ ifeq ($(kernel_version),2_6)
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
-	cp ${SDK}/make/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
+	cp ${SDK}/mk/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
 	cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers
 	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
 endif
@@ -50,7 +50,7 @@ ${BLDDIR}/version.c: ${BLDDIR}/.tree $(BOBJS) $(BCM_LIBS_BLD)
 ${BLDDIR}/version.o: ${BLDDIR}/version.c
 	${CC} ${CFLAGS} -c $< -o $@
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend
 
 # Make.depend is before clean:: so that Make.depend's clean:: runs first.
 

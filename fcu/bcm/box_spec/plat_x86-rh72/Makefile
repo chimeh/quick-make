@@ -36,5 +36,5 @@ export SDK
 override kernel_version=2_4
 platform=x86-rh72
 
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

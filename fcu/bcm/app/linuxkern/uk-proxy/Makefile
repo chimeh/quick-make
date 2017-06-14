@@ -1,8 +1,8 @@
 
 #
-LOCALDIR = systems/linux/kernel/modules/uk-proxy
+LOCALDIR = app/linuxkern/uk-proxy
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 KERN_LIBS =
 
@@ -24,11 +24,11 @@ ifneq ($(kernel_version),2_4)
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
-	cp ${SDK}/make/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
+	cp ${SDK}/mk/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
 	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
 endif
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend
 
 # Make.depend is before clean:: so that Make.depend's clean:: runs first.
 

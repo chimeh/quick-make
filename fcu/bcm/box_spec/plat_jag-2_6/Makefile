@@ -57,5 +57,5 @@ export BUILD_PLATFORM
 export WRS_LINUX_VERSION
 
 
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

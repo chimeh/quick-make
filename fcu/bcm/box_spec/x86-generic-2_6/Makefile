@@ -24,4 +24,4 @@ override kernel_version=2_6
 platform=x86-generic-$(kernel_version)
 
 LINUX_MAKE_USER=1
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux

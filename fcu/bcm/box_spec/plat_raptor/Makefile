@@ -34,5 +34,5 @@ endif
 export SDK
 
 platform=raptor
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

@@ -36,5 +36,5 @@ export SDK
 
 platform=gtr-${kernel_version}
 LDFLAGS = ""
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

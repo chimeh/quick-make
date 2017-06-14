@@ -5,18 +5,18 @@
 
 LOCALDIR = src/sal/appl
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 subdirs=${targetbase} editline
 
-include ${SDK}/make/Make.subdirs
+include ${SDK}/mk/Make.subdirs
 
 
 lib = libsal_appl
 
-include ${SDK}/make/Make.lib
+include ${SDK}/mk/Make.lib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend
 
 
 

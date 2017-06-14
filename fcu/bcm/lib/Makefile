@@ -3,7 +3,7 @@
 # Makefile for Switch on a Chip (SOC) driver and diagnostics
 #
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 export TARGET
 export BLDDIR
@@ -15,5 +15,5 @@ subdirs = customer sal
 
 override MAKEFLAGS += TARGET=$(TARGET)
 
-include ${SDK}/make/Make.subdirs
+include ${SDK}/mk/Make.subdirs
 

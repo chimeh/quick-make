@@ -1,8 +1,8 @@
 
 #
-LOCALDIR = systems/linux/kernel/modules/bcm-robo-knet
+LOCALDIR = app/linuxkern/bcm-robo-knet
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 LIBS = $(LIBDIR)/libkern.a
 
@@ -29,14 +29,14 @@ ifneq ($(kernel_version),2_4)
 $(KMODULE): $(MODULE)
 	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
 	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
-	cp ${SDK}/make/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
+	cp ${SDK}/mk/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
 	cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/$(KERNEL_MODULE_DIR)/Module.symvers
 	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
 endif
 
 # Make.depend is before clean:: so that Make.depend's clean:: runs first.
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend
 
 clean::
 	$(RM) $(BLDDIR)/version.c $(BLDDIR)/version.o

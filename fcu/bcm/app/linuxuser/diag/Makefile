@@ -34,7 +34,7 @@ $(error Internal error: platform variable is not set)
 endif
 
 include $(SDK)/make/Make.config
-LOCALDIR=systems/linux/user/common
+LOCALDIR=app/linuxuser/common
 include $(SDK)/make/Make.depend
 kernel-override=linux-$(platform)
 ifdef BLDCONFIG
@@ -119,7 +119,7 @@ KERNEL_TARGETS += $(BCM_KNET)
 LOCAL_KERNEL_TARGETS += $(patsubst %,$(realpath ..)/$(platform)/%,$(BCM_KNET_LOCAL))
 endif
 
-ADD_TO_CFLAGS += -I$(SDK)/systems/linux/kernel/modules/include
+ADD_TO_CFLAGS += -I$(SDK)/app/linuxkern/include
 COND_KNET_LIBS = libuser.$(libext)
 
 endif # BUILD_KNET

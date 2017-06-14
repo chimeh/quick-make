@@ -1,10 +1,10 @@
 
 #
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 subdirs=  bcm-diag-proxy
 
-include ${SDK}/make/Make.subdirs
+include ${SDK}/mk/Make.subdirs
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

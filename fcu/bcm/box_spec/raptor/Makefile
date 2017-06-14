@@ -36,5 +36,5 @@ export SDK
 platform=raptor
 LINUX_MAKE_USER=1
 CFGFLAGS += -DBCM_ICS
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

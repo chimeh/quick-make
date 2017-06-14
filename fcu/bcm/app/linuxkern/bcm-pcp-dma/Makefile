@@ -3,7 +3,7 @@
 # make -f Makefile -C $(PATH_TO_KERNEL) M=$(CURR_DIR) CROSS_COMPILE=$(CROSS_COMPILER) $(EXTRA_FLAGS) V=1 
 
 
-# /tools/oss/packages/x86_64-rhel5/make/default/bin/make -C /projects/ntsw-sw/linux/wrslinux_2.0/gto/glibc_std/build/linux-2.6.21-standard CROSS_COMPILE=powerpc-wrs-linux-gnu-ppc_e500v2-glibc_std- M=/projects/NTSW_SW_USRS/eliad/cvs/sdk/systems/linux/kernel/modules/bcm-pcp-net modules
+# /tools/oss/packages/x86_64-rhel5/make/default/bin/make -C /projects/ntsw-sw/linux/wrslinux_2.0/gto/glibc_std/build/linux-2.6.21-standard CROSS_COMPILE=powerpc-wrs-linux-gnu-ppc_e500v2-glibc_std- M=/projects/NTSW_SW_USRS/eliad/cvs/sdk/app/linuxkern/bcm-pcp-net modules
 
 
 CURR_DIR= $(shell pwd)

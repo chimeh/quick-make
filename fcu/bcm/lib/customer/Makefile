@@ -2,10 +2,10 @@
 #
 LOCALDIR = src/customer
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 lib = libcustomer
 
-include ${SDK}/make/Make.lib
+include ${SDK}/mk/Make.lib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

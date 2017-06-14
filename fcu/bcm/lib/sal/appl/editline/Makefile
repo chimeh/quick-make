@@ -4,7 +4,7 @@
 #
 LOCALDIR = src/sal/appl/editline
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 CFLAGS += -DANSI_ARROWS -DUNIQUE_HISTORY -DHIST_SIZE=64
 
@@ -21,6 +21,6 @@ CFLAGS += -DHAVE_STDLIB
 endif
 
 lib = libsal_appl_editline
-include ${SDK}/make/Make.lib
+include ${SDK}/mk/Make.lib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

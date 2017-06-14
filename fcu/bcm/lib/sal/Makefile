@@ -4,7 +4,7 @@
 #
 LOCALDIR = src/sal
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 ifdef SAL_CORE_OVERRIDE
 subdirs=${SAL_CORE_OVERRIDE}
@@ -17,6 +17,6 @@ ifndef NO_SAL_APPL
 subdirs += appl
 endif
 
-include ${SDK}/make/Make.subdirs
+include ${SDK}/mk/Make.subdirs
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend

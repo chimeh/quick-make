@@ -35,5 +35,5 @@ export SDK
 
 platform=nsx64
 LDFLAGS = -m elf64btsmip
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

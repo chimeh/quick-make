@@ -40,5 +40,5 @@ platform=bmw-$(kernel_version)
 #WRS_LINUX_VERSION=1.4
 #WRS_LINUX_VERSION=2.0
 
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 

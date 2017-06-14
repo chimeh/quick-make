@@ -36,7 +36,7 @@ export SDK
 override kernel_version=2_6
 platform=metrocore-$(kernel_version)
 LINUX_MAKE_USER=1
-include ${SDK}/make/Make.linux
+include ${SDK}/mk/Make.linux
 
 #$(SDK)/build/linux-$(platform)/$(platform)/linux-kernel-bde.ko:
-#$(MAKE) -C $(SDK)/systems/linux/user/common kernel_modules
+#$(MAKE) -C $(SDK)/app/linuxuser/common kernel_modules

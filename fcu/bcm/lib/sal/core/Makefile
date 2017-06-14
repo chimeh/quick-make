@@ -4,12 +4,12 @@
 #
 LOCALDIR = src/sal/core
 
-include ${SDK}/make/Make.config
+include ${SDK}/mk/Make.config
 
 subdirs=${targetbase}
-include ${SDK}/make/Make.subdirs
+include ${SDK}/mk/Make.subdirs
 
 lib = libsal_core
-include ${SDK}/make/Make.kernlib
+include ${SDK}/mk/Make.kernlib
 
-include ${SDK}/make/Make.depend
+include ${SDK}/mk/Make.depend
