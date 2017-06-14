@@ -5,5 +5,16 @@
 ├── Makefile     
 ├── RELEASE     -->VERSION
 ├── src         -->lib
-└── systems     -->schemas
+└── systems     -->apps
 └── scripts     -->scripts
+                -->boxspecs
+
+
+
+os-boxspec
+os    : {linuxkern|linuxuser|linuxsim|vxworks}
+
+boxspec: {appspec程序规格是一个编译信息集合，描述最终需要输出哪些apps，及这些apps依赖的libs，
+        以及加工这些libs时，链接这些app的工具链}
+
+
