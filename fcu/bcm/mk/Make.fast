@@ -134,8 +134,8 @@ BUILD=gto-2_6
 BUILD=BUILD_not_set
 
 build:
-	$(BSUB) $(BUILD_ENV) make -C systems/linux/user/$(BUILD) FAST=$(FAST)
+	$(BSUB) $(BUILD_ENV) make -C app/linuxuser/$(BUILD) FAST=$(FAST)
 
 clean-build:
-	$(BUILD_ENV) make -C systems/linux/user/$(BUILD) clean
+	$(BUILD_ENV) make -C app/linuxuser/$(BUILD) clean
 

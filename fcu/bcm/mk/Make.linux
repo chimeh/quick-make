@@ -33,7 +33,7 @@ endif
 
 ifndef LINUX_MAKE_DIR
 ifdef LINUX_MAKE_USER
-LINUX_MAKE_DIR := $(SDK)/systems/linux/user/common
+LINUX_MAKE_DIR := $(SDK)/app/linuxuser/common
 else
 LINUX_MAKE_DIR := $(SDK)/systems/linux/kernel/common
 endif
