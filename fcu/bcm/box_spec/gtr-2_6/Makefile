@@ -42,29 +42,85 @@ export LINKER_RELAX=1
 XMC ?= /projects/ntsw-tools/toolchains/xlp316/sdk-base
 TOOLS_DIR = $(XMC)/toolchains_bin/mipscross/linux/bin
 
-# Select the build environment
-#BUILD_PLATFORM=ELDK
-#BUILD_PLATFORM=WR_LINUX
 
-#Select the LINUX KERNEL VERSION
-#KERN_VER = 2.6.21.7
-#KERN_VER = 2.6.24.4
-#KERN_VER = 2.6.25
+# 
+# Common make targets for Linux user and kernel builds included by top
+# level Linux makefiles
+#
+# Variables referenced:
+#
+# LINUX_MAKE_FLAGS
+#   Additional flags passed to Make
+#
+# LINUX_MAKE_USER
+#   Defined: user build
+#   Undefined: kernel build
+#
+# LINUX_MAKE_DIR
+#   Common makefile location, if it is not ../common
+#
+#
+
+export DEST_DIR_SUFFIX :=$(subst $(realpath $(SDK))/app,,$(realpath $(CURDIR)/$(dir ($(firstword $(MAKEFILE_LIST))))))
+
+ifeq (,$(kernel_version))
+kernel_version=2_4
+endif
+
+ifndef LINUX_MAKE_SHARED_LIB
+LINUX_MAKE_SHARED_LIB=0
+endif
+
+ifeq (,$(SHAREDLIBVER))
+SHAREDLIBVER=1
+endif
+
+ifndef LINUX_MAKE_DIR
+ifdef LINUX_MAKE_USER
+LINUX_MAKE_DIR := $(SDK)/app/linuxuser/common
+else
+LINUX_MAKE_DIR := $(SDK)/app/linuxkern/common
+endif
+endif
+
+ifdef LINUX_MAKE_USER
+  CMD = $(LINUX_MAKE_FLAGS) -C $(LINUX_MAKE_DIR) \
+        platform=$(platform) bldroot_suffix=/$(platform) kernel_version=$(kernel_version) \
+        LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB) SHAREDLIBVER=$(SHAREDLIBVER)
+else
+  export LINUX_MAKE_KERNEL := 1
+  CMD = $(LINUX_MAKE_FLAGS) -C $(LINUX_MAKE_DIR) \
+        platform=$(platform) kernel_version=$(kernel_version)
+endif
+
+ifneq (,$(MIPS_TOOLS_DIR))
+  CMD += MIPS_TOOLS_DIR=$(MIPS_TOOLS_DIR)
+endif
+
+ifneq (,$(MIPS_CROSS_COMPILE))
+  CMD += MIPS_CROSS_COMPILE=$(MIPS_CROSS_COMPILE)
+endif
+
+ifneq (,$(LINUX_INCLUDE))
+  CMD += LINUX_INCLUDE=$(LINUX_INCLUDE)
+endif
+
+DEBUG_MAKEFILE_TARGET := debug_makefile_allvalue_notexpand
+DEBUG_MAKEFILE_TARGET += debug_makefile_allvalue_expand
+DEBUG_MAKEFILE_TARGET += debug_makefile_varlist
+DEBUG_MAKEFILE_TARGET += debug_makefile_onevar
+# gmake does not understand $(CMD) to be a submake
+# options are to +$(CMD) or $(MAKE) $(CMD)
+# trying the latter
+build:
+	$(MAKE) $(CMD)
+
+DELIVER clean C_COMPILER CXX_COMPILER variable mod bcm user $(DEBUG_MAKEFILE_TARGET):
+	$(MAKE) $(CMD) $@
+
+distclean clean_d: clean
+
+.PHONY: build clean distclean clean_d DELIVER variable mod bcm user $(DEBUG_MAKEFILE_TARGET)
 
 
-# Select the ELDK version
-#ELDK_VERSION=4.1
-#ELDK_VERSION=4.0
-
-#Select WRS Linux version
-#WRS_LINUX_VERSION=2.0
-#WRS_LINUX_VERSION=3.0
-
-
-export KERN_VER
-export ELDK_VERSION
-export BUILD_PLATFORM
-export WRS_LINUX_VERSION
-
-include ${SDK}/mk/Make.linux
 

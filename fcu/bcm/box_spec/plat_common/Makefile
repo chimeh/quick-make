@@ -27,7 +27,7 @@ $(error Makefile: error: Internal error: platform variable is not set)
 else
 
 override-target=linux-$(platform)
-include $(SDK)/make/Make.config
+include $(SDK)}/mk/Make.config
 endif
 
 ifeq (,$(kernel_version))

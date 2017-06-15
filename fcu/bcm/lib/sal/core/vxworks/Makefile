@@ -2,7 +2,7 @@
 #
 # Makefile for SOC SAL support (VxWorks)
 #
-LOCALDIR = src/sal/core/vxworks
+LOCALDIR = lib/sal/core/vxworks
 
 include ${SDK}/mk/Make.config
 

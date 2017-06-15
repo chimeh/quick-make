@@ -33,9 +33,9 @@ ifeq (,$(platform))
 $(error Internal error: platform variable is not set)
 endif
 
-include $(SDK)/make/Make.config
+include $(SDK)/mk/Make.config
 LOCALDIR=app/linuxuser/common
-include $(SDK)/make/Make.depend
+include $(SDK)/mk/Make.depend
 kernel-override=linux-$(platform)
 ifdef BLDCONFIG
 KERN_BLDROOT=${SDK}/${SDKBUILD}/${BLDCONFIG}/$(kernel-override)${all_suffix}$(bldroot_suffix)

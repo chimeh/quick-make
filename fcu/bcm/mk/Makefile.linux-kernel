@@ -47,8 +47,7 @@ endif
 #			 this Makefile, to define local "Extra" flags.
 #
 
-CFGFLAGS += -I$(SDK)/app/linuxkerninclude \
-	    -I$(SDK)/systems/bde/linux/include \
+CFGFLAGS += -I$(SDK)/app/linuxkern/include \
 	    -I$(LINUX_INCLUDE)
 
 CFGFLAGS += -DNO_FILEIO -DNO_CTRL_C -DNO_MEMTUNE

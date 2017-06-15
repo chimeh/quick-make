@@ -2,7 +2,7 @@
 #
 # Makefile for SOC SAL support
 #
-LOCALDIR = src/sal/core
+LOCALDIR = lib/sal/core
 
 include ${SDK}/mk/Make.config
 

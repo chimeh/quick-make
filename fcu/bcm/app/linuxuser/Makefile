@@ -3,12 +3,12 @@
 # Makefile for StrataXGS SDK and diagnostics
 #
 
-include $(SDK)/make/Make.config
+include $(SDK)/mk/Make.config
 
 ifeq ($(HOSTTYPE),i386-linux)
 subdirs= xxx diag 
 endif
 
-include $(SDK)/make/Make.subdirs
+include $(SDK)/mk/Make.subdirs
 
-include $(SDK)/make/Make.depend
+include $(SDK)/mk/Make.depend

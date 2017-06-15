@@ -4,11 +4,9 @@ LOCALDIR = app/linuxkern/bcm-core
 
 include ${SDK}/mk/Make.config
 
-DIAG_LIBS = \
-	${APPL_LIBS} \
-	libkern.a 
 
-BCM_LIBS = 
+
+BCM_LIBS = libsal_core_plat.a libsal_core.a libsal_appl.a 
 BCM_LIBS_BLD = $(addprefix $(LIBDIR)/,$(BCM_LIBS))
 
 
@@ -23,8 +21,6 @@ KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
 
 build: $(MODULE) $(KMODULE)
 endif
-
-KBUILD_EXTRA_SYMBOLS := ${BLDDIR}/../../../../bde/linux/kernel/kernel_module/Module.symvers
 
 # BCM Core Driver
 

@@ -2,7 +2,7 @@
 #
 # Makefile for SOC SAL support (VxWorks/Tornado)
 #
-LOCALDIR = src/sal/core/unix
+LOCALDIR = lib/sal/core/unix
 
 include ${SDK}/mk/Make.config
 

@@ -17,7 +17,7 @@
 #
 #
 
-export DEST_DIR_SUFFIX :=$(subst $(realpath $(SDK))/systems,,$(realpath $(CURDIR)/$(dir ($(firstword $(MAKEFILE_LIST))))))
+export DEST_DIR_SUFFIX :=$(subst $(realpath $(SDK))/app,,$(realpath $(CURDIR)/$(dir ($(firstword $(MAKEFILE_LIST))))))
 
 ifeq (,$(kernel_version))
 kernel_version=2_4
@@ -35,7 +35,7 @@ ifndef LINUX_MAKE_DIR
 ifdef LINUX_MAKE_USER
 LINUX_MAKE_DIR := $(SDK)/app/linuxuser/common
 else
-LINUX_MAKE_DIR := $(SDK)/systems/linux/kernel/common
+LINUX_MAKE_DIR := $(SDK)/app/linuxkern/common
 endif
 endif
 

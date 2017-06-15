@@ -943,7 +943,6 @@ DRV_LIBS_BLD += ${EXTERNAL_LIBS}
 
 ifdef ESW_CHIPS
 ESW_DIAG_LIBS = \
-        libplibde.$(libext) \
         libdiag_esw.$(libext)
 endif
 
@@ -996,8 +995,7 @@ DIAG_LIBS = \
 	${COND_LIB_TEST} \
 	${COND_LIB_TCL} ${COND_LIB_EAV_APPL} \
         $(COND_LIB_SAL_APPL) \
-        $(COND_LIB_SAL_APPL_PLATFORM) \
-	libplibde.$(libext)
+        $(COND_LIB_SAL_APPL_PLATFORM)
 
 DIAG_LIBS_BLD=$(addprefix ${LIBDIR}/,${DIAG_LIBS})
 
@@ -1052,7 +1050,7 @@ endif
 ifneq (,$(findstring -DINCLUDE_CES,$(CFGFLAGS)))
 COND_LIB_CES=libsoc_nemo.$(libext) libsoc_clsbuilder.$(libext) libsoc_sal.$(libext)
 CFGFLAGS += -DBCM_CES_SDK -DAG_GCC -DAG_STAM -DAG_PC_PROG
-CFLAGS += -I${SDK}/include/soc/ces/nemo_driver -I${SDK}/include/soc/ces/include_bcm -I${SDK}/include/soc/ces/include_int -I${SDK}/include/soc/ces/include_ext -I${SDK}/include/soc/ces/clsbuilder
+CFLAGS += -I${SDK}/header/soc/ces/nemo_driver -I${SDK}/header/soc/ces/include_bcm -I${SDK}/header/soc/ces/include_int -I${SDK}/header/soc/ces/include_ext -I${SDK}/header/soc/ces/clsbuilder
 endif
 
 ifneq (,$(findstring -DINCLUDE_TCL,$(CFGFLAGS)))

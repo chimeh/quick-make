@@ -16,7 +16,7 @@
     #include <linux/errno.h>
 //    #include <asm/system.h>
     #include <asm/uaccess.h>
-     
+    #include <sal/core/time.h> 
     #define DEVICE_NAME "simpdev"
     #define BUFFER_SIZE 1024
      
@@ -57,11 +57,13 @@ static	char buff_my[100];
      
     int device_init() {
         int ret;
+        sal_time_t t;
         ret = register_chrdev(device_major, DEVICE_NAME, &fops);
         if(ret < 0) {
             printk(KERN_ALERT "chardev: cannot obtain major number %d.\n", device_major);
             return ret;
         }
+        t = sal_time();
        // memset(device_buffer, 0, BUFFER_SIZE);
        // printk(KERN_INFO "chardev: chrdev loaded.\n");
         return 0;

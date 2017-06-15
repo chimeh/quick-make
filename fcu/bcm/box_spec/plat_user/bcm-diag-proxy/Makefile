@@ -2,7 +2,7 @@
 #
 LOCALDIR = systems/linux/kernel/user/bcm-diag-proxy
 
-include $(SDK)/make/Make.config
+include $(SDK)}/mk/Make.config
 
 CFLAGS += -I../../modules/include
 
@@ -29,7 +29,7 @@ user_libs:
 #	$(MAKE) -C $(SDK)/src/sal
 #	$(MAKE) -C $(SDK)/systems/linux/kernel/user/shared
 
-include $(SDK)/make/Make.depend
+include $(SDK)}/mk/Make.depend
 
 # Make.depend is before clean:: so that Make.depend's clean:: runs first.
 

@@ -2,7 +2,7 @@
 #
 # Makefile for SOC SAL support (Linux Kernel)
 #
-LOCALDIR = src/sal/core/linux
+LOCALDIR = lib/sal/core/linux
 
 include ${SDK}/mk/Make.config
 
