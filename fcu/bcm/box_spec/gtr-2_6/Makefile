@@ -39,8 +39,6 @@ platform=gtr-2_6
 LINUX_MAKE_USER=1
 export LINKER_RELAX=1
 
-XMC ?= /projects/ntsw-tools/toolchains/xlp316/sdk-base
-TOOLS_DIR = $(XMC)/toolchains_bin/mipscross/linux/bin
 
 
 # 
@@ -115,12 +113,11 @@ DEBUG_MAKEFILE_TARGET += debug_makefile_onevar
 build:
 	$(MAKE) $(CMD)
 
-DELIVER clean C_COMPILER CXX_COMPILER variable mod bcm user $(DEBUG_MAKEFILE_TARGET):
+DELIVER clean C_COMPILER CXX_COMPILER variable mod DBG_MKEP DBG_MKNEP bcm user $(DEBUG_MAKEFILE_TARGET):
 	$(MAKE) $(CMD) $@
 
 distclean clean_d: clean
 
-.PHONY: build clean distclean clean_d DELIVER variable mod bcm user $(DEBUG_MAKEFILE_TARGET)
-
+.PHONY: build clean distclean clean_d DELIVER DBG_MKEP DBG_MKNEP variable mod bcm user $(DEBUG_MAKEFILE_TARGET)
 
 

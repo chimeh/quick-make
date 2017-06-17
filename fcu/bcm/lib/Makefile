@@ -11,9 +11,12 @@ export LIBDIR
 
 
 subdirs = customer sal
-
+ifeq (unix,$(findstring unix,${targetbase}))
+subdirs += halu
+endif
 
 override MAKEFLAGS += TARGET=$(TARGET)
 
 include ${SDK}/mk/Make.subdirs
+
 
