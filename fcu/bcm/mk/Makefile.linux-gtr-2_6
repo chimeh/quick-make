@@ -60,5 +60,5 @@ KFLAGS := -DMODULE -march=xlp -mabi=64 -DABI_64 -msym32 -fno-pic -G 0 -mno-abica
 endif
 
 ifneq ($(targetplat),user)
-include ${SDK}/make/Makefile.linux-kernel-2_6
+include ${SDK}/mk/Makefile.linux-kernel-2_6
 endif

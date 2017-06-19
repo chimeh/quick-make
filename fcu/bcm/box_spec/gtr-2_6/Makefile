@@ -1,22 +1,9 @@
-
-
 #
-# This make job requires the following environment variables to be set:
-#
-# SDK                - path to StrataXGS SDK root directory
-#
-# Optionally the following environment variables can be set to
-# override the default build server configuration:
-#
-# PPC_TOOLS_DIR      - path to build tools (if not in PATH already)
-# PPC_CROSS_COMPILE  - cross compile tools prefix
-# LINUX_INCLUDE      - path to Linux kernel include directory
-#
-
-SDK :=$(shell if [ -n "$$SDK" ] ; then\
+CUR_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+TRYSDK := $(shell if [ -n "$$SDK" ] ; then\
 	echo $$SDK;\
 	else\
-	cd $(dir $(lastword $(MAKEFILE_LIST))); while /usr/bin/test ! -e RELEASE ; do \
+	cd $(CUR_DIR); while /usr/bin/test ! -e RELEASE ; do \
 	dir=`cd ../;pwd`;			\
 	if [ "$$dir" = "/" ] ; then		\
 	   echo Cannot find SDK in $(lastword $(MAKEFILE_LIST)) 1>&2;		\
@@ -26,18 +13,13 @@ SDK :=$(shell if [ -n "$$SDK" ] ; then\
 	done ;					\
 	pwd;					\
 	fi)
-
+SDK := ${TRYSDK}
+$(warning  "SDK=${SDK}")
 ifeq ($(SDK),)					
 $(error Please run this in a tree)		
-endif 				
+endif
 
 export SDK
-
-
-override kernel_version=2_6
-platform=gtr-2_6
-LINUX_MAKE_USER=1
-export LINKER_RELAX=1
 
 
 
@@ -61,47 +43,30 @@ export LINKER_RELAX=1
 
 export DEST_DIR_SUFFIX :=$(subst $(realpath $(SDK))/app,,$(realpath $(CURDIR)/$(dir ($(firstword $(MAKEFILE_LIST))))))
 
-ifeq (,$(kernel_version))
-kernel_version=2_4
-endif
-
-ifndef LINUX_MAKE_SHARED_LIB
+LINUX_MAKE_FLAGS :=
+LINUX_MAKE_DIR := $(SDK)/app/linuxkern/bcm-core/
+platform=gtr-2_6
+bldroot_suffix := xx
+override kernel_version=2_6
 LINUX_MAKE_SHARED_LIB=0
-endif
-
-ifeq (,$(SHAREDLIBVER))
 SHAREDLIBVER=1
-endif
+LINUX_INCLUDE := /home/jimmy/inspur-sw-yh/trunk/mcb-f9-sdk/linux/include
+KERNDIR :=/home/jimmy/inspur-sw-yh/trunk/mcb-f9-sdk/linux 
+CROSS_COMPILE := mips64-nlm-linux-
 
-ifndef LINUX_MAKE_DIR
-ifdef LINUX_MAKE_USER
-LINUX_MAKE_DIR := $(SDK)/app/linuxuser/common
-else
-LINUX_MAKE_DIR := $(SDK)/app/linuxkern/common
-endif
-endif
 
-ifdef LINUX_MAKE_USER
-  CMD = $(LINUX_MAKE_FLAGS) -C $(LINUX_MAKE_DIR) \
-        platform=$(platform) bldroot_suffix=/$(platform) kernel_version=$(kernel_version) \
-        LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB) SHAREDLIBVER=$(SHAREDLIBVER)
-else
-  export LINUX_MAKE_KERNEL := 1
-  CMD = $(LINUX_MAKE_FLAGS) -C $(LINUX_MAKE_DIR) \
-        platform=$(platform) kernel_version=$(kernel_version)
-endif
 
-ifneq (,$(MIPS_TOOLS_DIR))
-  CMD += MIPS_TOOLS_DIR=$(MIPS_TOOLS_DIR)
-endif
+CMD = $(LINUX_MAKE_FLAGS) \
+        platform=$(platform) \
+        bldroot_suffix=$(bldroot_suffix) \
+        kernel_version=$(kernel_version) \
+        LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB) \
+        SHAREDLIBVER=$(SHAREDLIBVER) \
+        LINUX_INCLUDE=$(LINUX_INCLUDE) \
+        KERNDIR=$(KERNDIR) \
+        CROSS_COMPILE=$(CROSS_COMPILE)
 
-ifneq (,$(MIPS_CROSS_COMPILE))
-  CMD += MIPS_CROSS_COMPILE=$(MIPS_CROSS_COMPILE)
-endif
 
-ifneq (,$(LINUX_INCLUDE))
-  CMD += LINUX_INCLUDE=$(LINUX_INCLUDE)
-endif
 
 DEBUG_MAKEFILE_TARGET := debug_makefile_allvalue_notexpand
 DEBUG_MAKEFILE_TARGET += debug_makefile_allvalue_expand
@@ -111,13 +76,13 @@ DEBUG_MAKEFILE_TARGET += debug_makefile_onevar
 # options are to +$(CMD) or $(MAKE) $(CMD)
 # trying the latter
 build:
-	$(MAKE) $(CMD)
-
-DELIVER clean C_COMPILER CXX_COMPILER variable mod DBG_MKEP DBG_MKNEP bcm user $(DEBUG_MAKEFILE_TARGET):
-	$(MAKE) $(CMD) $@
+	$(MAKE) $(CMD) override-target=unix-user -C $(SDK)/app/linuxuser/diag
+DELIVER clean C_COMPILER CXX_COMPILER  mod  user $(DEBUG_MAKEFILE_TARGET) DBG_MKEP DBG_MKNEP:
+	$(MAKE) $(CMD) -C $(SDK)/lib $@
 
 distclean clean_d: clean
 
-.PHONY: build clean distclean clean_d DELIVER DBG_MKEP DBG_MKNEP variable mod bcm user $(DEBUG_MAKEFILE_TARGET)
+.PHONY: build clean distclean clean_d DELIVER DBG_MKEP DBG_MKNEP  mod  user $(DEBUG_MAKEFILE_TARGET)
+
 
 

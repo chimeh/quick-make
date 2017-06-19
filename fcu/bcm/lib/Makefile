@@ -12,7 +12,7 @@ export LIBDIR
 
 subdirs = customer sal
 ifeq (unix,$(findstring unix,${targetbase}))
-subdirs += halu
+subdirs += unixlib
 endif
 
 override MAKEFLAGS += TARGET=$(TARGET)
