@@ -11,7 +11,7 @@ ifeq ($(FAST),1)
   ifneq ($(strip $(BOBJS)),)
     BOBJS_FAST =
     BOBJS_ARGS = -j9
-    BOBJS_MAKE_CMD = pwd && make LSRUN=$(SDK)/tools/lsrun.pl $(BOBJS_ARGS) ${BOBJS}
+    BOBJS_MAKE_CMD = pwd && make LSRUN=$(SDK)/script/lsrun.pl $(BOBJS_ARGS) ${BOBJS}
   endif
 endif
 

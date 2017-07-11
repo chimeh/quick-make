@@ -37,7 +37,7 @@ endif
 # Build version
 
 ${BLDDIR}/version.c: ${BLDDIR}/.tree $(BOBJS) $(BCM_LIBS_BLD)
-	${PERL} ${SDK}/tools/version.pl > $@
+	${PERL} ${SDK}/script/version.pl > $@
 ${BLDDIR}/version.o: ${BLDDIR}/version.c
 	${CC} ${CFLAGS} -c $< -o $@
 

@@ -242,7 +242,7 @@ endif
 #ifndef NO_SAL_APPL
 #PLATFORM_DEFINES_OBJ=${BLDDIR}/platform_defines.o
 #${BLDDIR}/platform_defines.c: ${SDK}/rc/config.bcm
-#	$(PERL) ${SDK}/tools/bcm2c_linux.pl ${SDK}/rc/config.bcm >$@
+#	$(PERL) ${SDK}/script/bcm2c_linux.pl ${SDK}/rc/config.bcm >$@
 #${BLDDIR}/platform_defines.o: ${BLDDIR}/platform_defines.c
 #	${CC} ${CFLAGS} -c $< -o $@
 #else
@@ -292,7 +292,7 @@ $(BCM).dbg: user_libs $(BLDDIR)/socdiag.o $(BLDDIR)/version.o \
 
 # Build Version
 $(BLDDIR)/version.c: $(BLDDIR)/socdiag.o $(BCM_LIBS_BLD)
-	$(PERL) $(SDK)/tools/version.pl > $@
+	$(PERL) $(SDK)/script/version.pl > $@
 $(BLDDIR)/version.o: $(BLDDIR)/version.c
 	$(CC) $(CFLAGS) -c $< -o $@
 

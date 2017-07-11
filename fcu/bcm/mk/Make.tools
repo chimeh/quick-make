@@ -33,7 +33,7 @@ HCC ?= /usr/bin/gcc
 SED	= /bin/sed
 COMPRESS = /usr/bin/compress
 GZIP = /usr/bin/gzip
-LZMA = /projects/ntsw-tools/tools/bin/7za
+LZMA = /projects/ntsw-tools/script/bin/7za
 TEST	= /usr/bin/test
 PERL	= $(shell which perl)
 LN	= /bin/ln
@@ -42,7 +42,7 @@ HOSTTYPE= i386-linux
 endif
 ifeq "$(SYSNAME)" "SunOS"
 SYSOK	= 1
-HCC ?= /tools/bin/gcc
+HCC ?= /script/bin/gcc
 SED	= /usr/ucb/sed
 COMPRESS = /bin/compress
 GZIP = /usr/bin/gzip
@@ -117,9 +117,9 @@ endif
 # Platform Independent
 #
 ifeq "$(HOSTTYPE)" "Windows2000PC"
-MKTOOL	=	$(PERL) ${SDK}/tools/mktool.pl
-BCM2C	=	$(PERL) ${SDK}/tools/bcm2c.pl
-MKVERS	=	$(PERL) ${SDK}/tools/version.pl
+MKTOOL	=	$(PERL) ${SDK}/script/mktool.pl
+BCM2C	=	$(PERL) ${SDK}/script/bcm2c.pl
+MKVERS	=	$(PERL) ${SDK}/script/version.pl
 RM	=	rm -f
 CP	=	cp
 #MKDIR	=	mkdir -p
@@ -131,9 +131,9 @@ ECHO	=	echo
 TOUCH	=	c:/windriver/workbench-3.0/x86-win32/bin/touch
 MKBEEP	=	$(MKTOOL) -beep
 else
-MKTOOL	=	$(PERL) ${SDK}/tools/mktool.pl
-BCM2C	=	$(PERL) ${SDK}/tools/bcm2c.pl
-MKVERS	=	$(PERL) ${SDK}/tools/version.pl
+MKTOOL	=	$(PERL) ${SDK}/script/mktool.pl
+BCM2C	=	$(PERL) ${SDK}/script/bcm2c.pl
+MKVERS	=	$(PERL) ${SDK}/script/version.pl
 RM	=	/bin/rm -rf
 CP	=	/bin/cp
 MKDIR	=	/bin/mkdir -p

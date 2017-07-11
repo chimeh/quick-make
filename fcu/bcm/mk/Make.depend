@@ -10,7 +10,7 @@ ifndef GEN_INCS
 $(error "GEN_INCS was not defined")
 endif
 
-ZF_GEN   = ${SDK}/tools/zFrameCodeGen.pl
+ZF_GEN   = ${SDK}/script/zFrameCodeGen.pl
 
 # 1=.zf
 define ZFS_RULE
