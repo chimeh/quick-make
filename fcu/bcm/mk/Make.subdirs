@@ -6,7 +6,7 @@
 
 all:: ${subdirs}
 ifdef QUIET
-	@$(ECHO) Subdirectory build for ${subdirs}
+	@$(ECHO) SUBDIR INTO: ${subdirs}
 endif
 
 ${subdirs}::

@@ -23,7 +23,7 @@ LIBSUFFIX=a
 
 ${LIBDIR}/%.a: ${BOBJS}
 ifdef QUIET
-	@$(ECHO) Building library $(notdir $@)
+	@$(ECHO) ARLIB library $(notdir $@)
 endif
 	$Q$(RM) $@
 	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})

@@ -101,7 +101,7 @@ ${LIBDIR}/%.a: ${BOBJS_FAST}
 	$(BOBJS_MAKE_CMD)
 endif
 ifdef QUIET
-	@$(ECHO) Building library $(notdir $@)
+	@$(ECHO) ARLIB library $(notdir $@)
 endif
 	$Q$(RM) $@
 	${Q}cd $(dir $(word 1,${BOBJS}));$(AR) ${ARFLAGS} $@ $(sort $(notdir ${BOBJS}))
@@ -114,7 +114,7 @@ $(targetlib): ${BOBJS_FAST}
 	$(BOBJS_MAKE_CMD)
 endif
 ifdef QUIET
-	@$(ECHO) Building library $(notdir $@)
+	@$(ECHO) ARLIB library $(notdir $@)
 endif
 	$Q$(RM) $@
 	${Q}cd $(dir $(word 1,${BOBJS}));$(AR) ${ARFLAGS} $@ $(sort $(notdir ${BOBJS}))
