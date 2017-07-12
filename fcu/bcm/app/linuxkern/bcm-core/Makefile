@@ -48,6 +48,8 @@ KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
 build: $(MODULE) $(KMODULE)
 endif
 
+$(BCM_LIBS_BLD):
+	$(MAKE) -C $(SDK)/lib
 # BCM Core Driver
 
 $(MODULE): $(BLDDIR)/.tree $(BOBJS) $(BCM_LIBS_BLD) $(BLDDIR)/version.o

@@ -52,10 +52,6 @@
  * Here are the typical include files that might be needed
  */
 
-/* 
- * Asserts really help making the code more robust and easy to debug
- */
-#include <linux/init.h>
 
 /*
  * SAL makes it portable across many platforms. For the driver "add-ons" only
