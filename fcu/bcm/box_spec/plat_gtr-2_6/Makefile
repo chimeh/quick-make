@@ -78,7 +78,7 @@ DEBUG_MAKEFILE_TARGET += debug_makefile_onevar
 build:
 	$(MAKE) $(CMD) override-target=linux-$(platform) -C $(SDK)/lib 
 	$(MAKE) $(CMD) override-target=linux-$(platform) -C $(SDK)/app/linuxkern/bcm-core
-	$(MAKE) $(CMD) override-target=unix-user -C $(SDK)/app/linuxuser/diag CFLAGS="-DBBB"
+	$(MAKE) $(CMD)  -C $(SDK)/app/linuxuser/diag CFLAGS="-DBBB"
 DELIVER clean C_COMPILER CXX_COMPILER  mod  user $(DEBUG_MAKEFILE_TARGET) DBG_MKEP DBG_MKNEP:
 	$(MAKE) $(CMD) -C $(SDK)/lib $@
 

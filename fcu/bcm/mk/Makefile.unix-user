@@ -8,15 +8,10 @@
 # Get cross tools and platform specific settings
 
 ifneq (,$(platform))
-include ${SDK}/mk/Makefile.linux-$(platform)
+include ${SDK}/mk/Makefile.linuxu-$(platform)
 endif
 
 
-# Filter out features that cannot or should not be supported in Linux 
-ifdef ESW_CHIPS
-_FEATURE_EXCLUDE_LIST += OOB_RCPU
-endif
-FEATURE_EXCLUDE_LIST = $(sort $(_FEATURE_EXCLUDE_LIST))
 
 # User-Linux Configuration Flags
 

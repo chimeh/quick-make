@@ -21,7 +21,7 @@ endif
 
 export SDK
 
-override-target=unix-user
+override-target=linuxu-gtr-2_6
 
 ifeq ($(LINUX_MAKE_SHARED_LIB),1)
 libext = so.$(SHAREDLIBVER)
@@ -30,7 +30,7 @@ libext = a
 endif
 
 ifeq (,$(platform))
-$(error Internal error: platform variable is not set)
+#$(error Internal error: platform variable is not set)
 endif
 
 LOCALDIR=app/linuxuser/diag
