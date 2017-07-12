@@ -9,17 +9,25 @@ include ${SDK}/mk/Makefile.linuxuser-common
 
 # Linux-specific Configuration Flags
 
-ENDIAN_DEF = -DLE_HOST=1
-
 
 
 ifeq ($(filter-out Linux Darwin,$(uname)),)
   ifeq ($(shell uname -m),x86_64)
-  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser-64\"
+  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser.defaultx86_64\"
   else
-  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser\"
+  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser.default\"
   endif
 endif
+
+
+CC       = $(CROSS_COMPILE)gcc
+CXX      = $(CROSS_COMPILE)g++
+LD       = $(CROSS_COMPILE)ld
+AR       = $(CROSS_COMPILE)ar
+ARFLAG   = -rc
+STRIP    = $(CROSS_COMPILE)strip
+RANLIB   = $(CROSS_COMPILE)ranlib
+
 # Notes on AMD Athlon 64-bit
 #
 # Compiles on x86_64 default to 32-bit emulation unless 64-bit mode
@@ -30,31 +38,18 @@ endif
 # correctly because malloc() can return values >32 bits and the PLISIM
 # protocol only supports 32-bit addresses.
 
+ifeq (,$(CROSS_COMPILE))
 ifeq ($(shell uname -m),x86_64)
  ifeq (,$(findstring -DPTRS_ARE_64BITS,$(CFGFLAGS)))
-  CC = ${HCC} -m32
-  CXX = g++ -m32
- else
-  CC = ${HCC}
-  CXX = g++
+  CC = ${CC} -m32
+  CXX =${CXX} -m32
  endif
 endif
-
-LD	= ld
-AR	= ar
-ARFLAGS	= -rc
-STRIP	= strip
-RANLIB  = ranlib
-
-# Filter out features that cannot or should not be supported in Linux
-ifdef ESW_CHIPS
-_FEATURE_EXCLUDE_LIST += OOB_RCPU
 endif
-FEATURE_EXCLUDE_LIST = $(sort $(_FEATURE_EXCLUDE_LIST))
 
 
 # Linux
-LIBS= -lnsl -lpthread -lm -lrt
+LIBS= -lpthread -lm -lrt
 
 # For GCC 4.2.x, add -Wno-address
 GCC_MAJOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC__ | cut -d' ' -f3)

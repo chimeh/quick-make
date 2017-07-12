@@ -43,29 +43,25 @@ export SDK
 
 export DEST_DIR_SUFFIX :=$(subst $(realpath $(SDK))/app,,$(realpath $(CURDIR)/$(dir ($(firstword $(MAKEFILE_LIST))))))
 
-LINUX_MAKE_FLAGS :=
-LINUX_MAKE_DIR := $(SDK)/app/linuxkern/bcm-core/
-platform=gtr-2_6
-bldroot_suffix := xx
-override kernel_version=2_6
+override-target := linuxkern.gtr-2_6
+CROSS_COMPILE := mips64-nlm-linux-
+bldroot_suffix := qq
+kernel_version :=2_6
 LINUX_MAKE_SHARED_LIB=0
 SHAREDLIBVER=1
 LINUX_INCLUDE := /home/jimmy/inspur-sw-yh/trunk/mcb-f9-sdk/linux/include
 KERNDIR :=/home/jimmy/inspur-sw-yh/trunk/mcb-f9-sdk/linux 
-CROSS_COMPILE := mips64-nlm-linux-
 
 
 
-CMD = $(LINUX_MAKE_FLAGS) \
-        platform=$(platform) \
-        bldroot_suffix=$(bldroot_suffix) \
-        kernel_version=$(kernel_version) \
-        LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB) \
-        SHAREDLIBVER=$(SHAREDLIBVER) \
-        LINUX_INCLUDE=$(LINUX_INCLUDE) \
-        KERNDIR=$(KERNDIR) \
-        CROSS_COMPILE=$(CROSS_COMPILE)
 
+CMD += CROSS_COMPILE=$(CROSS_COMPILE)
+CMD += bldroot_suffix=$(bldroot_suffix)
+CMD += kernel_version=$(kernel_version)
+CMD += LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB)
+CMD += SHAREDLIBVER=$(SHAREDLIBVER)
+CMD += LINUX_INCLUDE=$(LINUX_INCLUDE)
+CMD += KERNDIR=$(KERNDIR)
 
 
 DEBUG_MAKEFILE_TARGET := debug_makefile_allvalue_notexpand
@@ -76,9 +72,9 @@ DEBUG_MAKEFILE_TARGET += debug_makefile_onevar
 # options are to +$(CMD) or $(MAKE) $(CMD)
 # trying the latter
 build:
-	$(MAKE) $(CMD) override-target=linuxkern.$(platform) -C $(SDK)/lib 
-	$(MAKE) $(CMD) override-target=linuxkern.$(platform) -C $(SDK)/app/linuxkern/bcm-core
-	$(MAKE) $(CMD)  -C $(SDK)/app/linuxuser/diag CFLAGS="-DBBB"
+	$(MAKE) $(CMD) override-target=linuxkern.gtr-2_6 -C $(SDK)/lib 
+	$(MAKE) $(CMD) override-target=linuxkern.gtr-2_6 -C $(SDK)/app/linuxkern/bcm-core
+	$(MAKE) $(CMD)  -C $(SDK)/app/linuxuser/diag
 DELIVER clean C_COMPILER CXX_COMPILER  mod  user $(DEBUG_MAKEFILE_TARGET) DBG_MKEP DBG_MKNEP:
 	$(MAKE) $(CMD) -C $(SDK)/lib $@
 

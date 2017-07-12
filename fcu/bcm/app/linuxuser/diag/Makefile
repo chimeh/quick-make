@@ -28,11 +28,8 @@ else
 libext = a
 endif
 
-ifeq (,$(platform))
-#$(error Internal error: platform variable is not set)
-endif
 
-override-target=linuxuser.gtr-2_6
+#override-target=linuxuser.gtr-2_6
 
 LOCALDIR=app/linuxuser/diag
 include $(SDK)/mk/Make.config
@@ -51,7 +48,14 @@ else
 .DEFAULT_GOAL := $(DEFAULT_MAKE_TARGET)
 endif
 
-
+CMD = override-target=$(override-target)
+CMD += CROSS_COMPILE=$(CROSS_COMPILE)
+CMD += bldroot_suffix=$(bldroot_suffix)
+CMD += kernel_version=$(kernel_version)
+CMD += LINUX_MAKE_SHARED_LIB=$(LINUX_MAKE_SHARED_LIB)
+CMD += SHAREDLIBVER=$(SHAREDLIBVER)
+CMD += LINUX_INCLUDE=$(LINUX_INCLUDE)
+CMD += KERNDIR=$(KERNDIR)
 
 
 # Build all targets
@@ -61,7 +65,7 @@ all: $(BLDDIR)/.tree $(THISAPP)
 
 
 user_libs:
-	$(MAKE) $(if $(override-target),override-target=$(override-target)) -C $(SDK)/lib/sal
+	$(MAKE) $(CMD) -C $(SDK)/lib/sal
 	#$(MAKE) -C $(SDK)/lib/sal
 
 
