@@ -1,8 +1,8 @@
 
-include ${SDK}/mk/Makefile.unix-common
+include ${SDK}/mk/Makefile.linuxuser-common
 
 ENDIAN = -DBE_HOST=1 -DLE_HOST=0
-CFGFLAGS += -D$(ENDIAN) 
+CFGFLAGS += $(ENDIAN) 
 CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxu-gtr-2_6\"
 CFGFLAGS += -mabi=64 -march=xlp -msym32 -fno-strict-aliasing -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
 
@@ -10,7 +10,6 @@ CFGFLAGS += -mabi=64 -march=xlp -msym32 -fno-strict-aliasing -DPTRS_ARE_64BITS -
 EXTRA_CFLAGS = -D"KBUILD_STR(s)=\#s" $(basename_flags) $(modname_flags)
 
 ARCH = mips
-OSTYPE = LINUX
 export ARCH
 
 # From linux/arch/ppc/Makefile
@@ -24,9 +23,8 @@ modname_flags  = $(if $(filter 1,$(words $(modname))),\
                  -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
 
 
-CFLAGS += -mabi=64 -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
+#CFLAGS += -mabi=64 -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
 
-CFGFLAGS += -D$(OSTYPE)
 
 # Conditionally Replaces DEFAULT var
 ifeq ($(origin CC),default)

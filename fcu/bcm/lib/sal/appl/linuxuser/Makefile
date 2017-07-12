@@ -2,7 +2,7 @@
 #
 # Makefile for SOC SAL support (Unix)
 #
-LOCALDIR = src/sal/appl/linux
+LOCALDIR = src/sal/appl/unixuser
 
 include ${SDK}/mk/Make.config
 

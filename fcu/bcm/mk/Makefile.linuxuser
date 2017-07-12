@@ -2,7 +2,7 @@
 #
 # Build rules for Linux/x86 (Little Endian) with PLI support
 
-include ${SDK}/mk/Makefile.unix-common
+include ${SDK}/mk/Makefile.linuxuser-common
 
 # When using GDB on Linux, you may want to use "setenv GDB 1" to disable
 # editline.  For best results put "set environment GDB 1" in your .gdbinit.
@@ -11,6 +11,15 @@ include ${SDK}/mk/Makefile.unix-common
 
 ENDIAN_DEF = -DLE_HOST=1
 
+
+
+ifeq ($(filter-out Linux Darwin,$(uname)),)
+  ifeq ($(shell uname -m),x86_64)
+  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser-64\"
+  else
+  CFGFLAGS += -DBCM_PLATFORM_STRING=\"linuxuser\"
+  endif
+endif
 # Notes on AMD Athlon 64-bit
 #
 # Compiles on x86_64 default to 32-bit emulation unless 64-bit mode
@@ -46,7 +55,6 @@ FEATURE_EXCLUDE_LIST = $(sort $(_FEATURE_EXCLUDE_LIST))
 
 # Linux
 LIBS= -lnsl -lpthread -lm -lrt
-CFGFLAGS += -DBCM_PLATFORM_STRING=\"unix-linux\"
 
 # For GCC 4.2.x, add -Wno-address
 GCC_MAJOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC__ | cut -d' ' -f3)

@@ -21,7 +21,6 @@ endif
 
 export SDK
 
-override-target=linuxu-gtr-2_6
 
 ifeq ($(LINUX_MAKE_SHARED_LIB),1)
 libext = so.$(SHAREDLIBVER)
@@ -32,6 +31,8 @@ endif
 ifeq (,$(platform))
 #$(error Internal error: platform variable is not set)
 endif
+
+override-target=linuxuser.gtr-2_6
 
 LOCALDIR=app/linuxuser/diag
 include $(SDK)/mk/Make.config
@@ -60,7 +61,8 @@ all: $(BLDDIR)/.tree $(THISAPP)
 
 
 user_libs:
-	$(MAKE) -C $(SDK)/lib/sal
+	$(MAKE) $(if $(override-target),override-target=$(override-target)) -C $(SDK)/lib/sal
+	#$(MAKE) -C $(SDK)/lib/sal
 
 
 

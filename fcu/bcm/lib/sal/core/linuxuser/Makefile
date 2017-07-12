@@ -1,12 +1,12 @@
 
 #
-# Makefile for SOC SAL support (Unix)
+# Makefile for SOC SAL support
 #
-LOCALDIR = src/sal/appl/unix
+LOCALDIR = lib/sal/core/linuxuser
 
 include ${SDK}/mk/Make.config
 
-lib = libsal_appl_plat
+lib = libsal_core_plat
 include ${SDK}/mk/Make.lib
 
 include ${SDK}/mk/Make.depend

@@ -18,7 +18,7 @@ TARGETTYPE = PLISIM
 # can be created by porting the code to your platform and changing the
 # define in this Makefile.
 
-OSTYPE = UNIX
+OSTYPE = LINUX
 
 #
 # ORIGIN is used to Optionally select different CFLAGS. It is used to import
@@ -43,7 +43,7 @@ STD_CFLAGS = -D_REENTRANT -D${TARGETTYPE} -D${OSTYPE} ${CFGFLAGS} \
 STD_CPPFLAGS = ${STD_CFLAGS}
 STD_CXXFLAGS = ${STD_CFLAGS}
 
-BCM_CFLAGS   = -Wall -Werror ${BCM_EXTRA_CC_CFLAGS}
+BCM_CFLAGS   = -Wall  ${BCM_EXTRA_CC_CFLAGS}
 
 BCM_CPPFLAGS = ${BCM_CFLAGS}
 BCM_CXXFLAGS = ${BCM_CFLAGS}
@@ -73,3 +73,14 @@ LDFLAGS += ${LIBS}
 #
 DEPEND = ${CC} -M -P $(CFLAGS) $< 
 
+# Linux
+LIBS= -lnsl -lpthread -lm -lrt
+
+# For GCC 4.2.x, add -Wno-address
+GCC_MAJOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC__ | cut -d' ' -f3)
+GCC_MINOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC_MINOR__ | cut -d' ' -f3)
+ifeq (${GCC_MAJOR_VER}, 4)
+ifeq (${GCC_MINOR_VER}, 2)
+BCM_EXTRA_CC_CFLAGS   = -Wno-address
+endif
+endif
