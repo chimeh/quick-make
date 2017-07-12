@@ -3,18 +3,41 @@
 # Configuration Flags
 
 # Filter out features that cannot or should not be supported in kernel mode
-_FEATURE_EXCLUDE_LIST += EDITLINE TCL OOB_RCPU CINT APIMODE DUNE_UI C_UNIT
+
+_FEATURE_EXCLUDE_LIST += EDITLINE TCL OOB_RCPU CINT APIMODE DUNE_UI
 FEATURE_EXCLUDE_LIST = $(sort $(_FEATURE_EXCLUDE_LIST))
+
 # Tools
 
-CC	= $(CROSS_COMPILE)gcc
+# Conditionally Replaces DEFAULT var
+ifeq ($(origin CC),default)
+CC	= $(LSRUN) $(CROSS_COMPILE)gcc
+endif
+
+ifeq ($(origin CXX),default)
 CXX	= $(CROSS_COMPILE)g++
+endif
+
+ifeq ($(origin LD),default)
 LD	= $(CROSS_COMPILE)ld
+endif
+
+ifeq ($(origin AR),default)
 AR	= $(CROSS_COMPILE)ar
-ARFLAGS	= -rc
+endif
+
+ifeq ($(origin AS),default)
+AS	= $(CROSS_COMPILE)as
+endif
+
+ifeq ($(origin ARFLAGS),default)
+	ARFLAGS	= -rc
+endif
+
 STRIP	= $(CROSS_COMPILE)strip
 RANLIB  = $(CROSS_COMPILE)ranlib
 OBJCOPY = $(CROSS_COMPILE)objcopy
+NM      = $(CROSS_COMPILE)nm
 
 # Handle differences between gcc 2.x and gcc 3.x
 gcc-tune-flag = $(shell if ${CC} -dumpspecs | grep mcpu >/dev/null; then echo cpu; else echo tune; fi)
@@ -47,8 +70,17 @@ endif
 #			 this Makefile, to define local "Extra" flags.
 #
 
+ifdef IPROC_BUILD
 CFGFLAGS += -I$(SDK)/app/linuxkern/include \
-	    -I$(LINUX_INCLUDE)
+	    -I$(LINUX_INCLUDE) \
+            -I$(KERNDIR)/arch/$(ARCH)
+else
+CFGFLAGS += -I$(SDK)/app/linuxkern/include \
+	    -I$(LINUX_INCLUDE) \
+	    -I$(LINUX_INCLUDE)/asm/gcc \
+	    -I$(LINUX_INCLUDE)/asm/mach-generic \
+            -I$(KERNDIR)/arch/$(ARCH)
+endif
 
 CFGFLAGS += -DNO_FILEIO -DNO_CTRL_C -DNO_MEMTUNE
 
@@ -63,7 +95,10 @@ STD_CFLAGS = $(KFLAGS) $(CFGFLAGS)
 STD_CPPFLAGS = ${STD_CFLAGS}
 STD_CXXFLAGS = ${STD_CFLAGS}
 
-BCM_CFLAGS   = -Wall -Werror
+ifndef BCM_CFLAGS
+BCM_CFLAGS   = -Wall
+endif
+
 BCM_CPPFLAGS = ${BCM_CFLAGS}
 BCM_CXXFLAGS = ${BCM_CFLAGS}
 

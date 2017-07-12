@@ -1,3 +1,9 @@
 
 
-OS  ARCH  KU  PROD
+OS  ARCH  KUMODE  PROD
+
+
+
+base-plat
+
+base: linuxkern linuxuser  vxworks

@@ -15,5 +15,5 @@ KFLAGS := -D__KERNEL__ -O2
 endif
 
 ifneq ($(targetplat),user)
-include ${SDK}/mk/Makefile.linux-kernel
+include ${SDK}/mk/Makefile.linuxkern
 endif
