@@ -30,7 +30,7 @@ export BLDDIR
 export LIBDIR
 
 
-subdirs = customer sal
+subdirs = customer sal unixlib
 
 override MAKEFLAGS += TARGET=$(TARGET)
 

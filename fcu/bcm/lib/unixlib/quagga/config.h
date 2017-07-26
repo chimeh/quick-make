@@ -375,7 +375,7 @@
 #define HAVE_STRNLEN 1
 
 /* Define to 1 if you have the <stropts.h> header file. */
-#define HAVE_STROPTS_H 1
+/* #undef HAVE_STROPTS_H */
 
 /* Define to 1 if you have the `strrchr' function. */
 #define HAVE_STRRCHR 1

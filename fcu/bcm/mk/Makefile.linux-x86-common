@@ -17,5 +17,5 @@ basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
 modname_flags  = $(if $(filter 1,$(words $(modname))),\
 -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
 ifneq ($(targetplat),user)
-include ${SDK}/mk/Makefile.linuxkern
+include ${SDK}/mk/Makefile.linuxkern.default
 endif
