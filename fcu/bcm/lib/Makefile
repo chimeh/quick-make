@@ -32,6 +32,10 @@ export LIBDIR
 
 subdirs = customer sal unixlib
 
+ifeq ($(targetbase),linuxkern)
+subdirs += hsl
+endif
+
 override MAKEFLAGS += TARGET=$(TARGET)
 
 include ${SDK}/mk/Make.subdirs
