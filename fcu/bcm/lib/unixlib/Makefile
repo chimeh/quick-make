@@ -7,7 +7,7 @@ LOCALDIR = lib/unixlib
 include ${SDK}/mk/Make.config
 
 ifeq (linuxuser,$(targetbase))
-subdirs=halu quagga
+subdirs=netl quagga
 endif
 
 include ${SDK}/mk/Make.subdirs
