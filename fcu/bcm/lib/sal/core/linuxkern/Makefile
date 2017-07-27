@@ -25,6 +25,6 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 include ${SDK}/mk/Make.config
 
 lib = libsal_core_plat
-include ${SDK}/mk/Make.kernlib
+include ${SDK}/mk/Make.lib
 
 include ${SDK}/mk/Make.depend

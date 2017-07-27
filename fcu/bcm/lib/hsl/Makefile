@@ -32,6 +32,6 @@ CFLAGS += -I${SDK}/$(LOCALDIR)/common
 CFLAGS += -I${SDK}/$(LOCALDIR)
 CFLAGS += -I${SDK}/lib/unixlib/netl
 lib = libhsl
-include ${SDK}/mk/Make.kernlib
+include ${SDK}/mk/Make.lib
 
 include ${SDK}/mk/Make.depend

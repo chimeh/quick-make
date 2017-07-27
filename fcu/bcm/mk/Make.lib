@@ -4,16 +4,7 @@
 
 .SECONDARY:: ${BOBJS}
 
-BOBJS_FAST = ${BOBJS}
 BOBJS_MAKE_CMD =
-
-ifeq ($(FAST),1)
-  ifneq ($(strip $(BOBJS)),)
-    BOBJS_FAST =
-    BOBJS_ARGS = -j9
-    BOBJS_MAKE_CMD = pwd && make LSRUN=$(SDK)/script/lsrun.pl $(BOBJS_ARGS) ${BOBJS}
-  endif
-endif
 
 ifeq ($(LINUX_MAKE_SHARED_LIB),1)
 LIBSUFFIX=so.${SHAREDLIBVER}
@@ -22,7 +13,7 @@ targetlibsoname = ${lib}.${LIBSUFFIX}
 targetlibrealname = ${targetlibsoname}
 targetlib = ${LIBDIR}/${targetlibrealname}
 
-${targetlib}: ${BOBJS_FAST}
+${targetlib}: ${BOBJS}
 	$(BOBJS_MAKE_CMD)
 	$(RM) $@
 	$(CC) -shared -Wl,-soname,${targetlibsoname} -o ${targetlib} ${BOBJS} -lc
@@ -35,16 +26,6 @@ clean::
 	$(RM) ${BOBJS}
 	$(RM) ${targetlib}
 else # LINUX_MAKE_SHARED_LIB != 1
-ifeq ($(TOOLS),Borland)
-
-LIBSUFFIX=lib
-
-${LIBDIR}/%.lib: ${BORLAND_BOBJS}
-	$(RM) $@
-	$(FOREACH) -subdir "$(LIBDIR)" \
-		"tlib $@ $(foreach obj, $(BORLAND_LOBJS), +-$(obj))"
-
-else	# !Borland
 
 LIBSUFFIX=a
 
@@ -52,40 +33,29 @@ targetlib = ${LIBDIR}/${lib}.${LIBSUFFIX}
 
 all:: ${BLDDIR}/.tree ${targetlib}
 
-ifdef GENERATE_C_FILES
-${LIBDIR}/%.a: ${BOBJS_FAST}
+
+${LIBDIR}/%.a: ${BOBJS}
 	$(BOBJS_MAKE_CMD)
-else
-${LIBDIR}/%.a: ${BOBJS_FAST}
-	$(BOBJS_MAKE_CMD)
-endif
 ifdef QUIET
 	@$(ECHO) ARLIB library $(notdir $@)
 endif
 	$Q$(RM) $@
-	${Q}cd $(dir $(word 1,${BOBJS}));$(AR) ${ARFLAGS} $@ $(sort $(notdir ${BOBJS}))
+	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
 
-ifdef GENERATE_C_FILES
-$(targetlib): ${BOBJS_FAST}
+$(targetlib): ${BOBJS}
 	$(BOBJS_MAKE_CMD)
-else
-$(targetlib): ${BOBJS_FAST}
-	$(BOBJS_MAKE_CMD)
-endif
 ifdef QUIET
 	@$(ECHO) ARLIB library $(notdir $@)
 endif
 	$Q$(RM) $@
-	${Q}cd $(dir $(word 1,${BOBJS}));$(AR) ${ARFLAGS} $@ $(sort $(notdir ${BOBJS}))
-
-endif	# !Borland
+	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
 
 
 install:: all
 
 clean::
 ifdef QUIET
-	@$(ECHO) Cleaning objects for ${LOCALDIR} and ${lib}
+	$Q$(ECHO) Cleaning objects for ${LOCALDIR} and ${lib}
 endif
 	$Q$(RM) ${BOBJS}
 	$Q$(RM) ${targetlib}

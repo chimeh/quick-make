@@ -28,6 +28,6 @@ subdirs=${targetbase}
 include ${SDK}/mk/Make.subdirs
 
 lib = libsal_core
-include ${SDK}/mk/Make.kernlib
+include ${SDK}/mk/Make.lib
 
 include ${SDK}/mk/Make.depend
