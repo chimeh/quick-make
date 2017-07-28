@@ -47,10 +47,10 @@ else
 # removed so that it is not included in later builds.
 #
 ${BLDDIR}/%.P : %.c ${BLDDIR}/.tree
-	@$(ECHO) "DEP   ${LOCALDIR}/$<"
+	@$(ECHO) "DEP     ${LOCALDIR}/$<"
 
 ${BLDDIR}/%.P : %.cc ${BLDDIR}/.tree
-	@$(ECHO) "DEP   ${LOCALDIR}/$<"
+	@$(ECHO) "DEP     ${LOCALDIR}/$<"
 
 endif
 
@@ -73,7 +73,7 @@ endif	# !CLEANING
 
 clean_d::
 ifdef QUIET
-	@$(ECHO) Cleaning dependencies for ${LOCALDIR}
+	@$(ECHO) "CLEAN    DEPS ${LOCALDIR}"
 endif
 	$Q$(RM) $(BOBJS:.o=.P)
 ifdef GENERATE_C_FILES

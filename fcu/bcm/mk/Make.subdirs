@@ -6,22 +6,14 @@
 
 all:: ${subdirs}
 ifdef QUIET
-	@$(ECHO) SUBDIR INTO: ${subdirs}
+	@$(ECHO) "SUBDIR  $(LOCALDIR)/{ ${subdirs} }"
 endif
 
 ${subdirs}::
 	$Q$(MAKE) -C $@ kernel_version=$(kernel_version) LINUX_MAKE_SHARED_LIB=${LINUX_MAKE_SHARED_LIB} SHAREDLIBVER=${SHAREDLIBVER}
 
-ifeq "$(HOSTTYPE)" "Windows2000PC"
 clean clean_d install distclean::
 ifdef QUIET
-	@$(ECHO) Subdirectory $@ for ${subdirs}
-endif
-	$Q$(FOREACH) "$(subdirs)" "${MAKE} -C ## $@"
-else
-clean clean_d install distclean::
-ifdef QUIET
-	@$(ECHO) Subdirectory $@ for ${subdirs}
+	@$(ECHO) "$@    $(LOCALDIR)"
 endif
 	@(for name in $(subdirs); do $(MAKE) -C $$name $@; done)
-endif

@@ -37,7 +37,7 @@ all:: ${BLDDIR}/.tree ${targetlib}
 ${LIBDIR}/%.a: ${BOBJS}
 	$(BOBJS_MAKE_CMD)
 ifdef QUIET
-	@$(ECHO) ARLIB library $(notdir $@)
+	@$(ECHO) "ARLIB   lib $(notdir $@)"
 endif
 	$Q$(RM) $@
 	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
@@ -45,7 +45,7 @@ endif
 $(targetlib): ${BOBJS}
 	$(BOBJS_MAKE_CMD)
 ifdef QUIET
-	@$(ECHO) ARLIB library $(notdir $@)
+	@$(ECHO) "ARLIB   LIB $(notdir $@)"
 endif
 	$Q$(RM) $@
 	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
@@ -55,7 +55,7 @@ install:: all
 
 clean::
 ifdef QUIET
-	$Q$(ECHO) Cleaning objects for ${LOCALDIR} and ${lib}
+	$Q$(ECHO) "ClEAN    OBJS ${LOCALDIR}"
 endif
 	$Q$(RM) ${BOBJS}
 	$Q$(RM) ${targetlib}
