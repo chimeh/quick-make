@@ -58,6 +58,9 @@ ifdef QUIET
 	$Q$(ECHO) "ClEAN    OBJS ${LOCALDIR}"
 endif
 	$Q$(RM) ${BOBJS}
+ifdef EEEE
+	$Q$(RM) ${BOBJS:.o=.i}
+endif
 	$Q$(RM) ${targetlib}
 endif # LINUX_MAKE_SHARED_LIB
 
