@@ -47,10 +47,10 @@ else
 # removed so that it is not included in later builds.
 #
 ${BLDDIR}/%.P : %.c ${BLDDIR}/.tree
-	@$(ECHO) "DEP     ${LOCALDIR}/$<"
+	@$(ECHO) "[$(target)] DEP     ${LOCALDIR}/$<"
 
 ${BLDDIR}/%.P : %.cc ${BLDDIR}/.tree
-	@$(ECHO) "DEP     ${LOCALDIR}/$<"
+	@$(ECHO) "[$(target)] DEP     ${LOCALDIR}/$<"
 
 endif
 

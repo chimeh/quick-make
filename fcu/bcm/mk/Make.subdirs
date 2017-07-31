@@ -6,7 +6,7 @@
 
 all:: ${subdirs}
 ifdef QUIET
-	@$(ECHO) "SUBDIR  $(LOCALDIR)/{ ${subdirs} }"
+	@$(ECHO) "[$(target)] SUBDIR  $(LOCALDIR)/{ ${subdirs} }"
 endif
 
 ${subdirs}::
