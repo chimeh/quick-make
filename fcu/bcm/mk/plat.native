@@ -1,0 +1,28 @@
+# toolchain
+CC       = $(CROSS_COMPILE)gcc
+CXX      = $(CROSS_COMPILE)g++
+LD       = $(CROSS_COMPILE)ld
+AR       = $(CROSS_COMPILE)ar
+ARFLAGS  = -rc
+STRIP    = $(CROSS_COMPILE)strip
+RANLIB   = $(CROSS_COMPILE)ranlib
+
+
+# endian compile flags
+ENDIAN_CFGFLAGS = -DLE_HOST=1 -DBE_HOST=0
+CFGFLAGS += $(ENDIAN_CFGFLAGS)
+
+
+# LDFLAGS
+LIBS= -lpthread -lm -lrt
+LDFLAGS += ${LIBS}
+
+
+
+
+
+
+
+
+
+

@@ -37,7 +37,7 @@ all:: ${BLDDIR}/.tree ${targetlib}
 ${LIBDIR}/%.a: ${BOBJS}
 	$(BOBJS_MAKE_CMD)
 ifdef QUIET
-	@$(ECHO) "[$(target)] ARLIB   lib $(notdir $@)"
+	@$(ECHO) "[$(target)] ARLIB   $(subst $(SDK)/,,$@)"
 endif
 	$Q$(RM) $@
 	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
@@ -45,7 +45,7 @@ endif
 $(targetlib): ${BOBJS}
 	$(BOBJS_MAKE_CMD)
 ifdef QUIET
-	@$(ECHO) "[$(target)] ARLIB   LIB $(notdir $@)"
+	@$(ECHO) "[$(target)] ARLIB   $(subst $(SDK)/,,$@)"
 endif
 	$Q$(RM) $@
 	$Q$(AR) ${ARFLAGS} $@ $(sort ${BOBJS})
@@ -55,7 +55,7 @@ install:: all
 
 clean::
 ifdef QUIET
-	$Q$(ECHO) "ClEAN    OBJS ${LOCALDIR}"
+	$Q$(ECHO) "[$(target)] ClEAN    OBJS ${LOCALDIR}"
 endif
 	$Q$(RM) ${BOBJS}
 ifdef EEEE

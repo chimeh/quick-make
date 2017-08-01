@@ -1,0 +1,125 @@
+#
+# This file contains the platform-independent portion of the Makefiles
+# for Unix compilation.
+#
+
+#
+# TARGETTYPE Defines: This defines the type of system you are compiling
+# the driver for.  New values can be created by porting the code to your
+# platform and adding the define in this Makefile.
+# 
+
+TARGETTYPE = PLISIM
+
+# Configuration Variable
+# OSType Defines: This defines the type of RTOS or microkernel which you
+# are compiling the SAL (and its associated driver) for.  New platforms
+# can be created by porting the code to your platform and changing the
+# define in this Makefile.
+
+OSTYPE ?= $(OSTYPE)
+
+
+
+#
+# STD_{C|CPP|CXX}FLAGS - Standard flags used by ALL compilations
+# OPT_{C|CPP|CXX}FLAGS - Defined in local make files BEFORE inclusion of 
+#			 this Makefile, to define local "Extra" flags.
+#
+STD_CFLAGS = -D_REENTRANT -D${TARGETTYPE} -D${OSTYPE} ${CFGFLAGS} \
+    ${ENDIAN_DEF}
+STD_CPPFLAGS = ${STD_CFLAGS}
+STD_CXXFLAGS = ${STD_CFLAGS}
+
+
+
+
+CFLAGS   += ${STD_CFLAGS}   ${OPT_CFLAGS}
+CPPFLAGS += ${STD_CPPFLAGS} ${OPT_CPPFLAGS}
+CXXFLAGS += ${STD_CXXFLAGS} ${OPT_CXXFLAGS}
+
+
+#
+# Add flags required for running on unix.
+#
+
+LDFLAGS += ${LIBS}
+
+#
+# DEPEND is used as a command to generate the list of dependencies.
+# The format of the output must be 
+#	"file.o : file.c a/b/c.h d/e/f.h ...", 
+# if it is on multiple lines, each line must end in a backslash. 
+# The output MUST be on standard out.
+#
+DEPEND = ${CC} -M -P $(CFLAGS) $< 
+
+# Linux
+LIBS= -lnsl -lpthread -lm -lrt
+
+# For GCC 4.2.x, add -Wno-address
+GCC_MAJOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC__ | cut -d' ' -f3)
+GCC_MINOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC_MINOR__ | cut -d' ' -f3)
+ifeq (${GCC_MAJOR_VER}, 4)
+ifeq (${GCC_MINOR_VER}, 2)
+OPT_CFLAGS   = -Wno-address
+endif
+endif
+
+###########################################################################
+# When using GDB on Linux, you may want to use "setenv GDB 1" to disable
+# editline.  For best results put "set environment GDB 1" in your .gdbinit.
+
+# Linux-specific Configuration Flags
+
+
+
+ifeq ($(filter-out Linux Darwin,$(uname)),)
+  ifeq ($(shell uname -m),x86_64)
+  CFGFLAGS += -DTARGET_PLATFORM_STRING=\"x86_64\"
+  else
+  CFGFLAGS += -DTARGET_PLATFORM_STRING=\"x86\"
+  endif
+endif
+
+
+CC       = $(CROSS_COMPILE)gcc
+CXX      = $(CROSS_COMPILE)g++
+LD       = $(CROSS_COMPILE)ld
+AR       = $(CROSS_COMPILE)ar
+ARFLAGS  = r
+STRIP    = $(CROSS_COMPILE)strip
+RANLIB   = $(CROSS_COMPILE)ranlib
+
+# Notes on AMD Athlon 64-bit
+#
+# Compiles on x86_64 default to 32-bit emulation unless 64-bit mode
+# is specifically requested in Make.var by uncommenting the two defines
+# for PTRS_ARE_64BITS and LONGS_ARE_64BITS.
+#
+# Note that the code base will compile in 64-bit mode, but will not run
+# correctly because malloc() can return values >32 bits and the PLISIM
+# protocol only supports 32-bit addresses.
+
+ifeq (,$(CROSS_COMPILE))
+ifeq ($(shell uname -m),x86_64)
+ ifeq (,$(findstring -DPTRS_ARE_64BITS,$(CFGFLAGS)))
+  CC +=  -m32
+  CXX += -m32
+ endif
+endif
+endif
+
+
+# Linux
+LIBS= -lpthread -lm -lrt
+
+# For GCC 4.2.x, add -Wno-address
+GCC_MAJOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC__ | cut -d' ' -f3)
+GCC_MINOR_VER  = $(shell echo |$(CC) -dM -E -| grep __GNUC_MINOR__ | cut -d' ' -f3)
+ifeq (${GCC_MAJOR_VER}, 4)
+ifeq (${GCC_MINOR_VER}, 2)
+BCM_EXTRA_CC_CFLAGS   = -Wno-address
+endif
+endif
+

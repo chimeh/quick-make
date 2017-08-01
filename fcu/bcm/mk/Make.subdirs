@@ -6,7 +6,7 @@
 
 all:: ${subdirs}
 ifdef QUIET
-	@$(ECHO) "[$(target)] SUBDIR  $(LOCALDIR)/{ ${subdirs} }"
+	@$(ECHO) "[$(target)] SUBDIR  $(LOCALDIR)/: ${subdirs} "
 endif
 
 ${subdirs}::
@@ -14,6 +14,6 @@ ${subdirs}::
 
 clean clean_d install distclean::
 ifdef QUIET
-	@$(ECHO) "$@    $(LOCALDIR)"
+	@$(ECHO) "[$(target)] $@    $(LOCALDIR)"
 endif
 	@(for name in $(subdirs); do $(MAKE) -C $$name $@; done)

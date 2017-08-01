@@ -73,7 +73,7 @@ endif	# !CLEANING
 
 clean_d::
 ifdef QUIET
-	@$(ECHO) "CLEAN    DEPS ${LOCALDIR}"
+	@$(ECHO) "[$(target)] CLEAN    DEPS ${LOCALDIR}"
 endif
 	$Q$(RM) $(BOBJS:.o=.P)
 ifdef GENERATE_C_FILES
