@@ -1,0 +1,39 @@
+
+# Make rules/targets for handling user application
+
+.SECONDARY:: ${LD_O_FILES}
+
+_LD_START_GROUP := -Wl,--start-group
+_LD_END_GROUP := -Wl,--end-group
+
+targetexec= ${BLDDIR}/${exec}
+bldroot_exec = ${BLDROOT}/${exec}
+
+ifeq (,$(LD_O_FILES))
+LD_O_FILES = $(sort $(BOBJS))
+endif
+LD_INFO_OPTS := -Wl,--warn-common -Wl,-Map,${targetexec}.map -Wl,--verbose
+#LD_INFO_OPTS := --warn-common -Map=${targetexec}.map --verbose
+
+$(targetexec): ${LD_O_FILES}
+	@rm -f $@       # Prevent core dump if currently running
+	@echo Linking $@ # This is needed for error parsing
+	$(Q)$(CC) \
+	-o $@ \
+	$(LDFLAGS) \
+	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) $(_LD_END_GROUP) \
+	$(LD_L_LISTS) \
+	$(LD_INFO_OPTS)
+	$(Q)$(CP) -f $@ $(bldroot_exec)
+            
+all:: ${BLDDIR}/.tree ${targetexec}
+
+install:: all
+
+clean::
+	$(RM) ${BOBJS}
+	$(RM) ${targetexec}
+	$(RM) ${bldroot_exec}
+
+distclean:: clean
+        

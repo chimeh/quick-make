@@ -14,8 +14,6 @@ CFGFLAGS += $(ENDIAN_CFGFLAGS)
 
 
 # LDFLAGS
-LIBS= -lpthread -lm -lrt
-LDFLAGS += ${LIBS}
 
 
 

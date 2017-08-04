@@ -7,14 +7,6 @@ ARFLAGS  = -rc
 STRIP    = $(CROSS_COMPILE)strip
 RANLIB   = $(CROSS_COMPILE)ranlib
 
-ifeq (,$(CROSS_COMPILE))
-ifeq ($(shell uname -m),x86_64)
- ifeq (,$(findstring -DPTRS_ARE_64BITS,$(CFGFLAGS)))
-  CC +=  -m32
-  CXX += -m32
- endif
-endif
-endif
 CFGFLAGS += -DLINUX
 
 # endian compile flags
