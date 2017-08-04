@@ -1,0 +1,49 @@
+
+PRE_COMPILED_OBJ := obj_$(THIS_MOD_NAME).o
+
+obj-m := $(THIS_MOD_NAME).o
+$(THIS_MOD_NAME)-y := $(MODULE_SYM) $(PRE_COMPILED_OBJ)
+
+
+export CROSS_COMPILE
+
+
+SAVE_CFLAGS := ${CFLAGS}
+
+include $(SDK)/mk/Make.config
+
+ifneq ($(ARCH),)
+# ELDK does not seem to `automatically' define ARCH where other gccs may
+A := ARCH=$(ARCH)
+export ARCH
+endif
+
+# Standard SDK include path for building source files that export
+# kernel symbols.
+
+override EXTRA_CFLAGS = -I${SDK}/header -I${SDK}/app/linuxkern/include
+
+# The precopiled object needs a dummy command file to avoid warnings
+# from the Kbuild scripts (modpost stage).
+# Kernels before 2.6.17 do not support external module symbols files,
+# so we create a dummy to prevent build failures.
+ifeq (@,$(Q))
+V :=0
+else
+V :=1
+endif
+
+$(THIS_MOD_NAME).ko:
+	@rm -f *.o *.ko .*.cmd
+	@rm -fr .tmp_versions
+	$(Q)ln -s $(BLD_MODBUILDIN) $(PRE_COMPILED_OBJ)_shipped 
+	@echo "suppress warning" > .$(PRE_COMPILED_OBJ).cmd
+	$(Q)$(MAKE) -C $(KERNDIR) V=$(V) $(if $(KERN_BUILDDIR),O=$(KERN_BUILDDIR),) $(if $(CROSS_COMPILE),CROSS_COMPILE=$(CROSS_COMPILE),)  M=$(shell pwd) modules
+	@if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
+	@cp -f $@ $(LIBDIR)
+	@rm -f $(PRE_COMPILED_OBJ)_shipped
+
+EXTRA_CFLAGS = $(CFLAGS)
+CFLAGS := ${SAVE_CFLAGS}
+
+
