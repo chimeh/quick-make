@@ -1,83 +1,36 @@
-SDK :=$(shell if [ -n "$$SDK" ] ; then\
+###################################################################
+#automatic detection SDK and LOCALDIR
+CUR_DIR := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+TRYSDK := $(shell if [ -n "$$SDK" ] ; then\
         echo $$SDK;\
         else\
-        cd $(dir $(lastword $(MAKEFILE_LIST))); while /usr/bin/test ! -e RELEASE ; do \
+        cd $(CUR_DIR); while /usr/bin/test ! -e RELEASE ; do \
         dir=`cd ../;pwd`;                       \
         if [ "$$dir" = "/" ] ; then             \
-           echo Cannot find SDK in $(lastword $(MAKEFILE_LIST)) 1>&2;           \
+           echo Cannot find SDK in $(firstword $(MAKEFILE_LIST)) 1>&2; \
            exit 1;                              \
         fi ;                                    \
         cd $$dir;                               \
         done ;                                  \
         pwd;                                    \
         fi)
+SDK ?= $(realpath ${TRYSDK})
 
 ifeq ($(SDK),)
 $(error Please run this in a tree)
 endif
-
-export SDK
-
-
-ifeq ($(LINUX_MAKE_SHARED_LIB),1)
-libext = so.$(SHAREDLIBVER)
-else
-libext = a
-endif
-
-#
-LOCALDIR = app/linuxkern/bcm-core
+LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
+####################################################################
 
 include ${SDK}/mk/Make.config
 
-
-
-BCM_LIBS = libsal_core_plat.a libsal_core.a libsal_appl.a 
-BCM_LIBS_BLD = $(addprefix $(LIBDIR)/,$(BCM_LIBS))
-
-
-ifneq ($(kernel_version),2_6)
-MODULE = $(LIBDIR)/linux-bcm-core.o
-else
-KERNEL_MODULE_DIR = kernel_module
-
-THIS_MOD_NAME := linux-bcm-core
-MODULE = $(LIBDIR)/$(THIS_MOD_NAME).o
-KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
-
-build: $(MODULE) $(KMODULE)
-endif
-
-$(BCM_LIBS_BLD):
-	$(MAKE) -C $(SDK)/lib
-# BCM Core Driver
-
-$(MODULE): $(BLDDIR)/.tree $(BOBJS) $(BCM_LIBS_BLD) $(BLDDIR)/version.o
-	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) --start-group $(BCM_LIBS_BLD) --end-group $(BLDDIR)/version.o -o $@
-ifeq ($(kernel_version),2_6)
-$(KMODULE): $(MODULE)
-	rm -fr $(BLDDIR)/$(KERNEL_MODULE_DIR)
-	mkdir $(BLDDIR)/$(KERNEL_MODULE_DIR)
-	cp ${SDK}/mk/Makefile.linux-kmodule-2_6 $(BLDDIR)/$(KERNEL_MODULE_DIR)/Makefile
-	MOD_NAME=$(THIS_MOD_NAME) $(MAKE) -C $(BLDDIR)/$(KERNEL_MODULE_DIR) $(THIS_MOD_NAME).ko
-endif
-
-# Build version
-
-${BLDDIR}/version.c: ${BLDDIR}/.tree $(BOBJS) $(BCM_LIBS_BLD)
-	${PERL} ${SDK}/script/version.pl > $@
-${BLDDIR}/version.o: ${BLDDIR}/version.c
-	${CC} ${CFLAGS} -c $< -o $@
+CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
+CFLAGS += -I${SDK}/$(LOCALDIR)/common
+CFLAGS += -I${SDK}/$(LOCALDIR)
+CFLAGS += -I${SDK}/lib/unixlib/netl
+kmod = xxx
+LD_A_FILES += $(LIBDIR)/libsal_core.a
+LD_A_FILES += $(LIBDIR)/libsal_core_plat.a
+include ${SDK}/mk/Make.kmod
 
 include ${SDK}/mk/Make.depend
-
-# Make.depend is before clean:: so that Make.depend's clean:: runs first.
-
-clean::
-	$(RM) $(BLDDIR)/version.c $(BLDDIR)/version.o
-	$(RM) $(BOBJS) $(MODULE)
-
-ifeq ($(kernel_version),2_6)
-.PHONY: build
-endif
-

@@ -1,45 +1,43 @@
-MODULE := $(KMOD_NAME).o
-KMODULE := $(KMOD_NAME).ko
-PRE_COMPILED_OBJ := obj_$(KMOD_NAME).o
-
-obj-m := $(MODULE)
-$(KMOD_NAME)-y := $(MODULE_SYM) $(PRE_COMPILED_OBJ)
+.SECONDARY:: ${LD_O_FILES}
 
 
-export CROSS_COMPILE
+export SDK
 
+_LD_START_GROUP := --start-group
+_LD_END_GROUP := --end-group
 
-SAVE_CFLAGS := ${CFLAGS}
-
-include $(SDK)/mk/Make.config
-
-PWD := $(shell pwd)
-
-ifneq ($(ARCH),)
-# ELDK does not seem to `automatically' define ARCH where other gccs may
-A := ARCH=$(ARCH)
-export ARCH
+THIS_MOD_NAME := $(kmod)
+BLD_MODBUILDIN := $(BLDDIR)/$(kmod).o
+BLD_MOD_FINAL := $(BLDDIR)/$(THIS_MOD_NAME).ko
+KBUILD_EXTRA_SYMBOLS ?= $(BLDDIR)/kmodlddir/extra_symbols
+ifeq (,$(LD_O_FILES))
+LD_O_FILES = $(sort $(BOBJS))
 endif
+#LD_INFO_OPTS := --warn-common -Map=${targetkmod}.map --verbose
 
-# Standard SDK include path for building source files that export
-# kernel symbols.
+build: $(BLD_MODBUILDIN) $(BLD_MOD_FINAL)
 
-override EXTRA_CFLAGS = -I${SDK}/header -I${SDK}/app/linuxkern/include
+$(BLD_MODBUILDIN): $(BLDDIR)/.tree ${LD_O_FILES}
+	$(Q)rm -f $@
+	$(Q)$(ECHO) "[$(target)] LINK BLOB    $(subst $(SDK)/,,$@)" 
+	$(Q)$(LD) -o $@ $(LDFLAGS) -r -d \
+	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) $(_LD_END_GROUP) \
+	$(LD_L_LISTS) \
+	$(LD_INFO_OPTS)
 
-# The precopiled object needs a dummy command file to avoid warnings
-# from the Kbuild scripts (modpost stage).
-# Kernels before 2.6.17 do not support external module symbols files,
-# so we create a dummy to prevent build failures.
-	
-$(KMODULE):
-	rm -f *.o *.ko .*.cmd
-	rm -fr .tmp_versions
-	ln -s $(LIBDIR)/$(MODULE) $(PRE_COMPILED_OBJ)_shipped
-	echo "suppress warning" > .$(PRE_COMPILED_OBJ).cmd
-	$(MAKE) -C $(KERNDIR) $(if $(KERN_BUILDDIR),O=$(KERN_BUILDDIR),) CROSS_COMPILE=$(CROSS_COMPILE) M=$(PWD) modules
-	if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
-	cp -f $(KMODULE) $(LIBDIR)
-	rm -f $(PRE_COMPILED_OBJ)_shipped
+$(BLD_MOD_FINAL): $(BLD_MODBUILDIN)
+	$(Q)$(ECHO) "[$(target)] FINAL LINK KMOD  $(subst $(SDK)/,,$@)" 
+	$(Q)$(RM) -fr $(BLDDIR)/kmodlddir
+	$(Q)$(MKDIR) $(BLDDIR)/kmodlddir
+	$(Q)$(CP) ${SDK}/mk/Make.ldkmod $(BLDDIR)/kmodlddir/Makefile
+	$(Q)touch ${KBUILD_EXTRA_SYMBOLS}
+	$(Q)cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/kmodlddir/Module.symvers
+	SDK=$(SDK) THIS_MOD_NAME=$(THIS_MOD_NAME) BLD_MODBUILDIN=$(BLD_MODBUILDIN) $(MAKE) -C $(BLDDIR)/kmodlddir $(THIS_MOD_NAME).ko
 
-EXTRA_CFLAGS = $(CFLAGS)
-CFLAGS := ${SAVE_CFLAGS}
+all:: ${BLDDIR}/.tree $(BLD_MODBUILDIN) ${BLD_MOD_FINAL}
+
+install:: all
+
+clean::
+	$(Q)rm -f $(BLD_MODBUILDIN)
+

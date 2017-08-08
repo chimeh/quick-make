@@ -17,9 +17,9 @@ LD_INFO_OPTS := -Wl,--warn-common -Wl,-Map,${targetexec}.map -Wl,--verbose
 endif
 #LD_INFO_OPTS := --warn-common -Map=${targetexec}.map --verbose
 
-$(targetexec): ${LD_O_FILES}
+$(targetexec): $(BLDDIR)/.tree ${LD_O_FILES}
 	@rm -f $@       # Prevent core dump if currently running
-	@$(ECHO) "[$(target)] LINK    $(subst $(SDK)/,,$@)" # This is needed for error parsing
+	@$(ECHO) "[$(target)] LINK    $@" # This is needed for error parsing
 	$(Q)$(CC) \
 	-o $@ \
 	$(LDFLAGS) \
