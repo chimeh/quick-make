@@ -12,6 +12,7 @@ ifeq ($(shell uname -m),x86_64)
  ifeq (,$(findstring -DPTRS_ARE_64BITS,$(CFGFLAGS)))
   CC +=  -m32
   CXX += -m32
+  LD += -melf_i386
  endif
 endif
 endif

@@ -36,7 +36,7 @@ all:: ${BLDDIR}/.tree ${targetlib}
 
 ${LIBDIR}/%.a: ${BOBJS}
 	$(BOBJS_MAKE_CMD)
-ifdef QUIET
+ifeq (@,$(Q))
 	@$(ECHO) "[$(target)] ARLIB   $(subst $(SDK)/,,$@)"
 endif
 	$Q$(RM) $@
@@ -44,7 +44,7 @@ endif
 
 $(targetlib): ${BOBJS}
 	$(BOBJS_MAKE_CMD)
-ifdef QUIET
+ifeq (@,$(Q))
 	@$(ECHO) "[$(target)] ARLIB   $(subst $(SDK)/,,$@)"
 endif
 	$Q$(RM) $@
@@ -54,7 +54,7 @@ endif
 install:: all
 
 clean::
-ifdef QUIET
+ifeq (@,$(Q))
 	$Q$(ECHO) "[$(target)] ClEAN    OBJS ${LOCALDIR}"
 endif
 	$Q$(RM) ${BOBJS}

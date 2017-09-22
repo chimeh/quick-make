@@ -14,9 +14,6 @@ ENDIAN_CFGFLAGS = -DLE_HOST=1 -DBE_HOST=0
 CFGFLAGS += $(ENDIAN_CFGFLAGS)
 
 
-# LDFLAGS
-LIBS= -lpthread -lm -lrt
-LDFLAGS += ${LIBS}
 
 ifeq (linuxkern,$(targetbase))
 include ${SDK}/mk/plat.$(targetplat).linuxkern

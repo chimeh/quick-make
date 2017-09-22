@@ -72,7 +72,7 @@ endif
 endif	# !CLEANING
 
 clean_d::
-ifdef QUIET
+ifeq (@,$(Q))
 	@$(ECHO) "[$(target)] CLEAN    DEPS ${LOCALDIR}"
 endif
 	$Q$(RM) $(BOBJS:.o=.P)

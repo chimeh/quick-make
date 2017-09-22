@@ -5,7 +5,7 @@
 .PHONY: ${subdirs}
 
 all:: ${subdirs}
-ifdef QUIET
+ifeq (@,$(Q))
 	@$(ECHO) "[$(target)] SUBDIR  $(LOCALDIR)/: ${subdirs} "
 endif
 
@@ -13,7 +13,7 @@ ${subdirs}::
 	$Q$(MAKE) -C $@ kernel_version=$(kernel_version) LINUX_MAKE_SHARED_LIB=${LINUX_MAKE_SHARED_LIB} SHAREDLIBVER=${SHAREDLIBVER}
 
 clean clean_d install distclean::
-ifdef QUIET
+ifeq (@,$(Q))
 	@$(ECHO) "[$(target)] $@    $(LOCALDIR)"
 endif
 	@(for name in $(subdirs); do $(MAKE) -C $$name $@; done)
