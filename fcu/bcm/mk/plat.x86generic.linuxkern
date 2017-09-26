@@ -39,7 +39,7 @@ endif
 
 KCONFIG_H = $(LINUX_KDIR)/include/linux/kconfig.h
 ifeq (,$(shell ls $(KCONFIG_H) 2>/dev/null))
-AUTOCONF = 
+KCONFIG_H = 
 endif
 
 
@@ -55,7 +55,7 @@ KFLAGS := -nostdinc -isystem $(SYSINC) \
   -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated/uapi \
   -I$(LINUX_KDIR)/include/uapi \
   -I$(LINUX_KDIR)/include/generated/uapi \
-  -include $(AUTOCONF) \
+  $(if $(AUTOCONF),-include $(AUTOCONF)) \
   $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
   -m32 -D__KERNEL__ \
   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common \
