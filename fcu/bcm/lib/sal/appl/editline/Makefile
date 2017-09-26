@@ -26,15 +26,15 @@ include ${SDK}/mk/Make.config
 
 CFLAGS += -DANSI_ARROWS -DUNIQUE_HISTORY -DHIST_SIZE=64
 
-ifeq (${targetbase},posix)
+ifeq (${targetos},posix)
 CFLAGS += -DSYS_UNIX -DHAVE_TCGETATTR -DUSE_DIRENT
 endif
 
-ifeq (${targetbase},unix)
+ifeq (${targetos},unix)
 CFLAGS += -DSYS_UNIX -DHAVE_TCGETATTR -DUSE_DIRENT
 endif
 
-ifneq (${targetbase},linux)
+ifneq (${targetos},linuxuser)
 CFLAGS += -DHAVE_STDLIB
 endif
 

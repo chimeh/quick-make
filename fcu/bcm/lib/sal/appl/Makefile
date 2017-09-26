@@ -24,11 +24,11 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 
 include ${SDK}/mk/Make.config
 
-ifeq (linuxkern,$(targetbase))
+ifeq (linuxkern,$(targetos))
 CFLAGS += -DNO_FILEIO
 endif
 
-subdirs=${targetbase} editline
+subdirs=${targetos} editline
 
 include ${SDK}/mk/Make.subdirs
 

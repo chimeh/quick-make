@@ -59,4 +59,4 @@ base: linuxkern linuxuser  vxworks
 TODO:
 
 targetplat --> targetplat
-targetbase --> targetos
+targetos --> targetos

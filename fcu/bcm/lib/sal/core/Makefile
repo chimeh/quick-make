@@ -24,7 +24,7 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 
 include ${SDK}/mk/Make.config
 
-subdirs=${targetbase}
+subdirs=${targetos}
 include ${SDK}/mk/Make.subdirs
 
 lib = libsal_core

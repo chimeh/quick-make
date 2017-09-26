@@ -24,6 +24,6 @@ CFGFLAGS += $(ENDIAN_CFGFLAGS)
 
 
 
-ifeq (linuxkern,$(targetbase))
+ifeq (linuxkern,$(targetos))
 include ${SDK}/mk/plat.$(targetplat).linuxkern
 endif

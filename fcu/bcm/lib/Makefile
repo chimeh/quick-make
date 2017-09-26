@@ -33,7 +33,7 @@ export LIBDIR
 
 subdirs = customer sal unixlib
 
-ifeq ($(targetbase),linuxkern)
+ifeq ($(targetos),linuxkern)
 subdirs += hsl
 endif
 
