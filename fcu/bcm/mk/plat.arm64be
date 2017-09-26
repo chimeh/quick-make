@@ -16,7 +16,9 @@ ENDIAN_CFGFLAGS = -DBE_HOST=1 -DLE_HOST=\(!BE_HOST\)
 CFGFLAGS += $(ENDIAN_CFGFLAGS)
 
 
-
 ifeq (linuxkern,$(targetos))
 include ${SDK}/mk/plat.$(targetplat).linuxkern
+endif
+ifeq (linuxuser,$(targetos))
+include ${SDK}/mk/plat.$(targetplat).linuxuser
 endif

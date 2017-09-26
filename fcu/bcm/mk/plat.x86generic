@@ -1,29 +1,26 @@
 # toolchain
-CC       = $(CROSS_COMPILE)gcc
-CXX      = $(CROSS_COMPILE)g++
-LD       = $(CROSS_COMPILE)ld
+CROSS_COMPILE =
+CC       = $(CROSS_COMPILE)gcc -m32
+CXX      = $(CROSS_COMPILE)g++ -m32
+LD       = $(CROSS_COMPILE)ld -melf_i386
 AR       = $(CROSS_COMPILE)ar
 ARFLAGS  = -rc
 STRIP    = $(CROSS_COMPILE)strip
 RANLIB   = $(CROSS_COMPILE)ranlib
 
-ifeq (,$(CROSS_COMPILE))
-ifeq ($(shell uname -m),x86_64)
- ifeq (,$(findstring -DPTRS_ARE_64BITS,$(CFGFLAGS)))
-  CC +=  -m32
-  CXX += -m32
-  LD += -melf_i386
- endif
-endif
-endif
+
 CFGFLAGS += -DLINUX
 
 # endian compile flags
-ENDIAN_CFGFLAGS = -DLE_HOST=1 -DBE_HOST=0
+ENDIAN_CFGFLAGS = -DBE_HOST=1 -DLE_HOST=\(!BE_HOST\)
+#ENDIAN_CFGFLAGS = -DBE_HOST=0 -DLE_HOST=\(!BE_HOST\)
 CFGFLAGS += $(ENDIAN_CFGFLAGS)
 
 
 
 ifeq (linuxkern,$(targetos))
 include ${SDK}/mk/plat.$(targetplat).linuxkern
+endif
+ifeq (linuxuser,$(targetos))
+include ${SDK}/mk/plat.$(targetplat).linuxuser
 endif
