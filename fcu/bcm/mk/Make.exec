@@ -6,7 +6,7 @@
 _LD_START_GROUP := -Wl,--start-group
 _LD_END_GROUP := -Wl,--end-group
 
-targetexec= ${BLDDIR}/${exec}
+targetexec = ${BLDDIR}/${exec}
 bldroot_exec = ${BLDROOT}/${exec}
 
 ifeq (,$(LD_O_FILES))

@@ -1,0 +1,22 @@
+# toolchain
+CROSS_COMPILE ?=mips64-nlm-linux-
+CC       = $(CROSS_COMPILE)gcc
+CXX      = $(CROSS_COMPILE)g++
+LD       = $(CROSS_COMPILE)ld
+AR       = $(CROSS_COMPILE)ar
+ARFLAGS  = -rc
+STRIP    = $(CROSS_COMPILE)strip
+RANLIB   = $(CROSS_COMPILE)ranlib
+
+CFGFLAGS += -DLINUX
+
+# endian compile flags
+ENDIAN_CFGFLAGS = -DBE_HOST=1 -DLE_HOST=\(!BE_HOST\)
+#ENDIAN_CFGFLAGS = -DBE_HOST=0 -DLE_HOST=\(!BE_HOST\)
+CFGFLAGS += $(ENDIAN_CFGFLAGS)
+
+
+
+ifeq (linuxkern,$(targetbase))
+include ${SDK}/mk/plat.$(targetplat).linuxkern
+endif

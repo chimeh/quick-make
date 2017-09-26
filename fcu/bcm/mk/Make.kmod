@@ -13,7 +13,7 @@ KBUILD_EXTRA_SYMBOLS ?= $(BLDDIR)/kmodlddir/extra_symbols
 ifeq (,$(LD_O_FILES))
 LD_O_FILES = $(sort $(BOBJS))
 endif
-#LD_INFO_OPTS := --warn-common -Map=${targetkmod}.map --verbose
+#LD_INFO_OPTS := --warn-common -Map=${BLD_MODBUILDIN}.map --verbose
 
 build: $(BLD_MODBUILDIN) $(BLD_MOD_FINAL)
 

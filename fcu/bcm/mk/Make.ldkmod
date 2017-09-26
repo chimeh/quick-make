@@ -38,7 +38,7 @@ $(THIS_MOD_NAME).ko:
 	@rm -fr .tmp_versions
 	$(Q)ln -s $(BLD_MODBUILDIN) $(PRE_COMPILED_OBJ)_shipped 
 	@echo "suppress warning" > .$(PRE_COMPILED_OBJ).cmd
-	$(Q)$(MAKE) -C $(KERNDIR) V=$(V) $(if $(KERN_BUILDDIR),O=$(KERN_BUILDDIR),) $(if $(CROSS_COMPILE),CROSS_COMPILE=$(CROSS_COMPILE),)  M=$(shell pwd) modules
+	$(Q)$(MAKE) -C $(LINUX_KDIR) V=$(V) $(if $(KERN_BUILDDIR),O=$(KERN_BUILDDIR),) $(if $(CROSS_COMPILE),CROSS_COMPILE=$(CROSS_COMPILE),)  M=$(shell pwd) modules
 	@if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
 	@cp -f $@ $(LIBDIR)
 	@rm -f $(PRE_COMPILED_OBJ)_shipped

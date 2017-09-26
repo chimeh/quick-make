@@ -1,7 +1,5 @@
-# Default kernel source directory
-ifeq (,$(LINUX_KDIR))
-LINUX_KDIR := /lib/modules/$(shell uname -r)/build
-export LINUX_KDIR
+ifeq ($(LINUX_KDIR),)
+$(error "build kernel module, but $(CUR_MAKEFILE) can't detection LINUX_KDIR")
 endif
 
 # Default Linux include directory
@@ -9,19 +7,16 @@ ifeq (,$(LINUX_INCLUDE))
 LINUX_INCLUDE := $(LINUX_KDIR)/include
 endif
 # Default architecture
-ifeq (,$(ARCH))
-SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
-                                  -e s/sun4u/sparc64/ \
-                                  -e s/arm.*/arm/ -e s/sa110/arm/ \
-                                  -e s/s390x/s390/ -e s/parisc64/parisc/ \
-                                  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
-                                  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ )
-ARCH ?= $(SUBARCH)
-endif
+ARCH = arm
 
-# By default we exclude -Werror from x86 kernel builds
+
+# By default we exclude -Werror from arm kernel builds
 CFGFLAGS += -Wall
-CFGFLAGS += -I$(SDK)/app/linuxkern/include 
+CFGFLAGS += -I$(SDK)/app/linuxkern/include \
+	    -I$(LINUX_INCLUDE) \
+	    -I$(LINUX_INCLUDE)/asm/gcc \
+	    -I$(LINUX_INCLUDE)/asm/mach-generic \
+        -I$(LINUX_KDIR)/arch/$(ARCH)
 
 
 
@@ -37,27 +32,13 @@ ifeq (,$(shell ls $(AUTOCONF) 2>/dev/null))
 AUTOCONF = $(LINUX_KDIR)/include/linux/autoconf.h
 endif
 
-KCONFIG_H = $(LINUX_KDIR)/include/linux/kconfig.h
-ifeq (,$(shell ls $(KCONFIG_H) 2>/dev/null))
-AUTOCONF = 
-endif
-
-
 # gcc system include path
 SYSINC = $(shell $(CC) -print-search-dirs | grep install | cut -c 10-)include
-  
+
 ifeq (,$(KFLAGS))
-KFLAGS := -nostdinc -isystem $(SYSINC) \
-  -I$(LINUX_KDIR)/include \
-  -I$(LINUX_KDIR)/arch/$(ARCH)/include \
-  -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated \
-  -I$(LINUX_KDIR)/arch/$(ARCH)/include/uapi \
-  -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated/uapi \
-  -I$(LINUX_KDIR)/include/uapi \
-  -I$(LINUX_KDIR)/include/generated/uapi \
+KFLAGS := -nostdinc -isystem $(SYSINC) -I$(LINUX_KDIR)/include -I$(LINUX_KDIR)/arch/$(ARCH)/include \
   -include $(AUTOCONF) \
-  $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
-  -m32 -D__KERNEL__ \
+  -D__KERNEL__ \
   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common \
   -maccumulate-outgoing-args -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 \
   -fomit-frame-pointer \
