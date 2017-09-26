@@ -2,7 +2,7 @@
 CROSS_COMPILE ?=mips64-nlm-linux-
 CC       = $(CROSS_COMPILE)gcc
 CXX      = $(CROSS_COMPILE)g++
-LD       = $(CROSS_COMPILE)ld
+LD       = $(CROSS_COMPILE)ld  -m elf64btsmip_sym32
 AR       = $(CROSS_COMPILE)ar
 ARFLAGS  = -rc
 STRIP    = $(CROSS_COMPILE)strip

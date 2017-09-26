@@ -28,8 +28,7 @@ CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
 CFLAGS += -I${SDK}/$(LOCALDIR)/common
 CFLAGS += -I${SDK}/$(LOCALDIR)
 
-LD += -melf_i386
-LDFLAGS += -L$(LIBDIR) -L/usr/lib
+LDFLAGS += -L$(LIBDIR)
 exec = test_json
 LD_O_FILES = $(BOBJS)
 LD_A_FILES =

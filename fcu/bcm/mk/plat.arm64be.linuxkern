@@ -27,7 +27,11 @@ export ARCH KBUILD_VERBOSE LINUX_KDIR
 # autoconf.h was moved in later kernels
 AUTOCONF = $(LINUX_KDIR)/include/generated/autoconf.h
 ifeq (,$(shell ls $(AUTOCONF) 2>/dev/null))
+AUTOCONF = 
+endif
 AUTOCONF = $(LINUX_KDIR)/include/linux/autoconf.h
+ifeq (,$(shell ls $(AUTOCONF) 2>/dev/null))
+AUTOCONF = 
 endif
 
 KCONFIG_H = $(LINUX_KDIR)/include/linux/kconfig.h

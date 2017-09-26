@@ -179,6 +179,7 @@ do { \
 
 #ifdef LKM_2_6
 #define SCHED_OTHER     SCHED_NORMAL
+#define MAX_USER_RT_PRIO
 #endif
 
 #ifdef MAX_USER_RT_PRIO

@@ -2,6 +2,8 @@
 
 
 export SDK
+export CROSS_COMPILE
+export ARCH
 
 _LD_START_GROUP := --start-group
 _LD_END_GROUP := --end-group
@@ -15,24 +17,35 @@ LD_O_FILES = $(sort $(BOBJS))
 endif
 #LD_INFO_OPTS := --warn-common -Map=${BLD_MODBUILDIN}.map --verbose
 
+ifeq (2,$(V))
+LD_INFO_OPTS := --warn-common --verbose
+endif
+ifeq (3,$(V))
+LD_INFO_OPTS := --warn-common -Map=${OUTDIR}/$(kmod).map --verbose
+endif
+
+
 build: $(BLD_MODBUILDIN) $(BLD_MOD_FINAL)
 
 $(BLD_MODBUILDIN): $(BLDDIR)/.tree ${LD_O_FILES}
 	$(Q)rm -f $@
 	$(Q)$(ECHO) "[$(target)] LINK BLOB    $(subst $(SDK)/,,$@)" 
-	$(Q)$(LD) -o $@ $(LDFLAGS) -r -d \
+	$(Q)$(LD) -o $@ $(LDFLAGS) -L${LIBDIR} -r -d \
 	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) $(_LD_END_GROUP) \
 	$(LD_L_LISTS) \
 	$(LD_INFO_OPTS)
 
-$(BLD_MOD_FINAL): $(BLD_MODBUILDIN)
+$(BLD_MOD_FINAL): $(BLD_MODBUILDIN) $(OUTDIR)/strip/.tree
 	$(Q)$(ECHO) "[$(target)] FINAL LINK KMOD  $(subst $(SDK)/,,$@)" 
 	$(Q)$(RM) -fr $(BLDDIR)/kmodlddir
 	$(Q)$(MKDIR) $(BLDDIR)/kmodlddir
 	$(Q)$(CP) ${SDK}/mk/Make.ldkmod $(BLDDIR)/kmodlddir/Makefile
 	$(Q)touch ${KBUILD_EXTRA_SYMBOLS}
 	$(Q)cat ${KBUILD_EXTRA_SYMBOLS} > $(BLDDIR)/kmodlddir/Module.symvers
-	SDK=$(SDK) THIS_MOD_NAME=$(THIS_MOD_NAME) BLD_MODBUILDIN=$(BLD_MODBUILDIN) $(MAKE) -C $(BLDDIR)/kmodlddir $(THIS_MOD_NAME).ko
+	SDK=$(SDK) THIS_MOD_NAME=$(THIS_MOD_NAME) BLD_MODBUILDIN=$(BLD_MODBUILDIN) $(MAKE) -C $(BLDDIR)/kmodlddir \
+    $(THIS_MOD_NAME).ko
+	$(Q)$(CP) $(BLDDIR)/kmodlddir/$(THIS_MOD_NAME).ko $(OUTDIR)
+	$(Q)$(STRIP) --strip-debug $(BLDDIR)/kmodlddir/$(THIS_MOD_NAME).ko -o $(OUTDIR)/strip/$(notdir $@)
 
 all:: ${BLDDIR}/.tree $(BLD_MODBUILDIN) ${BLD_MOD_FINAL}
 
