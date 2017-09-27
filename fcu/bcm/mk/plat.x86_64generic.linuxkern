@@ -1,7 +1,8 @@
 # Default kernel source directory
 ifeq (,$(LINUX_KDIR))
 LINUX_KDIR := /lib/modules/$(shell uname -r)/build
-#export LINUX_KDIR
+$(info LINUX_KDIR=$(LINUX_KDIR))
+export LINUX_KDIR
 endif
 
 # Default Linux include directory
