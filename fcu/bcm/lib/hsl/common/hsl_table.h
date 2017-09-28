@@ -46,17 +46,13 @@ struct hsl_route_node *hsl_route_next_until (struct hsl_route_node *, struct hsl
 struct hsl_route_node *hsl_route_node_get (struct hsl_route_table *, hsl_prefix_t *);
 struct hsl_route_node *hsl_route_node_get_ipv4 (struct hsl_route_table *, 
 					hsl_ipv4Address_t *);
-#ifdef HAVE_IPV6
 struct hsl_route_node *hsl_route_node_get_ipv6 (struct hsl_route_table *,
 					hsl_ipv6Address_t *);
-#endif /* HAVE_IPV6 */
 struct hsl_route_node *hsl_route_node_lookup (struct hsl_route_table *, hsl_prefix_t *);
 struct hsl_route_node *hsl_route_node_lookup_ipv4 (struct hsl_route_table *,
 					   hsl_ipv4Address_t *);
-#ifdef HAVE_IPV6
 struct hsl_route_node *hsl_route_node_lookup_ipv6 (struct hsl_route_table *,
 					   hsl_ipv6Address_t *);
-#endif /* HAVE_IPV6 */
 struct hsl_route_node *hsl_route_lock_node (struct hsl_route_node *node);
 struct hsl_route_node *hsl_route_node_match (struct hsl_route_table *, hsl_prefix_t *);
 struct hsl_route_node *hsl_route_node_match_exclude (struct hsl_route_table *,
@@ -67,9 +63,7 @@ struct hsl_route_node *hsl_route_node_match_ipv4 (struct hsl_route_table *,
 void hsl_route_node_free (struct hsl_route_node *node);
 u_char hsl_route_table_has_info (struct hsl_route_table *);
 void hsl_route_table_id_set (struct hsl_route_table *, u_int32_t);
-#ifdef HAVE_IPV6
 struct hsl_route_node *hsl_route_node_match_ipv6 (struct hsl_route_table *,
 					  hsl_ipv6Address_t *);
-#endif /* HAVE_IPV6 */
 
 #endif /* _ZEBOS_TABLE_H */

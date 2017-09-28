@@ -124,7 +124,6 @@ typedef struct
 #define HSL_INADDR_LOOPBACK   (unsigned long)0x7f000001U
 #define HSL_LOOPBACK_PREFIXLEN   8
 
-#ifdef HAVE_IPV6
 /* 
    IPv6 address. 
 */
@@ -157,7 +156,6 @@ typedef struct
   hsl_ipv6Address_t address;
 } hsl_ipv6Prefix_t;
 
-#endif /* HAVE_IPV6 */
 
 /*
   Unified prefix structure. 
@@ -172,9 +170,7 @@ typedef struct
   {
     u_char prefix;
     hsl_ipv4Address_t prefix4;
-#ifdef HAVE_IPV6
     hsl_ipv6Address_t prefix6;
-#endif /* HAVE_IPV6 */
   } u;
 } hsl_prefix_t;
 
@@ -204,7 +200,6 @@ struct hsl_ip
   hsl_ipv4Address_t ip_dst;                          /* Destination. */
 } __attribute__((__packed__));
 
-#ifdef HAVE_IPV6
 /*
   IPv6 header.
 */
@@ -245,7 +240,6 @@ struct hsl_nd_opt_hdr
 
 
 
-#endif /* HAVE_IPV6 */ 
 
 #define HSL_PROTO_IP           0   /* Dummy for IP. */
 #define HSL_PROTO_ICMP         1   /* Internet Control Message Protocol. */
@@ -328,7 +322,6 @@ struct hsl_arp
 #define INADDR_MAX_LOCAL_GROUP 0xe00000ffU
 #endif /* INADDR_MAX_LOCAL_GROUP */
 
-#ifdef HAVE_IPV6
 
 /* Neighbor Discovery ICMPv6 Types. */
 #define IPV6_ND_OPT_TARGET_LINKADDR      2
@@ -372,9 +365,7 @@ struct hsl_arp
 	 && ((u_int32_t *) (a))[3] == htonl (1)) 
 #endif /* PNE_VERSION_2_2 */
 
-#endif /* HAVE_IPV6 */
 
-#ifdef HAVE_IPV6
 
 #define HSL_PREFIX_CMP(D,S)                                             \
            ((AF_INET == ((D)->family)) && (AF_INET == ((S)->family)))?  \
@@ -397,16 +388,7 @@ struct hsl_arp
   } while (0)
 #endif /*  PNE_VERSION_2_2 */
 
-#else   /* HAVE_IPV6 */
 
-#define HSL_PREFIX_CMP(D,S)                                             \
-           ((AF_INET == ((D)->family)) && (AF_INET == ((S)->family)))?  \
-               IPV4_ADDR_CMP(&((D)->u.prefix4),&((S)->u.prefix4)):0;
-
-#define HSL_PREFIX_IS_ZERO(D)                                                   \
-           ((AF_INET == ((D)->family))? (((D)->u.prefix4)? HSL_FALSE: HSL_TRUE): 0)
-
-#endif  /* HAVE_IPV6 */
 
 /* Socket address structure for L2 */
 struct sockaddr_l2
@@ -459,7 +441,6 @@ struct sockaddr_of
 
 
 
-#ifdef HAVE_MLD_SNOOP
 
 #define HSL_MLD_HOP_LIMIT_DEF 1
 
@@ -482,8 +463,6 @@ struct sockaddr_mld
 
   hsl_ipv6Address_t ip6_dst;
 };
-
-#endif
 
 
 /* General */
@@ -536,10 +515,8 @@ int hsl_prefix_same (hsl_prefix_t *p1, hsl_prefix_t *p2);
 void hsl_masklen2ip (u_int32_t masklen, hsl_ipv4Address_t *netmask);
 void hsl_apply_mask_ipv4 (hsl_prefix_t *p);
 
-#ifdef HAVE_IPV6
 void hsl_masklen2ip6 (s_int32_t masklen, hsl_ipv6Address_t *netmask);
 void hsl_apply_mask_ipv6 (hsl_prefix_t *p);
-#endif /* HAVE_IPV6 */
 void hsl_prefix_copy (hsl_prefix_t *dest, hsl_prefix_t *src);
 int hsl_prefix_match (hsl_prefix_t *n, hsl_prefix_t *p);
 int hsl_prefix2str (hsl_prefix_t *p, char *str, int size);

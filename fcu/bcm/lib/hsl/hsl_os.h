@@ -26,9 +26,7 @@
 #include <linux/mroute.h>
 #include <net/icmp.h>
 #include <net/protocol.h>
-#ifdef HAVE_IPV6
 #include <net/addrconf.h>
-#endif /* HAVE_IPV6 */
 #include <linux/ctype.h>
 
 

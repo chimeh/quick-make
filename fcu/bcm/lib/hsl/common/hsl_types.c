@@ -13,10 +13,8 @@
 static const u_int8_t maskbit[] = {0x00, 0x80, 0xc0, 0xe0, 0xf0,
                                   0xf8, 0xfc, 0xfe, 0xff};
 
-#ifdef HAVE_IPV6
 #define HSL_INT16SZ      sizeof(u_int16_t)
 #define HSL_IN6ADDRSZ    16
-#endif 
 
 /*
    Mac addr to string 
@@ -49,11 +47,9 @@ hsl_prefix_same (hsl_prefix_t *p1, hsl_prefix_t *p2)
       if (p1->family == AF_INET)
 	if (IPV4_ADDR_SAME (&p1->u.prefix, &p2->u.prefix))
 	  return 1;
-#ifdef HAVE_IPV6
       if (p1->family == AF_INET6 )
 	if (IPV6_ADDR_SAME (&p1->u.prefix, &p2->u.prefix))
 	  return 1;
-#endif /* HAVE_IPV6 */
     }
   return 0;
 }
@@ -66,7 +62,6 @@ hsl_masklen2ip (u_int32_t masklen, hsl_ipv4Address_t *netmask)
 {
   *netmask = htonl(0xffffffff  << (32 - masklen));
 }
-#ifdef HAVE_IPV6
 /*
   Mask length to mask. 
 */
@@ -93,7 +88,6 @@ hsl_masklen2ip6 (s_int32_t masklen, hsl_ipv6Address_t *netmask)
   if (bit)
     *pnt = maskbit[bit];
 }
-#endif /* HAVE_IPV6 */
 /* If n includes p prefix then return 1 else return 0. */
 int
 hsl_prefix_match (hsl_prefix_t *n, hsl_prefix_t *p)
@@ -145,7 +139,6 @@ hsl_apply_mask_ipv4 (hsl_prefix_t *p)
     }
 }
 
-#ifdef HAVE_IPV6
 void
 hsl_apply_mask_ipv6 (hsl_prefix_t *p)
 {
@@ -167,7 +160,6 @@ hsl_apply_mask_ipv6 (hsl_prefix_t *p)
 	pnt[index++] = 0;
     }
 }
-#endif /* HAVE_IPV6 */
 
 void
 hsl_apply_mask (hsl_prefix_t *p)
@@ -177,11 +169,9 @@ hsl_apply_mask (hsl_prefix_t *p)
       case AF_INET:
         hsl_apply_mask_ipv4 (p);
         break;
-#ifdef HAVE_IPV6
       case AF_INET6:
         hsl_apply_mask_ipv6 (p);
         break;
-#endif /* HAVE_IPV6 */
       default:
         break;
     }
@@ -213,10 +203,8 @@ hsl_prefix_copy (hsl_prefix_t *dest, hsl_prefix_t *src)
   
   if (src->family == AF_INET)
     dest->u.prefix4 = src->u.prefix4;
-#ifdef HAVE_IPV6
   else if (src->family == AF_INET6)
     dest->u.prefix6 = src->u.prefix6;
-#endif /* HAVE_IPV6 */
 }
 
 /*
@@ -238,7 +226,6 @@ _hsl_inet_ntop4 (const char * src, char * dst, size_t size)
   return (dst);
 }
 
-#ifdef HAVE_IPV6
 /*
   IPv6 inet_ntop
 */
@@ -338,7 +325,6 @@ _hsl_inet_ntop6 (const u_int8_t * src, s_int8_t * dst, size_t size)
   strcpy(dst, tmp);
   return dst;
 }
-#endif /* HAVE_IPV6 */
 
 /*
    inet_ntop
@@ -350,10 +336,8 @@ hsl_inet_ntop (int af, void *src, char *dst, int size)
     {
     case AF_INET:
       return (_hsl_inet_ntop4 ((char *)src, dst, size));
-#ifdef HAVE_IPV6
     case AF_INET6:
       return (_hsl_inet_ntop6 (src, dst, size));
-#endif /* HAVE_IPV6 */
     default:
       return (NULL);
     }
@@ -384,7 +368,6 @@ errout:
   return 0;
 }
 
-#ifdef HAVE_IPV6
 int
 _hsl_inet_pton6 (const char *strptr, void *addrptr)
 {
@@ -491,7 +474,6 @@ _hsl_inet_pton6 (const char *strptr, void *addrptr)
 errout1:
   return 0;
 }
-#endif /* HAVE_IPV6 */
 
 /*
    inet_pton
@@ -503,10 +485,8 @@ hsl_inet_pton (int af, const char *strptr, void *addrptr)
     {
     case AF_INET:
       return (_hsl_inet_pton4 (strptr, addrptr));
-#ifdef HAVE_IPV6
     case AF_INET6:
       return (_hsl_inet_pton6 (strptr, addrptr));
-#endif /* HAVE_IPV6 */
     default:
       return -1;
     }

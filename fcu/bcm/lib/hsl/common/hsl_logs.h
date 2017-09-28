@@ -5,8 +5,6 @@
 
 #include <hsl_logger.h>
 
-#if 1 /* DEBUG */
-#ifdef HAVE_ISO_MACRO_VARARGS
 #define HSL_FN_ENTER(...)                                               \
     do {                                                                \
        HSL_LOG (HSL_LOG_GENERAL, HSL_LEVEL_INFO, "Entering \n");        \
@@ -16,31 +14,6 @@
        HSL_LOG (HSL_LOG_GENERAL, HSL_LEVEL_INFO, "Returnin \n");        \
         return __VA_ARGS__;                                             \
     } while (0)
-#else
-#define HSL_FN_ENTER(ARGS...)                                           \
-    do {                                                                \
-       HSL_LOG (HSL_LOG_GENERAL, HSL_LEVEL_INFO, "@Entering \n");       \
-    } while (0)
-#define HSL_FN_EXIT(ARGS...)                                            \
-    do {                                                                \
-       HSL_LOG (HSL_LOG_GENERAL, HSL_LEVEL_INFO, "@Returnin \n");       \
-       return ARGS;                                                     \
-    } while (0)
-#endif /* HAVE_ISO_MACRO_VARARGS */
-#else
-#ifdef HAVE_ISO_MACRO_VARARGS
-#define HSL_FN_ENTER(...)
-#else
-#define HSL_FN_ENTER(ARGS...)
-#endif /* HAVE_ISO_MACRO_VARARGS */
-#ifdef HAVE_ISO_MACRO_VARARGS
-#define HSL_FN_EXIT(...)                                              \
-    return __VA_ARGS__;
-#else
-#define HSL_FN_EXIT(ARGS...)                                          \
-    return ARGS;
-#endif /* HAVE_ISO_MACRO_VARARGS */
-#endif /* DEBUG */
 
 /* General */
 #define HSL_ERR_WRONG_PARAMS                  HSL_LOG(HSL_LOG_COMMON,HSL_LEVEL_ERROR,"%s:%d Error: Wrong parameters",__FILE__,__LINE__)

@@ -6,9 +6,7 @@
 /* HSL includes.*/
 #include "hsl_types.h"
 #include "hal_netlink.h"
-#ifdef HAVE_L2
 #include "hal_socket.h"
-#endif /* HAVE_L2 */
 #include "hal_if.h"
 #include "hal_msg.h"
 #include "hsl_oss.h"
@@ -239,7 +237,6 @@ hsl_msg_decode_debug_hsl(u_char **pnt, u_int32_t *size, struct hal_msg_debug_hsl
 }
 
 
-#ifdef HAVE_LACPD
 /* 
    Encode lacp set port selection criteria.
 */
@@ -451,9 +448,7 @@ hsl_msg_decode_lacp_mux (u_char **pnt, u_int32_t *size, struct hal_msg_lacp_mux 
 
   return *pnt - sp;
 }
-#endif /* HAVE_LACPD */
 
-#ifdef HAVE_VLAN_CLASS
 /*
   Encode vlan classifier rule message.
 */
@@ -545,8 +540,6 @@ hsl_msg_decode_vlan_classifier_rule(u_char **pnt, u_int32_t *size, struct hal_ms
   }
   return *pnt - sp;
 }
-#endif /* HAVE_VLAN_CLASS */
-#ifdef HAVE_L2
 /* 
    Encode igmp snooping entry message.
 */
@@ -679,7 +672,6 @@ hsl_msg_decode_igs_bridge(u_char **pnt, u_int32_t *size, struct hal_msg_igs_brid
   return *pnt - sp;
 }
 
-#ifdef HAVE_MLD_SNOOP
 
 /*
     Encode mld snooping enable message.
@@ -818,7 +810,6 @@ hsl_msg_decode_mlds_entry(u_char **pnt, u_int32_t *size,
    return *pnt - sp;
 }
 
-#endif /* HAVE_MLD_SNOOP */
 
 /* 
    Encode l2 fdb resp.
@@ -1000,9 +991,7 @@ hsl_msg_decode_l2_fdb_req (u_char **pnt, u_int32_t *size, struct hal_msg_l2_fdb_
 
   return *pnt - sp;
 }
-#endif /* HAVE_L2 */
 
-#ifdef HAVE_L3
 /* 
    Encode arp cache resp.
 */
@@ -1196,7 +1185,6 @@ hsl_msg_decode_ipv4_addr(u_char **pnt, u_int32_t *size, struct hal_msg_if_ipv4_a
 
   return *pnt - sp;
 }
-#ifdef HAVE_IPV6
 /* 
    Encode ipv6 neighbor cache resp.
 */
@@ -1372,7 +1360,6 @@ hsl_msg_decode_ipv6_addr(u_char **pnt, u_int32_t *size, struct hal_msg_if_ipv6_a
 
   return *pnt - sp;
 }
-#endif /* HAVE_IPV6 */
 /*
   Encode route message.
 */
@@ -1461,7 +1448,6 @@ hsl_msg_decode_ipv4_route (u_char **pnt, u_int32_t *size, struct hal_msg_ipv4uc_
   return *pnt - sp;
 }
 
-#ifdef HAVE_IPV6 
 /*
   Decode IPV6 route message.
 */
@@ -1514,9 +1500,7 @@ hsl_msg_decode_ipv6_route (u_char **pnt, u_int32_t *size, struct hal_msg_ipv6uc_
 
   return *pnt - sp;
 }
-#endif /* HAVE_IPV6 */
 
-#ifdef HAVE_MCAST_IPV4
 /*
   Encode vif add message.
 */
@@ -1752,9 +1736,7 @@ hsl_msg_decode_ipv4_sg_stat (u_char **pnt, u_int32_t *size,
 
   return *pnt - sp;
 }
-#endif /* HAVE_MCAST_IPV4 */
 
-#ifdef HAVE_MCAST_IPV6
 /*
   Encode vif add message.
 */
@@ -2007,7 +1989,5 @@ hsl_msg_decode_ipv6_sg_stat (u_char **pnt, u_int32_t *size,
 
   return *pnt - sp;
 }
-#endif /* HAVE_MCAST_IPV6 */
 
-#endif /* HAVE_L3 */
 

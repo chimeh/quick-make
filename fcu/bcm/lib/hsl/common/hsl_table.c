@@ -274,7 +274,6 @@ hsl_route_node_match_ipv4 (struct hsl_route_table *table, hsl_ipv4Address_t *add
   return hsl_route_node_match (table, (hsl_prefix_t *) &p);
 }
 
-#ifdef HAVE_IPV6
 struct hsl_route_node *
 hsl_route_node_match_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *addr)
 {
@@ -287,7 +286,6 @@ hsl_route_node_match_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *add
 
   return hsl_route_node_match (table, (hsl_prefix_t *) &p);
 }
-#endif /* HAVE_IPV6 */
 
 /* Lookup same prefix node.  Return NULL when we can't find route. */
 struct hsl_route_node *
@@ -322,7 +320,6 @@ hsl_route_node_lookup_ipv4 (struct hsl_route_table *table, hsl_ipv4Address_t *ad
   return hsl_route_node_lookup (table, &p);
 }
 
-#ifdef HAVE_IPV6
 struct hsl_route_node *
 hsl_route_node_lookup_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *addr)
 {
@@ -335,7 +332,6 @@ hsl_route_node_lookup_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *ad
 
   return hsl_route_node_lookup (table, &p);
 }
-#endif /* HAVE_IPV6 */
 
 /* Add node to routing table. */
 struct hsl_route_node *
@@ -419,7 +415,6 @@ hsl_route_node_get_ipv4 (struct hsl_route_table *table, hsl_ipv4Address_t *addr)
   return hsl_route_node_get (table, &p);
 }
 
-#ifdef HAVE_IPV6
 struct hsl_route_node *
 hsl_route_node_get_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *addr)
 {
@@ -432,7 +427,6 @@ hsl_route_node_get_ipv6 (struct hsl_route_table *table, hsl_ipv6Address_t *addr)
 
   return hsl_route_node_get (table, &p);
 }
-#endif /* HAVE_IPV6 */
 
 /* Delete node from the routing table. */
 void
