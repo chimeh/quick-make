@@ -31,8 +31,7 @@ $(BLD_MODBUILDIN): $(BLDDIR)/.tree ${LD_O_FILES}
 	$(Q)rm -f $@
 	$(Q)$(ECHO) "[$(target)] LINK BLOB    $(subst $(SDK)/,,$@)" 
 	$(Q)$(LD) -o $@ $(LDFLAGS) -L${LIBDIR} -r -d \
-	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) $(_LD_END_GROUP) \
-	$(LD_L_LISTS) \
+	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) $(LD_L_LISTS) $(_LD_END_GROUP) \
 	$(LD_INFO_OPTS)
 
 $(BLD_MOD_FINAL): $(BLD_MODBUILDIN) $(OUTDIR)/strip/.tree
