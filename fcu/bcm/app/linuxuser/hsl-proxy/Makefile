@@ -20,19 +20,19 @@ ifeq ($(SDK),)
 $(error Please run this in a tree)
 endif
 LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
+
 ####################################################################
-
-
 include ${SDK}/mk/Make.config
-ADD_LSRCS = $(wildcard common/*.c )
-LSRCS += $(ADD_LSRCS)
 
 CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
-CFLAGS += -I${SDK}/$(LOCALDIR)/common
-CFLAGS += -I${SDK}/$(LOCALDIR)
-CFLAGS += -I${SDK}/lib/netl
-CFLAGS += -I${SDK}/lib/netlk
-lib = libhsl
-include ${SDK}/mk/Make.lib
+CFLAGS += -I$(SDK)/lib/netl
+CFLAGS += -I$(SDK)/lib/unixlib/quagga
 
+LDFLAGS += -L$(LIBDIR)
+exec = hsl-proxy
+#LD_A_FILES += $(LIBDIR)/libquagga.a
+LD_A_FILES += $(LIBDIR)/libquagga.a
+LD_L_LISTS += -lquagga
+include ${SDK}/mk/Make.exec
 include ${SDK}/mk/Make.depend
+

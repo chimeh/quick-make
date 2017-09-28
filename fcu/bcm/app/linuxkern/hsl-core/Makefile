@@ -22,17 +22,11 @@ endif
 LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 ####################################################################
 
-
 include ${SDK}/mk/Make.config
-ADD_LSRCS = $(wildcard common/*.c )
-LSRCS += $(ADD_LSRCS)
 
 CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
-CFLAGS += -I${SDK}/$(LOCALDIR)/common
-CFLAGS += -I${SDK}/$(LOCALDIR)
-CFLAGS += -I${SDK}/lib/netl
-CFLAGS += -I${SDK}/lib/netlk
-lib = libhsl
-include ${SDK}/mk/Make.lib
+LD_L_LISTS += -lhsl -lnetlk
+kmod = sf-hsl-core
+include ${SDK}/mk/Make.kmod
 
 include ${SDK}/mk/Make.depend

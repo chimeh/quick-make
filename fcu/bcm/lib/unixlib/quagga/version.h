@@ -24,7 +24,7 @@
 #ifndef _ZEBRA_VERSION_H
 #define _ZEBRA_VERSION_H
 
-#define QUAGGA_PROGNAME   "CCM"
+#define QUAGGA_PROGNAME   "QQ"
 
 #define QUAGGA_VERSION     "1.0"
 

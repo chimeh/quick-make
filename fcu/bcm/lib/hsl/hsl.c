@@ -9,6 +9,11 @@
 
 
 
+extern int netlk_sock_init (void);
+extern int netlk_sock_deinit (void);
+
+
+
 static int hsl_initialized = 0;
 
 
@@ -23,7 +28,7 @@ hsl_init (void) {
     printk (KERN_CRIT "HSL module\n");
     if (hsl_initialized)
         return 0;
-//    SYSTEM_INIT_CHECK(hsl_sock_init (), "os sock init");
+    SYSTEM_INIT_CHECK(netlk_sock_init (), "netlk_sock_init");
     
     hsl_initialized = 1;
     HSL_FN_EXIT (0);
@@ -41,7 +46,7 @@ hsl_deinit (void) {
     if (! hsl_initialized)
         HSL_FN_EXIT (-1);
     
-//    SYSTEM_INIT_CHECK(hsl_os_deinit (), "os sock init");
+    SYSTEM_INIT_CHECK(netlk_sock_deinit (), "netlk_sock_deinit");
     hsl_initialized = 0;
     
     HSL_FN_EXIT (0);
