@@ -29,34 +29,34 @@
 
 
 /* Forward declarations. */
-int hsl_sock_if_event (int cmd, void *param1, void *param2);
+int netlk_sock_if_event (int cmd, void *param1, void *param2);
 
 /* List of all HSL backend sockets. */
-static struct hsl_sock *hsl_socklist = 0;
-static rwlock_t hsl_socklist_lock = __RW_LOCK_UNLOCKED(hsl_socklist_lock);//RW_LOCK_UNLOCKED;
+static struct netlk_sock *netlk_socklist = 0;
+static rwlock_t netlk_socklist_lock = __RW_LOCK_UNLOCKED(netlk_socklist_lock);//RW_LOCK_UNLOCKED;
 
 /* Forward declarations for static calls only. */
-static void _hsl_sock_destruct (struct sock *sk);
-static int _hsl_sock_create (struct net *net, struct socket *sock, int protocol, int kern);
+static void _netlk_sock_destruct (struct sock *sk);
+static int _netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern);
 #if 0   /* EWAN 0921 linux2.4 */
-static int _hsl_sock_sendmsg (struct socket *sock, struct msghdr *msg, int len, struct scm_cookie *scm);
-static int _hsl_sock_recvmsg (struct socket *sock, struct msghdr *msg, int len, int flags, struct scm_cookie *scm);
+static int _netlk_sock_sendmsg (struct socket *sock, struct msghdr *msg, int len, struct scm_cookie *scm);
+static int _netlk_sock_recvmsg (struct socket *sock, struct msghdr *msg, int len, int flags, struct scm_cookie *scm);
 #else	/* EWAN 0921 linux2.6 */
-static int _hsl_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len);
-static int _hsl_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len, int flags);
+static int _netlk_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len);
+static int _netlk_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len, int flags);
 #endif
-static int _hsl_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_len);
-static int _hsl_sock_getname (struct socket *sock, struct sockaddr *saddr, int *len, int peer);
+static int _netlk_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_len);
+static int _netlk_sock_getname (struct socket *sock, struct sockaddr *saddr, int *len, int peer);
 
 
-static struct proto_ops hsl_ops = {
+static struct proto_ops netlk_ops = {
 family:
     AF_NETL,
 
 release:
-    hsl_sock_release,
+    netlk_sock_release,
 bind:
-    _hsl_sock_bind,
+    _netlk_sock_bind,
 connect:
     sock_no_connect,
 socketpair:
@@ -64,7 +64,7 @@ socketpair:
 accept:
     sock_no_accept,
 getname:
-    _hsl_sock_getname,
+    _netlk_sock_getname,
 poll:
     datagram_poll,
 ioctl:
@@ -78,40 +78,40 @@ setsockopt:
 getsockopt:
     sock_no_getsockopt,
 sendmsg:
-    _hsl_sock_sendmsg,
+    _netlk_sock_sendmsg,
 recvmsg:
-    _hsl_sock_recvmsg,
+    _netlk_sock_recvmsg,
 mmap:
     sock_no_mmap,
 sendpage:
     sock_no_sendpage,
 };
 
-static struct net_proto_family hsl_family_ops = {
+static struct net_proto_family netlk_family_ops = {
 family:
     AF_NETL,
 create:
-    _hsl_sock_create,
+    _netlk_sock_create,
 };
 
 /* Destruct socket. */
 static void
-_hsl_sock_destruct (struct sock *sk) {
-    struct hsl_sock *hsk, *phsk;
+_netlk_sock_destruct (struct sock *sk) {
+    struct netlk_sock *hsk, *phsk;
 
     if (!sk)
         return;
 
     /* Write lock. */
-    write_lock_bh (&hsl_socklist_lock);
+    write_lock_bh (&netlk_socklist_lock);
 
     phsk = NULL;
-    for (hsk = hsl_socklist; hsk; hsk = hsk->next) {
+    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
         if (hsk->sk == sk) {
             if (phsk)
                 phsk->next = hsk->next;
             else
-                hsl_socklist = hsk->next;
+                netlk_socklist = hsk->next;
             /* Free hsk. */
             kfree (hsk);
             break;
@@ -120,7 +120,7 @@ _hsl_sock_destruct (struct sock *sk) {
     }
 
     /* Write unlock. */
-    write_unlock_bh (&hsl_socklist_lock);
+    write_unlock_bh (&netlk_socklist_lock);
 
     /* Now the socket is dead. No more input will appear.*/
     sock_orphan (sk);
@@ -137,16 +137,16 @@ _hsl_sock_destruct (struct sock *sk) {
 
 /* Release socket. */
 int
-hsl_sock_release (struct socket *sock) {
+netlk_sock_release (struct socket *sock) {
     struct sock *sk = sock->sk;
 
     /* Destruct socket. */
-    _hsl_sock_destruct (sk);
+    _netlk_sock_destruct (sk);
     sock->sk = NULL;
     return 0;
 }
 
-static struct proto hsl_proto = {
+static struct proto netlk_proto = {
     .name     = "HSL",
     .owner    = THIS_MODULE,
     .obj_size = sizeof(struct sock),
@@ -154,38 +154,38 @@ static struct proto hsl_proto = {
 
 /* Create socket. */
 static int
-_hsl_sock_create (struct net *net, struct socket *sock, int protocol, int kern) {
+_netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern) {
     struct sock *sk = NULL;
-    struct hsl_sock *hsk = NULL;
+    struct netlk_sock *hsk = NULL;
     sock->state = SS_UNCONNECTED;
 
 #if 0   /* NETFORD-linux_2.6 */
     sk = sk_alloc (AF_NETL, GFP_KERNEL, 1);
 #else
-    sk = sk_alloc (net, AF_NETL, GFP_KERNEL, &hsl_proto);
+    sk = sk_alloc (net, AF_NETL, GFP_KERNEL, &netlk_proto);
 #endif
     if (sk == NULL) {
         return(-ENOBUFS);
     }
-    sock->ops = &hsl_ops;
+    sock->ops = &netlk_ops;
     sock_init_data (sock,sk);
     sock_hold (sk);
     /* Write lock. */
-    write_lock_bh (&hsl_socklist_lock);
-    hsk = kmalloc (sizeof (struct hsl_sock), GFP_KERNEL);
+    write_lock_bh (&netlk_socklist_lock);
+    hsk = kmalloc (sizeof (struct netlk_sock), GFP_KERNEL);
     if (! hsk) {
-        write_unlock_bh (&hsl_socklist_lock);
+        write_unlock_bh (&netlk_socklist_lock);
         goto ERR;
     }
-    hsk->next = hsl_socklist;
-    hsl_socklist = hsk;
+    hsk->next = netlk_socklist;
+    netlk_socklist = hsk;
     /* Set sk. */
     hsk->sk = sk;
     /* Reset multicast group and PID. */
     hsk->groups = 0;
     hsk->pid = 0;
     /* Write unlock. */
-    write_unlock_bh (&hsl_socklist_lock);
+    write_unlock_bh (&netlk_socklist_lock);
     return(0);
 ERR:
     if (sk)
@@ -197,9 +197,9 @@ ERR:
   HSL socket getname.
 */
 static int
-_hsl_sock_getname (struct socket *sock, struct sockaddr *saddr,
+_netlk_sock_getname (struct socket *sock, struct sockaddr *saddr,
                    int *len, int peer) {
-    struct hsl_sock *hsk;
+    struct netlk_sock *hsk;
     struct netl_sockaddr_nl *snl = (struct netl_sockaddr_nl *) saddr;
     struct sock *sk;
 
@@ -208,8 +208,8 @@ _hsl_sock_getname (struct socket *sock, struct sockaddr *saddr,
         return -EINVAL;
 
     /* Read lock. */
-    read_lock_bh (&hsl_socklist_lock);
-    for (hsk = hsl_socklist; hsk; hsk = hsk->next) {
+    read_lock_bh (&netlk_socklist_lock);
+    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
         if (hsk->sk == sk) {
             /* Set multicast group. */
             snl->nl_pid    = hsk->pid;
@@ -219,7 +219,7 @@ _hsl_sock_getname (struct socket *sock, struct sockaddr *saddr,
     }
 
     /* Read unlock. */
-    read_unlock_bh (&hsl_socklist_lock);
+    read_unlock_bh (&netlk_socklist_lock);
     if (len)
         *len = sizeof (struct netl_sockaddr_nl);
 
@@ -231,14 +231,14 @@ _hsl_sock_getname (struct socket *sock, struct sockaddr *saddr,
    HSL process message from client.
 */
 int
-hsl_sock_process_msg (struct socket *sock, char *buf, int buflen) {
+netlk_sock_process_msg (struct socket *sock, char *buf, int buflen) {
     struct netl_nlmsghdr *hdr;
     char *msgbuf;
 
     hdr = (struct netl_nlmsghdr *)buf;
     msgbuf = buf + sizeof (struct netl_nlmsghdr);
     if (hdr->nlmsg_type < 300)
-        printk("hsl_sock_process_msg() type %d =\n", hdr->nlmsg_type);
+        printk("netlk_sock_process_msg() type %d =\n", hdr->nlmsg_type);
     switch (hdr->nlmsg_type) {
 
 
@@ -254,10 +254,10 @@ hsl_sock_process_msg (struct socket *sock, char *buf, int buflen) {
 /* Sendmsg. */
 static int
 #if	0	/* NETFORD-linux_2.6 */
-_hsl_sock_sendmsg (struct socket *sock, struct msghdr *msg, int len,
+_netlk_sock_sendmsg (struct socket *sock, struct msghdr *msg, int len,
                    struct scm_cookie *scm)
 #else
-_hsl_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len)
+_netlk_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len)
 #endif
 {
     u_char *buf = NULL;
@@ -274,7 +274,7 @@ _hsl_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, 
         goto ERR;
 
     /* Process message. */
-    hsl_sock_process_msg (sock, (char *)buf, len);
+    netlk_sock_process_msg (sock, (char *)buf, len);
 
 
     /* Free buf. */
@@ -293,17 +293,17 @@ ERR:
 /* Recvmsg. */
 static int
 #if	0	/* NETFORD-linux_2.6 */
-_hsl_sock_recvmsg (struct socket *sock, struct msghdr *msg, int len,
+_netlk_sock_recvmsg (struct socket *sock, struct msghdr *msg, int len,
                    int flags, struct scm_cookie *scm)
 #else
-_hsl_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len, int flags)
+_netlk_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, size_t len, int flags)
 #endif
 {
     struct sock *sk;
     struct sk_buff *skb;
     struct netl_sockaddr_nl snl;
     int copied;
-    struct hsl_sock *hsk;
+    struct netlk_sock *hsk;
     int socklen;
     int err;
 
@@ -312,9 +312,9 @@ _hsl_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, 
         return -EINVAL;
 
     /* Read lock. */
-    read_lock_bh (&hsl_socklist_lock);
+    read_lock_bh (&netlk_socklist_lock);
 
-    for (hsk = hsl_socklist; hsk; hsk = hsk->next) {
+    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
         if (hsk->sk == sk) {
             /* Set multicast group. */
             snl.nl_pid    = hsk->pid;
@@ -324,7 +324,7 @@ _hsl_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, 
     }
 
     /* Read unlock. */
-    read_unlock_bh (&hsl_socklist_lock);
+    read_unlock_bh (&netlk_socklist_lock);
 
     /* Copy netl_sockaddr_nl. */
     socklen = sizeof (struct netl_sockaddr_nl);
@@ -364,18 +364,18 @@ _hsl_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg, 
 
 /* Bind. */
 static int
-_hsl_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_len) {
+_netlk_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_len) {
     struct sock *sk = sock->sk;
-    struct hsl_sock *hsk;
+    struct netlk_sock *hsk;
     struct netl_sockaddr_nl *nl_sockaddr = (struct netl_sockaddr_nl *) sockaddr;
 
     if (! sk)
         return -EINVAL;
 
     /* Write lock. */
-    write_lock_bh (&hsl_socklist_lock);
+    write_lock_bh (&netlk_socklist_lock);
 
-    for (hsk = hsl_socklist; hsk; hsk = hsk->next) {
+    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
         if (hsk->sk == sk) {
             /* Set multicast group. */
             hsk->groups = nl_sockaddr->nl_groups;
@@ -385,14 +385,14 @@ _hsl_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_len
     }
 
     /* Write unlock. */
-    write_unlock_bh (&hsl_socklist_lock);
+    write_unlock_bh (&netlk_socklist_lock);
 
     return 0;
 }
 
 /* Post skb to the socket. */
 static int
-_hsl_sock_post_skb (struct socket *sock, struct sk_buff *skb) {
+_netlk_sock_post_skb (struct socket *sock, struct sk_buff *skb) {
     struct sock *sk = sock->sk;
     int ret = 0;
 
@@ -425,7 +425,7 @@ _hsl_sock_post_skb (struct socket *sock, struct sk_buff *skb) {
 
 /* Post buffer to socket. */
 int
-hsl_sock_post_buffer (struct socket *sock, char *buf, int size) {
+netlk_sock_post_buffer (struct socket *sock, char *buf, int size) {
     struct sk_buff *skb = NULL;
     int ret;
 
@@ -438,7 +438,7 @@ hsl_sock_post_buffer (struct socket *sock, char *buf, int size) {
     skb->len = size;
     skb->truesize = size;
 
-    ret = _hsl_sock_post_skb (sock, skb);
+    ret = _netlk_sock_post_skb (sock, skb);
     if (ret < 0)
         kfree_skb (skb);
 
@@ -449,7 +449,7 @@ hsl_sock_post_buffer (struct socket *sock, char *buf, int size) {
   Post the (non-multi) message buffer to the socket.
 */
 int
-hsl_sock_post_msg (struct socket *sock, int cmd, int flags, int seqno, char *buf, int size) {
+netlk_sock_post_msg (struct socket *sock, int cmd, int flags, int seqno, char *buf, int size) {
     int totsize;
     struct netl_nlmsghdr *nlh;
     int offset;
@@ -479,12 +479,12 @@ hsl_sock_post_msg (struct socket *sock, int cmd, int flags, int seqno, char *buf
     nlh->nlmsg_len = NETL_NLMSG_LENGTH(0);
     nlh->nlmsg_type = NETL_NLMSG_DONE;
 
-    return _hsl_sock_post_skb (sock, skb);
+    return _netlk_sock_post_skb (sock, skb);
 }
 
 /* Post ACK. */
 int
-hsl_sock_post_ack (struct socket *sock, struct netl_nlmsghdr *hdr, int flags, int error) {
+netlk_sock_post_ack (struct socket *sock, struct netl_nlmsghdr *hdr, int flags, int error) {
     int acksz = 2 * NETL_NLMSG_ALIGN(NETL_NLMSGHDR_SIZE) + NETL_NLMSG_ALIGN(4);
     struct netl_nlmsghdr *nlh;
     int *err;
@@ -511,20 +511,20 @@ hsl_sock_post_ack (struct socket *sock, struct netl_nlmsghdr *hdr, int flags, in
     nlh = (struct netl_nlmsghdr *) sp;
     memcpy (nlh, hdr, NETL_NLMSGHDR_SIZE);
 
-    return _hsl_sock_post_skb (sock, skb);
+    return _netlk_sock_post_skb (sock, skb);
 }
 
 /* HSL socket initialization. */
 int
-hsl_sock_init (void) {
+netlk_sock_init (void) {
     int ret;
-    ret = sock_register (&hsl_family_ops);
+    ret = sock_register (&netlk_family_ops);
     return 0;
 }
 
 /* HSL socket deinitialization. */
 int
-hsl_sock_deinit (void) {
+netlk_sock_deinit (void) {
     sock_unregister (AF_NETL);
     return 0;
 }
@@ -533,7 +533,7 @@ hsl_sock_deinit (void) {
   HSL Socket Interface event function.
 */
 int
-hsl_sock_if_event (int cmd, void *param1, void *param2) {
+netlk_sock_if_event (int cmd, void *param1, void *param2) {
     return 0;
 }
 

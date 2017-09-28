@@ -12,7 +12,9 @@
 #include "netl_log.h"
 #include "netl_comm.h"
 #include "netl_linkpoll.h"
+#ifdef HAVE_QUAGGA_LIB
 #include "thread.h"
+#endif /* HAVE_QUAGGA_LIB */
 
 
 /* 
@@ -35,12 +37,13 @@ int netl_cb(struct netl_nlmsghdr *h, void *cbdata)
 /*
   Read thread for async messages.
 */
-int netl_read_parser_invokecb_thread(struct thread *thread)
+int netl_read_parser_invokecb_thread(void *quagga_thread)
 {
     int ret = 0;
     int sock;
     void *zg;
-
+#ifdef HAVE_QUAGGA_LIB
+    struct thread *thread = (struct thread *)quagga_thread;
     sock = THREAD_FD(thread);
     zg = THREAD_ARG(thread);
     netl_linkpoll.t_read = NULL;
@@ -49,7 +52,7 @@ int netl_read_parser_invokecb_thread(struct thread *thread)
                              NULL);
     netl_linkpoll.t_read =
         thread_add_read(zg, netl_read_parser_invokecb_thread, zg, sock);
-
+#endif
     return ret;
 }
 
@@ -67,9 +70,11 @@ int netl_poll_init(void *zg)
 
     /* Register NETL socket. */
     if (netl_linkpoll.sock > 0) {
+#ifdef HAVE_QUAGGA_LIB
         netl_linkpoll.t_read =
             thread_add_read(zg, netl_read_parser_invokecb_thread, zg,
                             netl_linkpoll.sock);
+#endif
     }
 
     netl_poll_initialized = 1;

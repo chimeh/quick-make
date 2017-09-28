@@ -28,7 +28,7 @@ include ${SDK}/mk/Make.config
 
 CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
 CFLAGS += -I${SDK}/$(LOCALDIR)
-CFLAGS += -I${SDK}/lib/unixlib/netl
+CFLAGS += -I${SDK}/lib/netl
 lib = libnetlk
 include ${SDK}/mk/Make.lib
 

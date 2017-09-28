@@ -25,7 +25,7 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 include ${SDK}/mk/Make.config
 
 ifeq (linuxuser,$(targetos))
-subdirs=netl quagga
+subdirs=quagga
 endif
 
 include ${SDK}/mk/Make.subdirs
