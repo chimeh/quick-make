@@ -50,22 +50,21 @@ SYSINC = $(shell $(CC) -print-search-dirs | grep install | cut -c 10-)include
 ifeq (,$(KFLAGS))
 KFLAGS := -nostdinc -isystem $(SYSINC) \
   -I$(LINUX_KDIR)/include \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/uapi \
   -I$(LINUX_KDIR)/arch/$(ARCH)/include \
   -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated \
-  -I$(LINUX_KDIR)/arch/$(ARCH)/include/uapi \
   -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated/uapi \
   -I$(LINUX_KDIR)/include/uapi \
   -I$(LINUX_KDIR)/include/generated/uapi \
-  $(if $(AUTOCONF),-include $(AUTOCONF)) \
   $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
-  -m64 -D__KERNEL__ \
+  -m64 -mtune=generic -D__KERNEL__ \
   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common \
   -maccumulate-outgoing-args -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 \
   -fomit-frame-pointer \
   -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign \
   -Werror-implicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks \
   -Os -pipe -Wno-sign-compare -fno-asynchronous-unwind-tables -mno-sse -mno-mmx -mno-sse2 -mno-3dnow \
-  -mtune=generic -mno-red-zone -mcmodel=kernel -funit-at-a-time 
+  -mtune=generic -mno-red-zone -mcmodel=kernel -funit-at-a-time -DMODULE
 endif
 
 # Extra variables.

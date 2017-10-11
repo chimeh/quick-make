@@ -64,7 +64,7 @@ KFLAGS := -nostdinc -isystem $(SYSINC) \
   -fomit-frame-pointer \
   -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign \
   -Os -pipe -msoft-float -mregparm=3 -freg-struct-return -mpreferred-stack-boundary=2 \
-  -march=i686 -ffreestanding
+  -march=i686 -ffreestanding -DMODULE
 endif
 
 

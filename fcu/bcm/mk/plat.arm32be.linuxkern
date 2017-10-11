@@ -38,7 +38,7 @@ SYSINC = $(shell $(CC) -print-search-dirs | grep install | cut -c 10-)include
 ifeq (,$(KFLAGS))
 KFLAGS := -nostdinc -isystem $(SYSINC) -I$(LINUX_KDIR)/include -I$(LINUX_KDIR)/arch/$(ARCH)/include \
   -include $(AUTOCONF) \
-  -D__KERNEL__ \
+  -D__KERNEL__ -DMODULE\
   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common \
   -maccumulate-outgoing-args -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 \
   -fomit-frame-pointer \
