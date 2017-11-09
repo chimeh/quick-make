@@ -58,13 +58,13 @@ KFLAGS := -nostdinc -isystem $(SYSINC) \
   -I$(LINUX_KDIR)/include/generated/uapi \
   $(if $(AUTOCONF),-include $(AUTOCONF)) \
   $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
-  -m32 -D__KERNEL__ \
+  -m32 -D__KERNEL__ -DMODULE\
   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common \
   -maccumulate-outgoing-args -DCONFIG_AS_CFI=1 -DCONFIG_AS_CFI_SIGNAL_FRAME=1 \
   -fomit-frame-pointer \
   -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign \
   -Os -pipe -msoft-float -mregparm=3 -freg-struct-return -mpreferred-stack-boundary=2 \
-  -march=i686 -ffreestanding -DMODULE
+  -march=i686 -ffreestanding
 endif
 
 

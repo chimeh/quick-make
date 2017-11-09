@@ -52,7 +52,7 @@ KFLAGS := -nostdinc -isystem $(SYSINC) \
   -I$(LINUX_KDIR)/include/generated/uapi \
   $(if $(AUTOCONF),-include $(AUTOCONF)) \
   $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
-  -D__KERNEL__ -DMODULE -mbig-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Wimplicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -std=gnu89 -O2 -mgeneral-regs-only -fno-stack-protector -Wno-unused-but-set-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -g -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Wstrict-prototypes -Werror=date-time -DCC_HAVE_ASM_GOTO
+  -D__KERNEL__ -DMODULE -fno-pic -mbig-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Wimplicit-function-declaration -Wno-format-security -fno-delete-null-pointer-checks -std=gnu89 -O2 -mgeneral-regs-only -fno-stack-protector -Wno-unused-but-set-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -g -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fconserve-stack -Werror=implicit-int -Wstrict-prototypes -Werror=date-time -DCC_HAVE_ASM_GOTO -mcmodel=large
 endif
 
 
