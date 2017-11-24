@@ -2,18 +2,17 @@
 
 #ifndef _NETLK_COMM_H_
 #define _NETLK_COMM_H_
-#define NETL_MSG_PROCESS_RETURN(SOCK,HDR,RET)                                                       \
+
+#define NETLK_MSG_PROCESS_RETURN_WITH_VALUE(SOCK,HDR,RET)                                                       \
        do {                                                                                        \
             if ((HDR)->nlmsg_flags & NETL_NLM_F_ACK)                                                \
               {                                                                                    \
                 if ((RET) < 0)                                                                     \
-                 netlk_sock_post_ack ((SOCK), (HDR), 0, -1);                                         \
+                    netlk_sock_post_ack ((SOCK), (HDR), 0, (RET));                                         \
                 else                                                                               \
-                 netlk_sock_post_ack ((sock), (HDR), 0, 0);                                          \
+                    netlk_sock_post_ack ((sock), (HDR), 0, 0);                                          \
               }                                                                                    \
        } while (0)
-
-
 /* Structure to hold the NL control per socket. */
 struct netlk_sock
 {
@@ -22,9 +21,9 @@ struct netlk_sock
   struct sock *sk;        /* Pointer to the sock structure. */
   struct netlk_sock *next;  /* Next pointer. */
 };
-
+typedef int (*netlk_sock_process_msg_func_t)(struct socket *sock, char *buf, int buflen);
 /* function prototypes. */
-int netlk_sock_init (void);
+int netlk_sock_init (netlk_sock_process_msg_func_t msg_callback);
 int netlk_sock_deinit (void);
 int netlk_sock_process_msg (struct socket *sock, char *buf, int buflen);
 int netlk_sock_process_msg (struct socket *sock, char *buf, int buflen);

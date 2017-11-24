@@ -20,26 +20,16 @@ ifeq ($(SDK),)
 $(error Please run this in a tree)
 endif
 LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
-
 ####################################################################
-
-export SDK
 
 include ${SDK}/mk/Make.config
 
-export TARGET
-export BLDDIR
-export LIBDIR
-
-subdirs = customer sal unixlib netl npas
-
-ifeq ($(targetos),linuxkern)
-subdirs = hsl
-subdirs += netlk
-endif
-
-override MAKEFLAGS += TARGET=$(TARGET)
-
-include ${SDK}/mk/Make.subdirs
 
 
+CFLAGS += -I${SDK}/$(LOCALDIR)
+CFLAGS += -I${SDK}/$(LOCALDIR)/../netl
+CFLAGS += -I${SDK}/$(LOCALDIR)/../unixlib/quagga
+lib = libnpas
+include ${SDK}/mk/Make.lib
+
+include ${SDK}/mk/Make.depend

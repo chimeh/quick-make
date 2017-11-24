@@ -22,24 +22,17 @@ endif
 LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 
 ####################################################################
-
-export SDK
-
 include ${SDK}/mk/Make.config
 
-export TARGET
-export BLDDIR
-export LIBDIR
+CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
+CFLAGS += -I$(SDK)/lib/netl
+CFLAGS += -I$(SDK)/lib/unixlib/quagga
 
-subdirs = customer sal unixlib netl npas
-
-ifeq ($(targetos),linuxkern)
-subdirs = hsl
-subdirs += netlk
-endif
-
-override MAKEFLAGS += TARGET=$(TARGET)
-
-include ${SDK}/mk/Make.subdirs
-
+LDFLAGS += -L$(LIBDIR)
+exec = npas
+#LD_A_FILES += $(LIBDIR)/libquagga.a
+LD_A_FILES += $(LIBDIR)/libquagga.a
+LD_L_LISTS += -lquagga -lnpas -lnetl
+include ${SDK}/mk/Make.exec
+include ${SDK}/mk/Make.depend
 

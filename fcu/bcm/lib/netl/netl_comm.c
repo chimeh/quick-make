@@ -13,8 +13,6 @@
 #include "netl_comm.h"
 
 
-void *netl_comm_zg = NULL;
-
 /* 
    Make socket for netlink(RFC 3549) interface. 
 */
@@ -22,13 +20,15 @@ int netl_socket(struct netlsock *nl, unsigned long groups,
                unsigned char non_block)
 {
     int ret;
-    struct netl_sockaddr_nl snl;
+    struct netl_sockaddr_nl *nladdr;
     int sock;
     socklen_t namelen;
-
+    
+    nladdr = &nl->snl;
     sock = socket(AF_NETL, SOCK_RAW, 0);
     if (sock < 0) {
-        netl_err(netl_comm_zg, "Can't open %s socket: %s", nl->name,
+        printf ("sssssssssssssssss%s", strerror(errno));
+        netl_err(nl->arg_zg, "Can't open %s socket: %s", nl->name,
                 strerror(errno));
         return -1;
     }
@@ -36,37 +36,36 @@ int netl_socket(struct netlsock *nl, unsigned long groups,
     if (non_block) {
         ret = netl_sock_set_nonblocking(sock, 1 /* non_block */ );
         if (ret < 0) {
-            netl_err(netl_comm_zg, "Can't set %s socket flags: %s", nl->name,
+            netl_err(nl->arg_zg, "Can't set %s socket flags: %s", nl->name,
                     strerror(errno));
             close(sock);
             return -1;
         }
     }
 
-    memset(&snl, 0, sizeof snl);
-    snl.nl_family = AF_NETL;
-    snl.nl_groups = groups;
+    memset(nladdr, 0, sizeof(struct netl_sockaddr_nl));
+    nladdr->nl_family = AF_NETL;
+    nladdr->nl_groups = groups;
+    nladdr->nl_pid = getppid();
 
     /* Bind the socket to the netlink(RFC 3549) structure for anything. */
-    ret = bind(sock, (struct sockaddr *) &snl, sizeof(snl));
+    ret = bind(sock, (struct sockaddr *) nladdr, sizeof(struct netl_sockaddr_nl));
     if (ret < 0) {
-        netl_err(netl_comm_zg, "Can't bind %s socket to group 0x%x: %s",
-                nl->name, snl.nl_groups, strerror(errno));
+        netl_err(nl->arg_zg, "Can't bind %s socket to group 0x%x: %s",
+                nl->name, nladdr->nl_groups, strerror(errno));
         close(sock);
         return -1;
     }
 
     /* multiple netlink(RFC 3549) sockets will have different nl_pid */
-    namelen = sizeof snl;
-    ret = getsockname(sock, (struct sockaddr *) &snl, &namelen);
-    if (ret < 0 || namelen != sizeof snl) {
-        netl_err(netl_comm_zg, "Can't get %s socket name: %s", nl->name,
+    namelen = sizeof(struct netl_sockaddr_nl);
+    ret = getsockname(sock, (struct sockaddr *) nladdr, &namelen);
+    if (ret < 0) {
+        netl_err(nl->arg_zg, "Can't get %s socket name: %s", nl->name,
                 strerror(errno));
         close(sock);
         return -1;
     }
-
-    nl->snl = snl;
     nl->sock = sock;
     return ret;
 }
@@ -89,7 +88,7 @@ static int netl_recv_cb(struct netl_nlmsghdr *h, void *data)
 {
     struct netl_nlmsgerr *err = (struct netl_nlmsgerr *) NETL_NLMSG_DATA(h);
 
-    netl_warn(netl_comm_zg, "netl_recv_cb: ignoring message type 0x%04x",
+    netl_warn(nl->arg_zg, "netl_recv_cb: ignoring message type 0x%04x",
              h->nlmsg_type);
 
     if (err)
@@ -123,7 +122,7 @@ int netl_talk(struct netlsock *nl, struct netl_nlmsghdr *n,
     /* Send message to netlink(RFC 3549) interface. */
     status = sendmsg(nl->sock, &msg, 0);
     if (status < 0) {
-        netl_err(netl_comm_zg, "netllink_talk sendmsg() error: %s",
+        netl_err(nl->arg_zg, "netllink_talk sendmsg() error: %s",
                 strerror(errno));
         return -1;
     }
@@ -209,12 +208,12 @@ netl_read_parser_invokecb(struct netlsock *nl,
                 continue;
             if (errno == EWOULDBLOCK)
                 break;
-            netl_err(netl_comm_zg, "%s recvmsg overrun: %s", nl->name,
+            netl_err(nl->arg_zg, "%s recvmsg overrun: %s", nl->name,
                     strerror(errno));
             continue;
         }
         if (len == 0) {
-            netl_err(netl_comm_zg, "%s EOF", nl->name);
+            netl_err(nl->arg_zg, "%s EOF", nl->name);
             return -1;
         }
         for (h = (struct netl_nlmsghdr *) buf; NETL_NLMSG_OK(h, len);
@@ -231,11 +230,11 @@ netl_read_parser_invokecb(struct netlsock *nl,
                     (struct netl_nlmsgerr *) NETL_NLMSG_DATA(h);
                 if (h->nlmsg_len <
                     NETL_NLMSG_LENGTH(sizeof(struct netl_nlmsgerr))) {
-                    netl_err(netl_comm_zg, "%s error: message truncated",
+                    netl_err(nl->arg_zg, "%s error: message truncated",
                             nl->name);
                     return -1;
                 }
-                netl_err(netl_comm_zg,
+                netl_err(nl->arg_zg,
                         "%s error: %s, type=%u, seq=%u, pid=%d",
                         nl->name, strerror(-err->error),
                         err->msg.nlmsg_type, err->msg.nlmsg_seq,
@@ -244,7 +243,7 @@ netl_read_parser_invokecb(struct netlsock *nl,
             }
             if (0) {
                 /* OK we got netlink(RFC 3549) message. */
-                netl_info(netl_comm_zg,
+                netl_info(nl->arg_zg,
                          "netl_read_parser_invokecb: %s type %u, seq=%u, pid=%d",
                          nl->name, h->nlmsg_type, h->nlmsg_seq,
                          h->nlmsg_pid);
@@ -255,7 +254,7 @@ netl_read_parser_invokecb(struct netlsock *nl,
                     if (cb) {
                         error = (*cb) (h, cbdata);
                         if (error < 0) {
-                            netl_err(netl_comm_zg, "%s cb function error",
+                            netl_err(nl->arg_zg, "%s cb function error",
                                     nl->name);
                             ret = error;
                         }
@@ -263,17 +262,17 @@ netl_read_parser_invokecb(struct netlsock *nl,
                 }
 
             } else {
-                netl_err(netl_comm_zg, "match cmp is NULL", match);
+                netl_err(nl->arg_zg, "match cmp is NULL", match);
             }
         }
 
         /* After error care. */
         if (msg.msg_flags & MSG_TRUNC) {
-            netl_err(netl_comm_zg, "%s error: message truncated", nl->name);
+            netl_err(nl->arg_zg, "%s error: message truncated", nl->name);
             continue;
         }
         if (len) {
-            netl_err(netl_comm_zg, "%s error: data remnant size %d",
+            netl_err(nl->arg_zg, "%s error: data remnant size %d",
                     nl->name, len);
             return -1;
         }

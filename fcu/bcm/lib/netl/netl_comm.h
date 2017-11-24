@@ -3,8 +3,6 @@
 #ifndef _NETL_COMM_H_
 #define _NETL_COMM_H_
 
-extern void *netl_comm_zg;
-
 /* 
    NETL transport socket structure. 
 */
@@ -14,6 +12,9 @@ struct netlsock {
     struct netl_sockaddr_nl snl;
     char *name;
     void *t_read;
+    int initialized;
+    void *arg_zg;
+    void *arg_user;
 };
 
 enum netl_match_cmp {

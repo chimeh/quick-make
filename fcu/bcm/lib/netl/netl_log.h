@@ -3,8 +3,8 @@
 #ifndef _NETL_LOG_H_
 #define _NETL_LOG_H_
 
-#define netl_info(zg, ...)
-#define netl_warn(zg, ...)
-#define netl_err(zg, ...)
+#define netl_info(zg, ...) fprintf(stderr, __VA_ARGS__)
+#define netl_warn(zg, ...) fprintf(stderr, __VA_ARGS__)
+#define netl_err(zg, ...) fprintf(stderr, __VA_ARGS__)
 
 #endif  /* _NETL_LOG_H_ */

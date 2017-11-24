@@ -11,28 +11,32 @@
 #include "netl_netlink.h"
 #include "netl_comm.h"
 #include "netl_log.h"
-#include "netl_linkcmd.h"
+#include "npas_tbl_link.h"
+
 
 
 /* 
    Initialize NETL-NETL transport.
 */
-int netl_cmd_init(struct netlsock *link_desc)
+int npas_tbl_link_init(struct netlsock *ns)
 {
+    int ret;
 
     /* Open sockets to NETL. */
-    netl_socket(link_desc, 0, 0);
-    link_desc->initialized = 1;
+    ret = netl_socket(ns, 0, 0);
+
+    ns->initialized = 1;
     return 0;
 }
 
 /* 
    Deinitialize NETL-NETL transport.
 */
-int netl_cmd_deinit(struct netlsock *link_desc)
+int npas_tbl_link_deinit(struct netlsock *ns)
 {
     /* Close sockets to NETL. */
-    netl_close(link_desc);
-    link_desc->initialized = 0;
+    netl_close(ns);
+
+    ns->initialized = 0;
     return 0;
 }

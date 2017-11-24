@@ -24,18 +24,16 @@
 
 
 
-MODULE_LICENSE ("GPL");
-MODULE_AUTHOR("Jimmy");
-MODULE_DESCRIPTION("HSL ");
 
 
 
-int hsl_core_init(void);
-void hsl_core_exit(void);
 
 
-module_init(hsl_core_init);
-module_exit(hsl_core_exit);
+
+
+
+
+
 
 
 /* file operations that we can do */
@@ -45,29 +43,33 @@ static int start = 1;
 
 
 module_param(start, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-MODULE_PARM_DESC(start, DEVICE_NAME " start hsl core");
+MODULE_PARM_DESC(start, " start hsl core");
 
 extern int hsl_init (void);
 extern int hsl_deinit (void);
 
-int hsl_core_init() {
+static int __init hsl_core_init() {
     int ret = -1;
     printk(KERN_INFO "hsl core: loaded.\n");
     if (start > 0) {
         hsl_init();
-        return ret;
+        return 0;
     }
 
     return 0;
 }
 
-void hsl_core_exit() {
+static void __exit hsl_core_exit() {
+    hsl_deinit();
     printk(KERN_INFO "hsl core: unloaded.\n");
 }
 
 
 
+MODULE_VERSION("V1.0");
+MODULE_AUTHOR("Jimmy");
+MODULE_DESCRIPTION("HW Service Layer");
+MODULE_LICENSE("GPL");
 
-
-
-
+module_init(hsl_core_init);
+module_exit(hsl_core_exit);

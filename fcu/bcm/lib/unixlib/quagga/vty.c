@@ -2016,7 +2016,7 @@ vtysh_accept (struct thread *thread)
   vty = vty_new ();
   vty->fd = sock;
   vty->type = VTY_SHELL_SERV;
-  vty->node = VIEW_NODE;
+  vty->node = CONFIG_NODE;
 
   vty_event (VTYSH_READ, sock, vty);
 

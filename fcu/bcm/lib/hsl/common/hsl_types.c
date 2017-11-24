@@ -211,7 +211,7 @@ hsl_prefix_copy (hsl_prefix_t *dest, hsl_prefix_t *src)
    IPv4 inet_ntop
 */
 char *
-_hsl_inet_ntop4 (const char * src, char * dst, size_t size)
+_hsl_inet_ntop4 (const unsigned char * src, char * dst, size_t size)
 {
   int sz = sizeof "255.255.255.255";
   static const char *fmt = "%u.%u.%u.%u";

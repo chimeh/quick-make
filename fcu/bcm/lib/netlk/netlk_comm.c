@@ -1,6 +1,7 @@
 /* Copyright 2003 IP Infusion, Inc. All Rights Reserved.  */
 
 #include <linux/module.h>
+#include <linux/capability.h>
 #include <linux/kernel.h>
 #include <linux/netdevice.h>
 #include <linux/init.h>
@@ -31,6 +32,8 @@
 /* Forward declarations. */
 int netlk_sock_if_event (int cmd, void *param1, void *param2);
 
+static netlk_sock_process_msg_func_t netlk_sock_process_msg_hook = NULL;
+
 /* List of all HSL backend sockets. */
 static struct netlk_sock *netlk_socklist = 0;
 static rwlock_t netlk_socklist_lock = __RW_LOCK_UNLOCKED(netlk_socklist_lock);//RW_LOCK_UNLOCKED;
@@ -50,48 +53,30 @@ static int _netlk_sock_getname (struct socket *sock, struct sockaddr *saddr, int
 
 
 static struct proto_ops netlk_ops = {
-family:
-    AF_NETL,
-
-release:
-    netlk_sock_release,
-bind:
-    _netlk_sock_bind,
-connect:
-    sock_no_connect,
-socketpair:
-    sock_no_socketpair,
-accept:
-    sock_no_accept,
-getname:
-    _netlk_sock_getname,
-poll:
-    datagram_poll,
-ioctl:
-    sock_no_ioctl,
-listen:
-    sock_no_listen,
-shutdown:
-    sock_no_shutdown,
-setsockopt:
-    sock_no_setsockopt,
-getsockopt:
-    sock_no_getsockopt,
-sendmsg:
-    _netlk_sock_sendmsg,
-recvmsg:
-    _netlk_sock_recvmsg,
-mmap:
-    sock_no_mmap,
-sendpage:
-    sock_no_sendpage,
+    .family = AF_NETL,
+    .owner = THIS_MODULE,
+    .release = netlk_sock_release,
+    .bind = _netlk_sock_bind,
+    .connect = sock_no_connect,
+    .socketpair = sock_no_socketpair,
+    .accept = sock_no_accept,
+    .getname = _netlk_sock_getname,
+    .poll = datagram_poll,
+    .ioctl = sock_no_ioctl,
+    .listen = sock_no_listen,
+    .shutdown = sock_no_shutdown,
+    .setsockopt = sock_no_setsockopt,
+    .getsockopt = sock_no_getsockopt,
+    .sendmsg = _netlk_sock_sendmsg,
+    .recvmsg = _netlk_sock_recvmsg,
+    .mmap = sock_no_mmap,
+    .sendpage = sock_no_sendpage,
 };
 
 static struct net_proto_family netlk_family_ops = {
-family:
-    AF_NETL,
-create:
-    _netlk_sock_create,
+    .family = AF_NETL,
+    .create = _netlk_sock_create,
+    .owner = THIS_MODULE,
 };
 
 /* Destruct socket. */
@@ -139,7 +124,7 @@ _netlk_sock_destruct (struct sock *sk) {
 int
 netlk_sock_release (struct socket *sock) {
     struct sock *sk = sock->sk;
-
+    printk(KERN_ALERT "#%s\n", __func__);
     /* Destruct socket. */
     _netlk_sock_destruct (sk);
     sock->sk = NULL;
@@ -149,7 +134,7 @@ netlk_sock_release (struct socket *sock) {
 static struct proto netlk_proto = {
     .name     = "HSL",
     .owner    = THIS_MODULE,
-    .obj_size = sizeof(struct sock),
+    .obj_size = sizeof(struct netlk_sock),
 };
 
 /* Create socket. */
@@ -159,6 +144,7 @@ _netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern
     struct netlk_sock *hsk = NULL;
     sock->state = SS_UNCONNECTED;
 
+    printk(KERN_ALERT "#%s\n", __func__);
 #if 0   /* NETFORD-linux_2.6 */
     sk = sk_alloc (AF_NETL, GFP_KERNEL, 1);
 #else
@@ -167,8 +153,9 @@ _netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern
     if (sk == NULL) {
         return(-ENOBUFS);
     }
+    sock_init_data (sock, sk);
     sock->ops = &netlk_ops;
-    sock_init_data (sock,sk);
+    sk->sk_protocol = protocol;
     sock_hold (sk);
     /* Write lock. */
     write_lock_bh (&netlk_socklist_lock);
@@ -203,6 +190,7 @@ _netlk_sock_getname (struct socket *sock, struct sockaddr *saddr,
     struct netl_sockaddr_nl *snl = (struct netl_sockaddr_nl *) saddr;
     struct sock *sk;
 
+    printk(KERN_ALERT "#%s\n", __func__);
     sk = sock->sk;
     if (! sk)
         return -EINVAL;
@@ -231,19 +219,23 @@ _netlk_sock_getname (struct socket *sock, struct sockaddr *saddr,
    HSL process message from client.
 */
 int
-netlk_sock_process_msg (struct socket *sock, char *buf, int buflen) {
+netlk_sock_process_msg_default (struct socket *sock, char *buf, int buflen) {
     struct netl_nlmsghdr *hdr;
     char *msgbuf;
-
+    u_char *pnt; 
+    u_int32_t size;
+    
     hdr = (struct netl_nlmsghdr *)buf;
     msgbuf = buf + sizeof (struct netl_nlmsghdr);
-    if (hdr->nlmsg_type < 300)
-        printk("netlk_sock_process_msg() type %d =\n", hdr->nlmsg_type);
+    pnt = (u_char *)msgbuf;
+    size = hdr->nlmsg_len - NETL_NLMSG_ALIGN(NETL_NLMSGHDR_SIZE);
+    
+    printk("netlk_sock_process_msg() type %d \n", hdr->nlmsg_type);
     switch (hdr->nlmsg_type) {
 
 
     default:
-        NETL_MSG_PROCESS_RETURN (sock, hdr, -ENOTSUPP);
+        NETLK_MSG_PROCESS_RETURN_WITH_VALUE (sock, hdr, 0);
         return 0;
     }
 
@@ -262,7 +254,7 @@ _netlk_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg
 {
     u_char *buf = NULL;
     int err;
-
+    printk(KERN_ALERT "#%s\n", __func__);
     /* Allocate work memory. */
     buf = (u_char *) kmalloc (len, GFP_KERNEL);
     if (! buf)
@@ -274,8 +266,9 @@ _netlk_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg
         goto ERR;
 
     /* Process message. */
-    netlk_sock_process_msg (sock, (char *)buf, len);
-
+    if(netlk_sock_process_msg_hook) {
+        (*netlk_sock_process_msg_hook)(sock, (char *)buf, len);
+    }
 
     /* Free buf. */
     if (buf)
@@ -306,7 +299,8 @@ _netlk_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg
     struct netlk_sock *hsk;
     int socklen;
     int err;
-
+    
+    printk(KERN_ALERT "#%s\n", __func__);
     sk = sock->sk;
     if (! sk)
         return -EINVAL;
@@ -368,7 +362,8 @@ _netlk_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_l
     struct sock *sk = sock->sk;
     struct netlk_sock *hsk;
     struct netl_sockaddr_nl *nl_sockaddr = (struct netl_sockaddr_nl *) sockaddr;
-
+    
+    printk(KERN_ALERT "#%s\n", __func__);
     if (! sk)
         return -EINVAL;
 
@@ -418,7 +413,7 @@ _netlk_sock_post_skb (struct socket *sock, struct sk_buff *skb) {
     } else
         ret = -1;
 
-//    printk("[%s]: ret = %d\r\n", __func__, ret);
+
 
     return ret;
 }
@@ -516,16 +511,22 @@ netlk_sock_post_ack (struct socket *sock, struct netl_nlmsghdr *hdr, int flags, 
 
 /* HSL socket initialization. */
 int
-netlk_sock_init (void) {
+netlk_sock_init (netlk_sock_process_msg_func_t cb) {
     int ret;
+    if(cb) {
+        netlk_sock_process_msg_hook = cb;
+    } else {
+        netlk_sock_process_msg_hook = netlk_sock_process_msg_default;
+    }
     ret = sock_register (&netlk_family_ops);
-    return 0;
+    return ret;
 }
 
 /* HSL socket deinitialization. */
 int
 netlk_sock_deinit (void) {
     sock_unregister (AF_NETL);
+    netlk_sock_process_msg_hook = NULL;
     return 0;
 }
 
@@ -537,4 +538,5 @@ netlk_sock_if_event (int cmd, void *param1, void *param2) {
     return 0;
 }
 
+/* struct module *owner = sock->ops->owner; module_put(owner); */
 
