@@ -35,8 +35,8 @@ int netlk_sock_if_event (int cmd, void *param1, void *param2);
 static netlk_sock_process_msg_func_t netlk_sock_process_msg_hook = NULL;
 
 /* List of all HSL backend sockets. */
-static struct netlk_sock *netlk_socklist = 0;
-static rwlock_t netlk_socklist_lock = __RW_LOCK_UNLOCKED(netlk_socklist_lock);//RW_LOCK_UNLOCKED;
+//static struct netlk_sock *netlk_socklist = 0;
+//static rwlock_t netlk_socklist_lock = __RW_LOCK_UNLOCKED(netlk_socklist_lock);//RW_LOCK_UNLOCKED;
 
 /* Forward declarations for static calls only. */
 static void _netlk_sock_destruct (struct sock *sk);
@@ -79,33 +79,31 @@ static struct net_proto_family netlk_family_ops = {
     .owner = THIS_MODULE,
 };
 
+static struct proto netlk_proto = {
+    .name     = "HSL",
+    .owner    = THIS_MODULE,
+    .obj_size = sizeof(struct netlk_sock),
+};
+static inline struct netlk_sock *netlk_sk(struct sock *sk)
+{
+    return container_of(sk, struct netlk_sock, sk);
+}
+
 /* Destruct socket. */
 static void
 _netlk_sock_destruct (struct sock *sk) {
-    struct netlk_sock *hsk, *phsk;
+    struct netlk_sock *hsk;
 
     if (!sk)
         return;
 
     /* Write lock. */
-    write_lock_bh (&netlk_socklist_lock);
+    //write_lock_bh (&netlk_socklist_lock);
 
-    phsk = NULL;
-    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
-        if (hsk->sk == sk) {
-            if (phsk)
-                phsk->next = hsk->next;
-            else
-                netlk_socklist = hsk->next;
-            /* Free hsk. */
-            kfree (hsk);
-            break;
-        }
-        phsk = hsk;
-    }
+    hsk = netlk_sk(sk);
 
     /* Write unlock. */
-    write_unlock_bh (&netlk_socklist_lock);
+    //write_unlock_bh (&netlk_socklist_lock);
 
     /* Now the socket is dead. No more input will appear.*/
     sock_orphan (sk);
@@ -124,18 +122,17 @@ _netlk_sock_destruct (struct sock *sk) {
 int
 netlk_sock_release (struct socket *sock) {
     struct sock *sk = sock->sk;
-    printk(KERN_ALERT "#%s\n", __func__);
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
+    //printk(KERN_ALERT "#%s\n", __func__);
     /* Destruct socket. */
     _netlk_sock_destruct (sk);
     sock->sk = NULL;
+    
+    module_put(netlk_family_ops.owner);
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     return 0;
 }
 
-static struct proto netlk_proto = {
-    .name     = "HSL",
-    .owner    = THIS_MODULE,
-    .obj_size = sizeof(struct netlk_sock),
-};
 
 /* Create socket. */
 static int
@@ -143,8 +140,9 @@ _netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern
     struct sock *sk = NULL;
     struct netlk_sock *hsk = NULL;
     sock->state = SS_UNCONNECTED;
-
-    printk(KERN_ALERT "#%s\n", __func__);
+    
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
+    //printk(KERN_ALERT "#%s\n", __func__);
 #if 0   /* NETFORD-linux_2.6 */
     sk = sk_alloc (AF_NETL, GFP_KERNEL, 1);
 #else
@@ -153,31 +151,24 @@ _netlk_sock_create (struct net *net, struct socket *sock, int protocol, int kern
     if (sk == NULL) {
         return(-ENOBUFS);
     }
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     sock_init_data (sock, sk);
     sock->ops = &netlk_ops;
     sk->sk_protocol = protocol;
     sock_hold (sk);
     /* Write lock. */
-    write_lock_bh (&netlk_socklist_lock);
-    hsk = kmalloc (sizeof (struct netlk_sock), GFP_KERNEL);
-    if (! hsk) {
-        write_unlock_bh (&netlk_socklist_lock);
-        goto ERR;
-    }
-    hsk->next = netlk_socklist;
-    netlk_socklist = hsk;
+    //write_lock_bh (&netlk_socklist_lock);
+    
+    hsk = netlk_sk(sk);
+    //mutex_init(hsk->cb_mutex);
     /* Set sk. */
-    hsk->sk = sk;
+    //hsk->sk = sk;
     /* Reset multicast group and PID. */
     hsk->groups = 0;
     hsk->pid = 0;
     /* Write unlock. */
-    write_unlock_bh (&netlk_socklist_lock);
+    //write_unlock_bh (&netlk_socklist_lock);
     return(0);
-ERR:
-    if (sk)
-        sk_free (sk);
-    return(-ENOMEM);
 }
 
 /*
@@ -190,24 +181,21 @@ _netlk_sock_getname (struct socket *sock, struct sockaddr *saddr,
     struct netl_sockaddr_nl *snl = (struct netl_sockaddr_nl *) saddr;
     struct sock *sk;
 
-    printk(KERN_ALERT "#%s\n", __func__);
+    //printk(KERN_ALERT "#%s\n", __func__);
     sk = sock->sk;
     if (! sk)
         return -EINVAL;
 
     /* Read lock. */
-    read_lock_bh (&netlk_socklist_lock);
-    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
-        if (hsk->sk == sk) {
-            /* Set multicast group. */
-            snl->nl_pid    = hsk->pid;
-            snl->nl_groups = hsk->groups;
-            break;
-        }
-    }
+    //read_lock_bh (&netlk_socklist_lock);
+    hsk = netlk_sk(sk);
+    /* Set multicast group. */
+    snl->nl_pid    = hsk->pid;
+    snl->nl_groups = hsk->groups;
+
 
     /* Read unlock. */
-    read_unlock_bh (&netlk_socklist_lock);
+    //read_unlock_bh (&netlk_socklist_lock);
     if (len)
         *len = sizeof (struct netl_sockaddr_nl);
 
@@ -230,7 +218,7 @@ netlk_sock_process_msg_default (struct socket *sock, char *buf, int buflen) {
     pnt = (u_char *)msgbuf;
     size = hdr->nlmsg_len - NETL_NLMSG_ALIGN(NETL_NLMSGHDR_SIZE);
     
-    printk("netlk_sock_process_msg() type %d \n", hdr->nlmsg_type);
+    //printk("netlk_sock_process_msg() type %d \n", hdr->nlmsg_type);
     switch (hdr->nlmsg_type) {
 
 
@@ -254,7 +242,7 @@ _netlk_sock_sendmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg
 {
     u_char *buf = NULL;
     int err;
-    printk(KERN_ALERT "#%s\n", __func__);
+    //printk(KERN_ALERT "#%s\n", __func__);
     /* Allocate work memory. */
     buf = (u_char *) kmalloc (len, GFP_KERNEL);
     if (! buf)
@@ -300,25 +288,21 @@ _netlk_sock_recvmsg (struct kiocb *iocb, struct socket *sock, struct msghdr *msg
     int socklen;
     int err;
     
-    printk(KERN_ALERT "#%s\n", __func__);
+    //printk(KERN_ALERT "#%s\n", __func__);
     sk = sock->sk;
     if (! sk)
         return -EINVAL;
 
     /* Read lock. */
-    read_lock_bh (&netlk_socklist_lock);
+    //read_lock_bh (&netlk_socklist_lock);
+    hsk = netlk_sk(sk);
+    /* Set multicast group. */
+    snl.nl_pid    = hsk->pid;
+    snl.nl_groups = hsk->groups;
 
-    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
-        if (hsk->sk == sk) {
-            /* Set multicast group. */
-            snl.nl_pid    = hsk->pid;
-            snl.nl_groups = hsk->groups;
-            break;
-        }
-    }
 
     /* Read unlock. */
-    read_unlock_bh (&netlk_socklist_lock);
+    //read_unlock_bh (&netlk_socklist_lock);
 
     /* Copy netl_sockaddr_nl. */
     socklen = sizeof (struct netl_sockaddr_nl);
@@ -363,24 +347,20 @@ _netlk_sock_bind (struct socket *sock, struct sockaddr *sockaddr, int sockaddr_l
     struct netlk_sock *hsk;
     struct netl_sockaddr_nl *nl_sockaddr = (struct netl_sockaddr_nl *) sockaddr;
     
-    printk(KERN_ALERT "#%s\n", __func__);
+    //printk(KERN_ALERT "#%s\n", __func__);
     if (! sk)
         return -EINVAL;
 
     /* Write lock. */
-    write_lock_bh (&netlk_socklist_lock);
+    //write_lock_bh (&netlk_socklist_lock);
 
-    for (hsk = netlk_socklist; hsk; hsk = hsk->next) {
-        if (hsk->sk == sk) {
-            /* Set multicast group. */
-            hsk->groups = nl_sockaddr->nl_groups;
-            hsk->pid = (u_int32_t)((long)sk);
-            break;
-        }
-    }
+    hsk = netlk_sk(sk);
+    /* Set multicast group. */
+    hsk->groups = nl_sockaddr->nl_groups;
+    hsk->pid = (u_int32_t)((long)sk);
 
     /* Write unlock. */
-    write_unlock_bh (&netlk_socklist_lock);
+    //write_unlock_bh (&netlk_socklist_lock);
 
     return 0;
 }
@@ -519,13 +499,16 @@ netlk_sock_init (netlk_sock_process_msg_func_t cb) {
         netlk_sock_process_msg_hook = netlk_sock_process_msg_default;
     }
     ret = sock_register (&netlk_family_ops);
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     return ret;
 }
 
 /* HSL socket deinitialization. */
 int
 netlk_sock_deinit (void) {
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     sock_unregister (AF_NETL);
+    //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     netlk_sock_process_msg_hook = NULL;
     return 0;
 }

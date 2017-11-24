@@ -16,10 +16,12 @@
 /* Structure to hold the NL control per socket. */
 struct netlk_sock
 {
+  struct sock sk;
   u_int32_t groups;       /* Multicast groups. */
   u_int32_t pid;          /* PID. */
-  struct sock *sk;        /* Pointer to the sock structure. */
-  struct netlk_sock *next;  /* Next pointer. */
+//  struct mutex cb_def_mutex;
+//  struct sock *sk;        /* Pointer to the sock structure. */
+//  struct netlk_sock *next;  /* Next pointer. */
 };
 typedef int (*netlk_sock_process_msg_func_t)(struct socket *sock, char *buf, int buflen);
 /* function prototypes. */
