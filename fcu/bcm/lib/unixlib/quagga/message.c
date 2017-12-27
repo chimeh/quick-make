@@ -22,7 +22,7 @@
   type which is compatible with the int definition below.
 */
 #define PAL_SOCK_ERROR ((int)-1)
-#define pal_sock_handle_t int
+#define int int
 #define pal_hton16 hton16
 #define pal_hton32 hton32
 #define pal_mem_cpy memcpy
@@ -53,6 +53,14 @@
 #define s_int32_t int
 #define RESULT_ERROR -1
 #define RESULT_OK 0
+#undef pal_ntoh32
+#undef pal_hton32
+#undef pal_ntoh16
+#undef pal_hton16
+#define pal_ntoh32 ntohl
+#define pal_hton32 htonl
+#define pal_ntoh16 ntohs
+#define pal_hton16 htons
 
 typedef enum
 {
@@ -64,7 +72,7 @@ bool_t;
 ** Set reuse port option
 */
 result_t
-pal_sock_set_reuseport (pal_sock_handle_t sock, s_int32_t state)
+pal_sock_set_reuseport (int sock, s_int32_t state)
 {
 #ifdef SO_REUSEPORT
   return setsockopt (sock, SOL_SOCKET, SO_REUSEPORT, &state, sizeof (state));
@@ -78,7 +86,7 @@ pal_sock_set_reuseport (pal_sock_handle_t sock, s_int32_t state)
 ** Set reuse address option
 */
 result_t
-pal_sock_set_reuseaddr (pal_sock_handle_t sock, s_int32_t state)
+pal_sock_set_reuseaddr (int sock, s_int32_t state)
 {
   return setsockopt (sock, SOL_SOCKET, SO_REUSEADDR, &state, sizeof (state));
 }
@@ -87,7 +95,7 @@ pal_sock_set_reuseaddr (pal_sock_handle_t sock, s_int32_t state)
 ** Set socket in non-blocking mode
 */
 result_t
-pal_sock_set_nonblocking (pal_sock_handle_t sock, s_int32_t state)
+pal_sock_set_nonblocking (int sock, s_int32_t state)
 {
 #ifndef HAVE_IPNET
   int val;
@@ -149,7 +157,7 @@ message_entry_free (struct message_entry *me)
 /* Client is connected to server.  After accept socket, read thread is
    created to read client packet.  */
 struct message_entry *
-message_entry_register (struct message_handler *ms, pal_sock_handle_t sock)
+message_entry_register (struct message_handler *ms, int sock)
 {
   struct message_entry *me;
 
@@ -230,7 +238,7 @@ message_server_set_callback (struct message_handler *ms, int event,
 /* Message client disconnected.  */
 void
 message_server_disconnect (struct message_handler *ms,
-                           struct message_entry *me, pal_sock_handle_t sock)
+                           struct message_entry *me, int sock)
 {
   /* Cancel read thread.  */
   THREAD_OFF (me->t_read);
@@ -252,7 +260,7 @@ message_server_read (struct thread *t)
 {
   struct message_entry *me;
   struct message_handler *ms;
-  pal_sock_handle_t sock;
+  int sock;
   int nbytes = 0;
 
   sock = THREAD_FD (t);
@@ -298,8 +306,8 @@ message_server_accept (struct thread *t)
 {
   struct message_handler *ms;
   struct message_entry *me;
-  pal_sock_handle_t sock;
-  pal_sock_handle_t csock;
+  int sock;
+  int csock;
 #ifdef HAVE_TCP_MESSAGE
   struct pal_sockaddr_in4 addr;
 #else /* HAVE_TCP_MESSAGE */
@@ -344,10 +352,10 @@ message_server_accept (struct thread *t)
 }
 
 #ifndef HAVE_TCP_MESSAGE
-pal_sock_handle_t
+int
 message_server_socket_unix (struct message_handler *mh)
 {
-  pal_sock_handle_t sock;
+  int sock;
   struct pal_sockaddr_un addr;
   int len;
 
@@ -384,10 +392,10 @@ message_server_socket_unix (struct message_handler *mh)
 }
 #endif /* HAVE_TCP_MESSAGE */
 
-pal_sock_handle_t
+int
 message_server_socket_tcp (struct message_handler *mh)
 {
-  pal_sock_handle_t sock;
+  int sock;
   struct pal_sockaddr_in4 addr;
   int len = sizeof (struct pal_sockaddr_in4);
   int state = 1; /* on. */
@@ -566,7 +574,7 @@ message_client_set_callback (struct message_handler *ms, int event,
 
 /* Message client disconnected.  */
 void
-message_client_disconnect (struct message_handler *mc, pal_sock_handle_t sock)
+message_client_disconnect (struct message_handler *mc, int sock)
 {
   /* Stop events.  */
   message_client_stop (mc);
@@ -581,7 +589,7 @@ int
 message_client_read (struct thread *t)
 {
   struct message_handler *mc;
-  pal_sock_handle_t sock;
+  int sock;
   int nbytes = 0;
 
   sock = THREAD_FD (t);
@@ -629,10 +637,10 @@ message_client_read_reregister (struct message_handler *mc)
     }
 }
 
-pal_sock_handle_t
+int
 message_client_socket_unix (struct message_handler *mh)
 {
-  pal_sock_handle_t sock;
+  int sock;
   struct pal_sockaddr_un addr;
   int len;
 
@@ -665,10 +673,10 @@ message_client_socket_unix (struct message_handler *mh)
   return sock;
 }
 
-pal_sock_handle_t
+int
 message_client_socket_tcp (struct message_handler *mh)
 {
-  pal_sock_handle_t sock;
+  int sock;
   struct pal_sockaddr_in4 addr;
   int len = sizeof (struct pal_sockaddr_in4);
 
@@ -767,7 +775,7 @@ message_queue_entry_get (struct thread *t)
 {
   struct message_queue *mq = THREAD_ARG (t);
   struct message_queue_entry *mqe;
-  pal_sock_handle_t sock = THREAD_FD (t);
+  int sock = THREAD_FD (t);
   int nbytes;
 
   mq->t_write = NULL;
@@ -805,7 +813,7 @@ message_queue_entry_get (struct thread *t)
 
 void
 message_queue_entry_set (struct message_queue *mq,
-                         pal_sock_handle_t sock, u_char *buf,
+                         int sock, u_char *buf,
                          u_int32_t length, u_int32_t written)
 {
   struct message_queue_entry *mqe;

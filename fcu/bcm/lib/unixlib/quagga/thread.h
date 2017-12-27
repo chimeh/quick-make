@@ -44,6 +44,7 @@ struct thread_list
 /* Master of the theads. */
 struct thread_master
 {
+  struct thread_list read_pend;
   struct thread_list read;
   struct thread_list write;
   struct thread_list timer;
@@ -110,7 +111,7 @@ enum quagga_clkid {
 #define THREAD_BACKGROUND     5
 #define THREAD_UNUSED         6
 #define THREAD_EXECUTE        7
-
+#define THREAD_READ_PEND      8
 /* Thread yield time.  */
 #define THREAD_YIELD_TIME_SLOT     10 * 1000L /* 10ms */
 
@@ -154,6 +155,7 @@ enum quagga_clkid {
 #define thread_add_write(m,f,a,v) funcname_thread_add_write(m,f,a,v,#f)
 #define thread_add_timer(m,f,a,v) funcname_thread_add_timer(m,f,a,v,#f)
 #define thread_add_timer_msec(m,f,a,v) funcname_thread_add_timer_msec(m,f,a,v,#f)
+#define thread_add_read_pend(m,f,a,v) funcname_thread_add_read_pend(m,f,a,v,#f)
 #define thread_add_event(m,f,a,v) funcname_thread_add_event(m,f,a,v,#f)
 #define thread_execute(m,f,a,v) funcname_thread_execute(m,f,a,v,#f)
 
@@ -176,6 +178,8 @@ extern struct thread *funcname_thread_add_timer (struct thread_master *,
 extern struct thread *funcname_thread_add_timer_msec (struct thread_master *,
 				                      int (*)(struct thread *),
 				                      void *, long, const char*);
+extern struct thread *funcname_thread_add_read_pend (struct thread_master *m,
+                      int (*func) (struct thread *), void *arg, int val, const char* funcname);
 extern struct thread *funcname_thread_add_event (struct thread_master *,
 				                 int (*)(struct thread *),
 				                 void *, int, const char*);

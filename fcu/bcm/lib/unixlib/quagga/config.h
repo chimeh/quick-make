@@ -10,6 +10,9 @@
 /* BSDI */
 /* #undef BSDI_NRL */
 
+/* HAVE_TCP_MESSAGE */
+#define HAVE_TCP_MESSAGE
+
 /* Mask for config files */
 #define CONFIGFILE_MASK 0600
 

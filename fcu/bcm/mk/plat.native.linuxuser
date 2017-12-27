@@ -1,0 +1,8 @@
+uname := $(shell uname -s)
+ifeq ($(filter-out Linux Darwin,$(uname)),)
+ ifeq ($(shell uname -m),x86_64)
+  include ${SDK}/mk/plat.x86_64generic.linuxuser
+ else
+  include ${SDK}/mk/plat.x86generic.linuxuser
+ endif
+endif

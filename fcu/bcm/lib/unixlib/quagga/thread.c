@@ -766,7 +766,24 @@ funcname_thread_add_background (struct thread_master *m,
   return funcname_thread_add_timer_timeval (m, func, THREAD_BACKGROUND,
                                             arg, &trel, funcname);
 }
+/* Add pending read thread. */
+struct thread *
+funcname_thread_add_read_pend (struct thread_master *m,
+                      int (*func) (struct thread *), void *arg, int val, const char* funcname)
+{
+  struct thread *thread;
 
+  assert (m != NULL);
+
+  thread = thread_get (m, THREAD_READ_PEND, func, arg, funcname);
+  if (thread == NULL)
+    return NULL;
+
+  thread->u.val = val;
+  thread_list_add (&m->read_pend, thread);
+
+  return thread;
+}
 /* Add simple event thread. */
 struct thread *
 funcname_thread_add_event (struct thread_master *m,
@@ -806,6 +823,9 @@ thread_cancel (struct thread *thread)
       break;
     case THREAD_EVENT:
       list = &thread->master->event;
+      break;
+    case THREAD_READ_PEND:
+      list = &thread->master->read_pend;
       break;
     case THREAD_READY:
       list = &thread->master->ready;
@@ -934,7 +954,10 @@ thread_fetch (struct thread_master *m, struct thread *fetch)
       
       /* Signals are highest priority */
       quagga_sigevent_process ();
-       
+      /* Pending read is exception. */
+      if ((thread = thread_trim_head (&m->read_pend)) != NULL)
+        return thread_run (m, thread, fetch);
+        
       /* Normal event are the next highest priority.  */
       if ((thread = thread_trim_head (&m->event)) != NULL)
         return thread_run (m, thread, fetch);
