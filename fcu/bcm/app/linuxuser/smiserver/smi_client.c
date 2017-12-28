@@ -784,6 +784,9 @@ smi_client_start (struct smi_client *ac)
               if (ac->t_connect == NULL)
                 return SMI_ERROR;
             }
+        } else {
+            //ac->t_keepalive  = thread_add_timer (ac->zg, smi_client_keepalive,
+            //                        ac, ac->keepalive_interval);
         }
     }
   return SMI_SUCEESS;
@@ -1095,7 +1098,8 @@ smi_client_create (struct smiclient_globals *azg, int module)
   smi_client_set_parser (tmp_ac, SMI_MSG_SERVICE_REPLY, smi_parse_service);
 
   tmp_ac->reconnect_interval = 5;
-
+  tmp_ac->keepalive_interval = 3;
+  tmp_ac->t_keepalive = 3;
   tmp_ac->debug = azg->debug;
 
   return SMI_SUCEESS;

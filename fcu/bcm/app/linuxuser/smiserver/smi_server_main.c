@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/signal.h> // for signal
 #include <semaphore.h>
+
 #include "zebra.h"
 #include "thread.h"
 
@@ -100,6 +101,9 @@ int main(int argc, char **argv) {
 
 
     progname = ((p = strrchr(argv[0], '/')) ? ++p : argv[0]);
+    
+    zlog_default = openzlog (progname, ZLOG_ZEBRA,
+                                LOG_CONS|LOG_NDELAY|LOG_PID, LOG_DAEMON);
 
     while (1) {
         opt = getopt_long(argc, argv, "hdf:A:P:m:i:r:v", longopts, 0);
@@ -150,7 +154,7 @@ int main(int argc, char **argv) {
 
     signal_install();
     master = thread_master_create();
-    cmd_init(0);
+    cmd_init(1);
     vty_init(master);
     
     if(0 == strncmp(role, "server", 2)) {

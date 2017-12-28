@@ -3,6 +3,41 @@
 
 #include "smi_client.h"
 #include "tlv.h"
+
+
+/* SMI message header encode.  */
+int
+smi_encode_header (u_char **pnt, u_int16_t *size,
+                   struct smi_msg_header *header)
+{
+  u_char *sp = *pnt;
+
+  if (*size < SMI_MSG_HEADER_SIZE)
+    return SMI_ERR_PKT_TOO_SMALL;
+
+  TLV_ENCODE_PUTW (header->type);
+  TLV_ENCODE_PUTW (header->length);
+  TLV_ENCODE_PUTL (header->message_id);
+
+  return *pnt - sp;
+}
+
+/* SMI message header decode.  */
+int
+smi_decode_header (u_char **pnt, u_int16_t *size,
+                   struct smi_msg_header *header)
+{
+  if (*size < SMI_MSG_HEADER_SIZE)
+    return SMI_ERR_PKT_TOO_SMALL;
+
+  TLV_DECODE_GETW (header->type);
+  TLV_DECODE_GETW (header->length);
+  TLV_DECODE_GETL (header->message_id);
+
+  return SMI_MSG_HEADER_SIZE;
+}
+
+
 /* SMI alarm msg decode.  */
 int
 smi_decode_alarm_msg (u_char **pnt, u_int16_t *size, struct smi_msg_alarm *msg)

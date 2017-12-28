@@ -115,9 +115,16 @@ struct smi_client
 
   /* Reconnect thread. */
   struct thread *t_connect;
+  
+  /* Reconnect thread. */
+  struct thread *t_keepalive;
 
   /* Reconnect thread. */
   struct thread *pend_read_thread;
+
+
+  /* Reconnect interval in seconds. */
+  int keepalive_interval;
 
   /* Reconnect interval in seconds. */
   int reconnect_interval;
