@@ -28,6 +28,7 @@
 #include <net/addrconf.h>
 #include <linux/ctype.h>
 #include "lkm_file.h"
+#include "kconfig.h"
 
 typedef unsigned char        uint8;        /* 8-bit quantity  */
 typedef unsigned short        uint16;        /* 16-bit quantity */
@@ -231,6 +232,8 @@ _do_parser_line(uint8* string, void* p_chip_info)
         {
             return -1;
         }
+        printk("%s = %s\n", key_var, var_str);
+        kconfig_set(key_var, var_str);
     }
 
     return 0;

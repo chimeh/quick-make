@@ -1,9 +1,14 @@
 #include <linux/string.h>
 #include <linux/ctype.h>
+#include <linux/fs.h>
+#include <linux/uaccess.h>
+#include <linux/kernel.h>
+#include <linux/types.h>
 
-#include <sal/core/alloc.h>
-#include <sal/core/spl.h>
-#include <sal/types.h>
+#define sal_alloc(s, t) kmalloc(s, GFP_KERNEL)
+#define sal_free(p) kfree(p)
+
+typedef unsigned short uint16;
 
 typedef	uint16	sc_hash_t;
 
