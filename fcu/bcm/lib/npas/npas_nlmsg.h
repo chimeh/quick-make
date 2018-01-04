@@ -3,7 +3,7 @@
 
 #define NPAS_NLMSG_DATA_LEN 2048
 
-#define NETLK_NLMMSG_TYPE_GENERIC 1
+#define NETLK_NLMMSG_TYPE_GENERIC 103
 /**
  @brief send msg to kernel
  @param[in] data

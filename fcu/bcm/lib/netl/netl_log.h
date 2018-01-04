@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _NETL_LOG_H_
 #define _NETL_LOG_H_
 

@@ -1,5 +1,3 @@
-/* Copyright 2003 IP Infusion, Inc. All Rights Reserved.  */
-
 #include <linux/module.h>
 #include <linux/capability.h>
 #include <linux/kernel.h>

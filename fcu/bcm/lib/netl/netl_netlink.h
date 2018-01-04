@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _NETL_NETLINK_H
 #define _NETL_NETLINK_H
 

@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #include <stdio.h>
 #include <sys/types.h>          /* socket */
 #include <sys/socket.h>

@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _NETL_LINKCMD_H_
 #define _NETL_LINKCMD_H_
 

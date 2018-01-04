@@ -1,6 +1,6 @@
 /*
-* Copyright (C), 2001-2010, Galaxywind Co., Ltd. 
-* Description: NPASÖ÷º¯Êý
+* Copyright (C), 2001-2018, HuangJimin. 
+* Description: NPAS
 *
 */
 #include <sys/ioctl.h>  /* for open(), ioctl(), xen */

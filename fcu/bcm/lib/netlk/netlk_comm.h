@@ -1,5 +1,3 @@
-/* Copyright 2003 IP Infusion, Inc. All Rights Reserved.  */
-
 #ifndef _NETLK_COMM_H_
 #define _NETLK_COMM_H_
 

@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _NETL_NPAS_TBL_LINK_H_
 #define _NETL_NPAS_TBL_LINK_H_
 
