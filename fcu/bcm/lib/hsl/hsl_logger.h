@@ -89,4 +89,5 @@ int hsl_log_conf(char module_str[], u_int16_t enable, u_int16_t level);
          }                                                                 \
     } while (0)
 
+void hsl_log_dump_hex8(unsigned char *data, unsigned int len);
 #endif  /* _HSL_LOG_MODULE */

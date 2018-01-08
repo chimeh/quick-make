@@ -1,0 +1,230 @@
+﻿#include <linux/proc_fs.h>
+#include <linux/ip.h>
+#include <net/ip.h>
+#include <net/ip_fib.h>
+#include <linux/tcp.h>
+#include <linux/udp.h>
+#include <linux/icmp.h>
+#include <linux/in.h>
+#include <net/ip_fib.h>
+#include <asm/io.h>
+#include <asm/uaccess.h>
+#include <linux/inetdevice.h>
+#include <linux/etherdevice.h>
+#include <linux/igmp.h>
+#include <linux/mroute.h>
+#include <net/icmp.h>
+#include <net/protocol.h>
+#include <net/addrconf.h>
+#include <linux/ctype.h>
+
+#include "hsl_tlv.h"
+#include "netl_netlink.h"
+#include "netlk_comm.h"
+#include "hsl_msg_nl_type.h"
+#include "hsl_msg_mgr.h"
+#include "hsl_msg_tlv.h"
+#include "hsl_logger.h"
+static struct hsl_msg_mgr_handler hsl_msg_mgr;
+
+static int hsl_msg_process_misc(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigned char *msg, unsigned int msglen)
+{
+    unsigned char  **pnt;
+    u_int32_t size_var;
+    u_int32_t *size;
+    u_int32_t process_size;
+    u_int32_t remain_size;
+    unsigned char *sp;
+    
+    unsigned short tlv_type;
+    unsigned short tlv_length;
+    unsigned short table_id;
+    unsigned short operation_type;
+    
+    int ret = 0;
+    size = &size_var;
+    pnt = &msg;
+    
+    *size = msglen;
+    process_size = 0;
+    remain_size = msglen;
+    sp = *pnt;
+    
+    /* Check size. */
+    if (*size <  HAL_MSG_MISC_HEADER_SIZE)
+        goto hal_msg_pkt_too_small;
+
+    TLV_DECODE_GETW(tlv_type);
+    TLV_DECODE_GETW(tlv_length);
+    TLV_DECODE_GETW(table_id);
+    TLV_DECODE_GETW(operation_type);
+    
+    process_size =  *pnt - sp;
+    remain_size =  (msglen - process_size);
+    
+    if (table_id > HSL_MISC_MAX_TABLE || operation_type > HSL_MISC_MAX_FUNCTIONS)
+    {
+        printk("invalid PTS_TLV! max table-id[%d], max[oper_type %d]; input table[%d], operation[%d]",
+            HSL_MISC_MAX_TABLE, HSL_MISC_MAX_FUNCTIONS, table_id, operation_type);
+        goto hal_msg_invalid_misc_id;
+    }
+    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, misc_cb, table_id, operation_type))
+    {
+        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, misc_cb, table_id, operation_type)(sock, nlhdr, *pnt,  remain_size);
+    }
+    return ret;
+hal_msg_pkt_too_small:
+    printk("hal_msg_pkt_too_small");
+    return 0;
+hal_msg_invalid_misc_id:
+    printk("hal_msg_invalid_misc_id");
+    return 0;
+
+}
+
+int hsl_msg_register_misc_cb(HSL_MSG_MISC_CALLBACK cb	, unsigned short table_id, unsigned short op)
+{
+	if (table_id >= HSL_MISC_MAX_TABLE || op >= HSL_MISC_MAX_FUNCTIONS)
+		return -1;
+	
+	hsl_msg_mgr.misc_cb[table_id][op]= cb;
+	return 0;
+}
+int hsl_msg_process_db(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigned char *msg, unsigned int msglen)
+{
+    unsigned char  **pnt;
+    u_int32_t size_var;
+    u_int32_t *size;
+    u_int32_t process_size;
+    u_int32_t remain_size;
+    unsigned char *sp;
+    
+    unsigned short tlv_type;
+    unsigned short tlv_length;
+    unsigned short table_id;
+    unsigned short operation_type;
+    
+    int ret;
+    size = &size_var;
+    pnt = &msg;
+    
+    *size = msglen;
+    process_size = 0;
+    remain_size = msglen;
+    sp = *pnt;
+    
+    /* Check size. */
+    if (*size <  HAL_MSG_DB_HEADER_SIZE)
+        goto hal_msg_pkt_too_small;
+
+    TLV_DECODE_GETW(tlv_type);
+    TLV_DECODE_GETW(tlv_length);
+    TLV_DECODE_GETW(table_id);
+    TLV_DECODE_GETW(operation_type);
+    
+    process_size =  *pnt - sp;
+    remain_size =  (msglen - process_size);
+    
+    if (table_id > HSL_DB_MAX_TABLE || operation_type > HSL_DB_MAX_FUNCTIONS)
+    {
+        printk("invalid PTS_TLV! max table-id[%d], max[oper_type %d]; input table[%d], operation[%d]",
+            HSL_DB_MAX_TABLE, HSL_DB_MAX_FUNCTIONS, table_id, operation_type);
+        goto hal_msg_invalid_db_id;
+    }
+    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, db_cb, table_id, operation_type))
+    {
+        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, db_cb, table_id, operation_type)(sock, nlhdr, *pnt,  remain_size);
+    }
+    
+    return 0;
+    
+hal_msg_pkt_too_small:
+    printk("hal_msg_pkt_too_small");
+    return 0;
+hal_msg_invalid_db_id:
+    printk("hal_msg_invalid_db");
+    return 0;
+}
+
+int hsl_msg_register_db_cb(HSL_MSG_DB_CALLBACK cb	, unsigned short table_id, unsigned short op)
+{
+	if (table_id >= HSL_DB_MAX_TABLE || op >= HSL_DB_MAX_FUNCTIONS)
+		return -1;
+	
+	hsl_msg_mgr.db_cb[table_id][op]= cb;
+	return 0;
+}
+int
+hsl_msg_process (struct socket *sock, char *buf, int buflen)
+{
+    struct netl_nlmsghdr *nlhdr;
+    u_char *msg;
+    u_char *pnt; 
+    u_int32_t msglen;
+    
+    nlhdr = (struct netl_nlmsghdr *)buf;
+    msg = buf + sizeof (struct netl_nlmsghdr);
+    pnt = (u_char *)msg;
+    msglen = nlhdr->nlmsg_len - NETL_NLMSG_ALIGN(NETL_NLMSGHDR_SIZE);
+/*
+    if (sock->ops) {
+        struct module *owner = sock->ops->owner;
+        printk("module ref %p\n", owner);
+        if(owner) {
+            printk("module ref %d\n", module_refcount(owner));
+        }
+    }
+*/
+    printk("hsl_process_msg() type %d\n", nlhdr->nlmsg_type);
+    switch (nlhdr->nlmsg_type) {
+    case HSL_NETL_NLMSG_DB:
+         hsl_msg_process_db(sock, nlhdr, msg, msglen);
+    break;
+    case HSL_NETL_NLMSG_EVENT: /* EVENT only HSL to other */
+        goto not_implement;
+    break;
+    case HSL_NETL_NLMSG_MISC:
+        hsl_msg_process_misc(sock, nlhdr, msg, msglen);
+    break;
+    default:
+        NETLK_MSG_PROCESS_RETURN_WITH_VALUE (sock, nlhdr, 0);
+        return 0;
+    }
+    
+not_implement:
+    printk("hsl_process_msg() type %d\n", nlhdr->nlmsg_type);
+    return 0;
+}
+
+int hsl_msg_op_dump(      struct socket *sock,
+                            struct netl_nlmsghdr *nlhdr,
+                            unsigned char *msg,
+                            unsigned int msglen)
+{
+    printk("nlmsg_len %d\n", nlhdr->nlmsg_len);
+    printk("nlmsg_type %d\n", nlhdr->nlmsg_type);
+    printk("nlmsg_flags %d\n", nlhdr->nlmsg_flags);
+    printk("nlmsg_seq %d\n", nlhdr->nlmsg_seq);
+    printk("nlmsg_pid %d\n", nlhdr->nlmsg_pid);
+    
+    hsl_log_dump_hex8(msg, msglen);
+    return 0;
+}
+void hsl_msg_init(void)
+{
+    int i;
+    int j;
+    memset(&hsl_msg_mgr, 0 ,sizeof(hsl_msg_mgr));
+    for (i = 0; i < HSL_DB_MAX_TABLE; i++ ) {
+        for (i = 0; i < HSL_DB_MAX_FUNCTIONS; i++ ) {
+            hsl_msg_mgr.db_cb[i][j] = hsl_msg_op_dump;
+        }           
+    }
+
+    for (i = 0; i < HSL_MISC_MAX_TABLE; i++ ) {
+        for (i = 0; i < HSL_MISC_MAX_FUNCTIONS; i++ ) {
+            hsl_msg_mgr.misc_cb[i][j] = hsl_msg_op_dump;
+        }           
+    }
+
+}

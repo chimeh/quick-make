@@ -227,4 +227,41 @@ int hsl_log_conf(char module_str[], u_int16_t enable, u_int16_t level)
     return 0;
 }
 
+#define HSL_DBG_PKT_LEVEL 0
+#define HSL_DBG_PKT_OUT(L, FMT,...) printk(FMT, ##__VA_ARGS__)
+
+
+void hsl_log_dump_hex8(unsigned char *data, unsigned int len) {
+    unsigned int cnt = 0;
+    char line[256];
+    char tmp[32];
+
+    if (0 == len) {
+        return;
+    }
+
+    for (cnt = 0; cnt < len; cnt++) {
+        if ((cnt % 16) == 0) {
+            if (cnt != 0) {
+                HSL_DBG_PKT_OUT(HSL_DBG_PKT_LEVEL, "%s\n", line);
+            }
+
+            memset(line, 0, sizeof(line));
+            snprintf(tmp, 32, "        0x%04x:  ", cnt);
+            strcat(line, tmp);
+        }
+
+        snprintf(tmp, 32, "%02x", data[cnt]);
+        strcat(line, tmp);
+
+        if ((cnt % 2) == 1) {
+            strcat(line, " ");
+        }
+    }
+
+    HSL_DBG_PKT_OUT(HSL_DBG_PKT_LEVEL, "%s", line);
+    HSL_DBG_PKT_OUT(HSL_DBG_PKT_LEVEL, "\n");
+
+    return;
+}
 
