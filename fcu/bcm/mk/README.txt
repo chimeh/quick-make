@@ -27,6 +27,9 @@ EEEE = 1是会将CC -E的 作为.i文件放在.o所在目录
 J=4
 J=1
 
+GLOBAL_CFLAGS 全局CFLAGS,所有make的CFLAGS会额外增加
+GLOBAL_LDFLAGS
+
 
 T=
 
