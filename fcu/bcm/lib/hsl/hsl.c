@@ -16,7 +16,8 @@ extern int get_chip_profile(char* fname, void * p_init_config);
 
 static int hsl_initialized = 0;
 
-int hsl_msg_process (struct socket *sock, char *buf, int buflen);
+extern int hsl_msg_process (struct socket *sock, char *buf, int buflen);
+extern void hsl_op_init(void);
 /*
   Initialize HSL.
 */
@@ -30,6 +31,7 @@ hsl_init (void) {
         return 0;
     SYSTEM_INIT_CHECK(get_chip_profile("/tmp/chip_profile.cfg", NULL), "chip_profile_parser");
     SYSTEM_INIT_CHECK(netlk_sock_init (hsl_msg_process), "netlk_sock_init");
+    SYSTEM_INIT_CHECK(netlk_sock_init (hsl_op_init), "hsl_op_init");
     hsl_initialized = 1;
     HSL_FN_EXIT (0);
 }

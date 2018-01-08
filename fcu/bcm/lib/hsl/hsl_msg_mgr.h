@@ -15,35 +15,42 @@
 #define HSL_MISC_MAX_TABLE             1
 #define HSL_MISC_MAX_FUNCTIONS         8
 
-typedef int (*HSL_MSG_DB_CALLBACK) (
+typedef int (*HSL_MSG_MGR_CALLBACK) (
                                     struct socket *,
                                     struct netl_nlmsghdr *hdr,
                                     unsigned char *msgbuf,
                                     unsigned int msglen
                                     );
-typedef int (*HSL_MSG_EVENT_CALLBACK) (
-                                    struct socket *,
-                                    struct netl_nlmsghdr *hdr,
-                                    unsigned char *msgbuf,
-                                    unsigned int msglen
-                                    );
-typedef int (*HSL_MSG_MISC_CALLBACK) (
-                                    struct socket *,
-                                    struct netl_nlmsghdr *hdr,
-                                    unsigned char *msgbuf,
-                                    unsigned int msglen
-                                    );
-                                    
+
+
+typedef struct HSL_MSG_MGR_CALLBACK_ENTRY_S {
+    HSL_MSG_MGR_CALLBACK f;
+    const char *fname;
+    const char *tblname;
+    const char *note;
+} HSL_MSG_MGR_CALLBACK_ENTRY ;
+
 struct hsl_msg_mgr_handler {
-    HSL_MSG_DB_CALLBACK db_cb[HSL_DB_MAX_TABLE][HSL_DB_MAX_FUNCTIONS];
-    HSL_MSG_EVENT_CALLBACK event_cb[HSL_EVENT_MAX_TABLE][HSL_EVENT_MAX_FUNCTIONS];
-    HSL_MSG_MISC_CALLBACK misc_cb[HSL_MISC_MAX_TABLE][HSL_MISC_MAX_FUNCTIONS];
+    HSL_MSG_MGR_CALLBACK_ENTRY db_cb[HSL_DB_MAX_TABLE][HSL_DB_MAX_FUNCTIONS];
+    HSL_MSG_MGR_CALLBACK_ENTRY event_cb[HSL_EVENT_MAX_TABLE][HSL_EVENT_MAX_FUNCTIONS];
+    HSL_MSG_MGR_CALLBACK_ENTRY misc_cb[HSL_MISC_MAX_TABLE][HSL_MISC_MAX_FUNCTIONS];
 };
 
 
-#define HSL_MSG_CB_CHECK(mgr, obj, tbl, op) (mgr.obj && mgr.obj[tbl][op])
-#define HSL_MSG_CB_CALL(mgr, obj, tbl, op) (mgr.obj[tbl][op])
+#define HSL_MSG_CB_CHECK(mgr, obj, tbl, op) (mgr.obj && mgr.obj[tbl][op].f)
+#define HSL_MSG_CB_CALL(mgr, obj, tbl, op) (mgr.obj[tbl][op].f)
 
-int hsl_msg_register_db_cb(HSL_MSG_DB_CALLBACK cb	, unsigned short table_id, unsigned short op);
-int hsl_msg_register_misc_cb(HSL_MSG_MISC_CALLBACK cb	, unsigned short table_id, unsigned short op);
+int hsl_msg_mgr_db_cb_register_name(HSL_MSG_MGR_CALLBACK cb, unsigned short table_id, unsigned short op,
+                                           char *fname, char *opname, char *note);
+
+int hsl_msg_mgr_misc_cb_register_name(HSL_MSG_MGR_CALLBACK cb, unsigned short table_id, unsigned short op,
+                                           char *fname, char *opname, char *note);
+                                           
+#define HSL_MSG_STR(x) #x
+#define hsl_msg_mgr_db_cb_register(cb,table_id, op, note) \
+    hsl_msg_mgr_db_cb_register_name(cb, table_id, op, HSL_MSG_STR(cb), HSL_MSG_STR(table_id)HSL_MSG_STR(op), note)
+
+#define hsl_msg_mgr_misc_cb_register(cb,table_id, op, note) \
+    hsl_msg_mgr_misc_cb_register_name(cb, table_id, op, HSL_MSG_STR(cb), HSL_MSG_STR(table_id)HSL_MSG_STR(op), note)
+
 #endif
