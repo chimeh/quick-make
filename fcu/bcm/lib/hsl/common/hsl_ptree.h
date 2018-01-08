@@ -1,5 +1,3 @@
-/* Copyright (C) 2005 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _HSL_PTREE_H
 #define _HSL_PTREE_H
 

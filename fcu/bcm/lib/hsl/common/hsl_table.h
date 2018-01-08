@@ -1,5 +1,3 @@
-/* Copyright (C) 2001-2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _ZEBOS_TABLE_H
 #define _ZEBOS_TABLE_H
 

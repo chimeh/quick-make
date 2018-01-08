@@ -1,4 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
 #ifndef _HSL_OSS_H
 #define _HSL_OSS_H 
  

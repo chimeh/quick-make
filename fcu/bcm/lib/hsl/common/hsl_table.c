@@ -1,6 +1,3 @@
-/* Copyright (C) 2001-2003 IP Infusion, Inc. All Rights Reserved. */
-
-#include "config.h"
 #include "hsl_os.h"
 #include "hsl_types.h"
 #include "hsl_types.h"

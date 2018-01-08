@@ -34,7 +34,6 @@
 	New BGP First commit
 	
 */
-#include "config.h"
 #include "hsl_os.h"
 #include "hsl_types.h"
 #include "hsl_oss.h"

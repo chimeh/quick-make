@@ -1,5 +1,3 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef  _HSL_LOG_MODULE
 #define  _HSL_LOG_MODULE
 

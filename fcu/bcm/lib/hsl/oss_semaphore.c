@@ -1,11 +1,6 @@
-/* Copyright (C) 2004 IP Infusion, Inc. All Rights Reserved. */
-
 #include "linux/time.h"
 #include "linux/random.h"
-#include "config.h"
-#include "hsl_os.h"
 #include "hsl_types.h"
-#include "sal/core/sync.h"
 #include "hsl_oss.h"
 
 /************************************************************************************

@@ -1,5 +1,3 @@
-/* Copyright (C) 2002-2003 IP Infusion, Inc. All Rights Reserved. */
-
 #ifndef _HSL_TLV_H_
 #define _HSL_TLV_H_
 

@@ -5,8 +5,8 @@
 #include <linux/kernel.h>
 #include <linux/types.h>
 
-#define sal_alloc(s, t) kmalloc(s, GFP_KERNEL)
-#define sal_free(p) kfree(p)
+#define kconfig_alloc(s, t) kmalloc(s, GFP_KERNEL)
+#define kconfig_free(p) kfree(p)
 
 typedef unsigned short uint16;
 
@@ -32,9 +32,9 @@ static sc_t *kconfig_list = NULL;
 
 #define	FREE_SC(_s)                                     \
 if (_s) {                                               \
-    if ((_s)->sc_name) sal_free((_s)->sc_name);         \
-    if ((_s)->sc_value) sal_free((_s)->sc_value);       \
-    sal_free(_s);                                       \
+    if ((_s)->sc_name) kconfig_free((_s)->sc_name);         \
+    if ((_s)->sc_value) kconfig_free((_s)->sc_value);       \
+    kconfig_free(_s);                                       \
 }
 
 /*
@@ -162,24 +162,24 @@ kconfig_set(char *name, char *value)
 	    FREE_SC(sc);
 	    return 0;
 	} else {		/* replace */
-	    newval = sal_alloc(strlen(value) + 1, "config value");
+	    newval = kconfig_alloc(strlen(value) + 1, "config value");
 	    if (newval == NULL) {
 		return -1;
 	    }
 	    strcpy(newval, value);
-	    sal_free(sc->sc_value);
+	    kconfig_free(sc->sc_value);
 	    sc->sc_value = newval;
 	    return 0;
 	}
     }
 
     /* not found, add */
-    if ((sc = sal_alloc(sizeof(sc_t), "config set")) == NULL) {
+    if ((sc = kconfig_alloc(sizeof(sc_t), "config set")) == NULL) {
 	return -1;
     }
 
-    sc->sc_name = sal_alloc(strlen(name) + 1, "config name");
-    sc->sc_value = sal_alloc(strlen(value) + 1, "config value");
+    sc->sc_name = kconfig_alloc(strlen(name) + 1, "config name");
+    sc->sc_value = kconfig_alloc(strlen(value) + 1, "config value");
 
     if (sc->sc_name == NULL || sc->sc_value == NULL) {
 	FREE_SC(sc);
