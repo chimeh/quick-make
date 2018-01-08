@@ -14,7 +14,7 @@ extern int get_chip_profile(char* fname, void * p_init_config);
 static int hsl_initialized = 0;
 
 extern int hsl_msg_process (struct socket *sock, char *buf, int buflen);
-extern void hsl_op_init(void);
+extern int hsl_op_init(void);
 /*
   Initialize HSL.
 */

@@ -67,7 +67,7 @@ DEFUN (  debug_kernel_hsl_hnd,
     msg.enable = enable;
     msg.level = level;
     memcpy(msg.module_str, module_str, NPAS_DBG_M_NAME_LEN);
-    ret = npas_nlmsg_sendto_kernel(&npas_tbl_link, &msg, sizeof(struct hal_msg_debug_hsl_req), NETLK_NLMMSG_TYPE_GENERIC);
+    ret = npas_nlmsg_sendto_kernel(&npas_tbl_link, &msg, sizeof(struct hal_msg_debug_hsl_req), HSL_NETL_NLMSG_DB);
     
     return CMD_SUCCESS;
 }

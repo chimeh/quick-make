@@ -1,9 +1,10 @@
 #ifndef __FWDU_HAL_NLMSG_H
 #define __FWDU_HAL_NLMSG_H
 
+#include "hsl_msg_nl_type.h"
 #define NPAS_NLMSG_DATA_LEN 2048
 
-#define NETLK_NLMMSG_TYPE_GENERIC 103
+
 /**
  @brief send msg to kernel
  @param[in] data

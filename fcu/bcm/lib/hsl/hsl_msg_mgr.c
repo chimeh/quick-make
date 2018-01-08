@@ -190,6 +190,7 @@ hsl_msg_process (struct socket *sock, char *buf, int buflen)
     switch (nlhdr->nlmsg_type) {
     case HSL_NETL_NLMSG_DB:
          hsl_msg_process_db(sock, nlhdr, msg, msglen);
+         NETLK_MSG_PROCESS_RETURN_WITH_VALUE (sock, nlhdr, 0);
     break;
     case HSL_NETL_NLMSG_EVENT: /* EVENT only HSL to other */
         goto not_implement;
@@ -198,6 +199,7 @@ hsl_msg_process (struct socket *sock, char *buf, int buflen)
         hsl_msg_process_misc(sock, nlhdr, msg, msglen);
     break;
     default:
+        printk("hsl_process_msg() unknown type %d\n", nlhdr->nlmsg_type);
         NETLK_MSG_PROCESS_RETURN_WITH_VALUE (sock, nlhdr, 0);
         return 0;
     }

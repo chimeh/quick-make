@@ -8,7 +8,7 @@
                 if ((RET) < 0)                                                                     \
                     netlk_sock_post_ack ((SOCK), (HDR), 0, (RET));                                         \
                 else                                                                               \
-                    netlk_sock_post_ack ((sock), (HDR), 0, 0);                                          \
+                    netlk_sock_post_ack ((SOCK), (HDR), 0, 0);                                          \
               }                                                                                    \
        } while (0)
 /* Structure to hold the NL control per socket. */
