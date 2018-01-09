@@ -209,7 +209,7 @@ hsl_msg_process (struct socket *sock, char *buf, int buflen)
     }
     
 not_implement:
-    printk("hsl_process_msg() type %d\n", nlhdr->nlmsg_type);
+    printk("hsl_process_msg() not_implement type %d\n", nlhdr->nlmsg_type);
     return 0;
 }
 
