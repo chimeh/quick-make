@@ -23,8 +23,9 @@
 #include "netlk_comm.h"
 #include "hsl_msg_nl_type.h"
 #include "hsl_msg_mgr.h"
-#include "hsl_msg_tlv.h"
 #include "hsl_logger.h"
+#include "hsl_msg_header.h"
+
 static struct hsl_msg_mgr_handler hsl_msg_mgr;
 
 static int hsl_msg_process_misc(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigned char *msg, unsigned int msglen)
@@ -39,7 +40,7 @@ static int hsl_msg_process_misc(struct socket *sock, struct netl_nlmsghdr *nlhdr
     unsigned short tlv_type;
     unsigned short tlv_length;
     unsigned short table_id;
-    unsigned short operation_type;
+    unsigned short op_type;
     
     int ret = 0;
     size = &size_var;
@@ -51,33 +52,33 @@ static int hsl_msg_process_misc(struct socket *sock, struct netl_nlmsghdr *nlhdr
     sp = *pnt;
     
     /* Check size. */
-    if (*size <  HAL_MSG_MISC_HEADER_SIZE)
-        goto hal_msg_pkt_too_small;
+    if (*size <  HSL_MSG_MISC_HEADER_SIZE)
+        goto hsl_msg_pkt_too_small;
 
     TLV_DECODE_GETW(tlv_type);
     TLV_DECODE_GETW(tlv_length);
     TLV_DECODE_GETW(table_id);
-    TLV_DECODE_GETW(operation_type);
+    TLV_DECODE_GETW(op_type);
     
     process_size =  *pnt - sp;
     remain_size =  (msglen - process_size);
     
-    if (table_id > HSL_MISC_MAX_TABLE || operation_type > HSL_MISC_MAX_FUNCTIONS)
+    if (table_id > HSL_MISC_MAX_TABLE || op_type > HSL_MISC_MAX_FUNCTIONS)
     {
         printk("invalid PTS_TLV! max table-id[%d], max[oper_type %d]; input table[%d], operation[%d]",
-            HSL_MISC_MAX_TABLE, HSL_MISC_MAX_FUNCTIONS, table_id, operation_type);
-        goto hal_msg_invalid_misc_id;
+            HSL_MISC_MAX_TABLE, HSL_MISC_MAX_FUNCTIONS, table_id, op_type);
+        goto hsl_msg_invalid_misc_id;
     }
-    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, misc_cb, table_id, operation_type))
+    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, misc_cb, table_id, op_type))
     {
-        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, misc_cb, table_id, operation_type)(sock, nlhdr, *pnt,  remain_size);
+        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, misc_cb, table_id, op_type)(sock, nlhdr, *pnt,  remain_size);
     }
     return ret;
-hal_msg_pkt_too_small:
-    printk("hal_msg_pkt_too_small");
+hsl_msg_pkt_too_small:
+    printk("hsl_msg_pkt_too_small");
     return 0;
-hal_msg_invalid_misc_id:
-    printk("hal_msg_invalid_misc_id");
+hsl_msg_invalid_misc_id:
+    printk("hsl_msg_invalid_misc_id");
     return 0;
 
 }
@@ -107,7 +108,7 @@ int hsl_msg_process_db(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigne
     unsigned short tlv_type;
     unsigned short tlv_length;
     unsigned short table_id;
-    unsigned short operation_type;
+    unsigned short op_type;
     
     int ret;
     size = &size_var;
@@ -119,35 +120,38 @@ int hsl_msg_process_db(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigne
     sp = *pnt;
     
     /* Check size. */
-    if (*size <  HAL_MSG_DB_HEADER_SIZE)
-        goto hal_msg_pkt_too_small;
+    if (*size <  HSL_MSG_DB_HEADER_SIZE)
+        goto hsl_msg_pkt_too_small;
 
     TLV_DECODE_GETW(tlv_type);
     TLV_DECODE_GETW(tlv_length);
     TLV_DECODE_GETW(table_id);
-    TLV_DECODE_GETW(operation_type);
-    
+    TLV_DECODE_GETW(op_type);
+
+    if(msglen != tlv_length) {
+        printk("msglen %d, tlv_length %d, should eq\n");
+    }
     process_size =  *pnt - sp;
     remain_size =  (msglen - process_size);
     
-    if (table_id > HSL_DB_MAX_TABLE || operation_type > HSL_DB_MAX_FUNCTIONS)
+    if (table_id > HSL_DB_MAX_TABLE || op_type > HSL_DB_MAX_FUNCTIONS)
     {
         printk("invalid PTS_TLV! max table-id[%d], max[oper_type %d]; input table[%d], operation[%d]",
-            HSL_DB_MAX_TABLE, HSL_DB_MAX_FUNCTIONS, table_id, operation_type);
-        goto hal_msg_invalid_db_id;
+            HSL_DB_MAX_TABLE, HSL_DB_MAX_FUNCTIONS, table_id, op_type);
+        goto hsl_msg_invalid_db_id;
     }
-    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, db_cb, table_id, operation_type))
+    if (HSL_MSG_CB_CHECK(hsl_msg_mgr, db_cb, table_id, op_type))
     {
-        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, db_cb, table_id, operation_type)(sock, nlhdr, *pnt,  remain_size);
+        ret = HSL_MSG_CB_CALL(hsl_msg_mgr, db_cb, table_id, op_type)(sock, nlhdr, *pnt,  remain_size);
     }
     
     return 0;
     
-hal_msg_pkt_too_small:
-    printk("hal_msg_pkt_too_small");
+hsl_msg_pkt_too_small:
+    printk("hsl_msg_pkt_too_small");
     return 0;
-hal_msg_invalid_db_id:
-    printk("hal_msg_invalid_db");
+hsl_msg_invalid_db_id:
+    printk("hsl_msg_invalid_db");
     return 0;
 }
 

@@ -29,6 +29,7 @@ include ${SDK}/mk/Make.config
 CFLAGS += -I${SDK}/$(LOCALDIR)
 CFLAGS += -I${SDK}/$(LOCALDIR)/../netl
 CFLAGS += -I${SDK}/$(LOCALDIR)/../unixlib/quagga
+CFLAGS += -I${SDK}/$(LOCALDIR)/../hsl/header/user
 lib = libnpas
 include ${SDK}/mk/Make.lib
 

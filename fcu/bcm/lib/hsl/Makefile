@@ -30,6 +30,7 @@ LSRCS += $(ADD_LSRCS)
 CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
 CFLAGS += -I${SDK}/$(LOCALDIR)/common
 CFLAGS += -I${SDK}/$(LOCALDIR)
+CFLAGS += -I${SDK}/$(LOCALDIR)/header/user
 CFLAGS += -I${SDK}/lib/netl
 CFLAGS += -I${SDK}/lib/netlk
 lib = libhsl

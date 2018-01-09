@@ -23,9 +23,9 @@
 #include "netlk_comm.h"
 #include "hsl_msg_nl_type.h"
 #include "hsl_msg_mgr.h"
-#include "hsl_msg_tlv.h"
+#include "hsl_msg_header.h"
 
-#include "op/hsl_op_tableid.h"
+#include "hsl_op_tableid.h"
 
 extern HSL_MSG_MGR_CALLBACK hsl_xxx_add;
 extern HSL_MSG_MGR_CALLBACK hsl_xxx_del;

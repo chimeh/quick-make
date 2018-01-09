@@ -6,13 +6,16 @@
 #include <limits.h>
 #include <stdint.h>
 #include <assert.h>
-#include "npas_dbg.h"
 #include "log.h"
 #include "vty.h"
 #include "command.h"
 #include "netl_netlink.h"
 #include "netl_comm.h"
 #include "npas_nlmsg.h"
+#include "hsl_op_tableid.h"
+#include "hsl_msg_header.h"
+#include "npas_dbg.h"
+
 
 extern struct netlsock npas_tbl_link;
 DEFUN (  debug_kernel_hsl_hnd,
@@ -45,7 +48,11 @@ DEFUN (  debug_kernel_hsl_hnd,
     u_int16_t enable = 0;
     u_int16_t level = 0;
     int ret;
-    struct hal_msg_debug_hsl_req msg;
+    
+    struct {
+        struct hsl_msg_header header;
+        struct hal_msg_debug_hsl_req v;
+    } PACK_ATTR msg;
     
     module_str = argv[0];
     if (!module_str) {
@@ -63,11 +70,16 @@ DEFUN (  debug_kernel_hsl_hnd,
     
     VTY_GET_INTEGER ("debug levels", level, argv[2]);
 
-    memset (&msg, 0, sizeof(struct hal_msg_debug_hsl_req));
-    msg.enable = enable;
-    msg.level = level;
-    memcpy(msg.module_str, module_str, NPAS_DBG_M_NAME_LEN);
-    ret = npas_nlmsg_sendto_kernel(&npas_tbl_link, &msg, sizeof(struct hal_msg_debug_hsl_req), HSL_NETL_NLMSG_DB);
+    msg.header.type = 0;
+    msg.header.length = sizeof(msg);
+    msg.header.table_id = TABLE_ID_XXX;
+    msg.header.op_type = HSL_TLV_OPERATION_TYPE_UPDATE;
+    
+    memset (&msg, 0, sizeof(msg));
+    msg.v.enable = enable;
+    msg.v.level = level;
+    memcpy(msg.v.module_str, module_str, NPAS_DBG_M_NAME_LEN);
+    ret = npas_nlmsg_sendto_kernel(&npas_tbl_link, &msg, sizeof(msg), HSL_NETL_NLMSG_DB);
     
     return CMD_SUCCESS;
 }
