@@ -23,9 +23,9 @@ struct netlk_sock
 };
 typedef int (*netlk_sock_process_msg_func_t)(struct socket *sock, char *buf, int buflen);
 /* function prototypes. */
-int netlk_sock_init (netlk_sock_process_msg_func_t msg_callback);
+int netlk_sock_init (void);
 int netlk_sock_deinit (void);
-int netlk_sock_process_msg (struct socket *sock, char *buf, int buflen);
+int netlk_sock_msg_cb_register (netlk_sock_process_msg_func_t cb);
 int netlk_sock_process_msg (struct socket *sock, char *buf, int buflen);
 int netlk_sock_post_buffer (struct socket *sock, char *buf, int size);
 int netlk_sock_post_msg (struct socket *sock, int cmd, int flags, int seqno, char *buf, int size);

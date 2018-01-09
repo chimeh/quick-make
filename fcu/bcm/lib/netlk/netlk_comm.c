@@ -489,16 +489,25 @@ netlk_sock_post_ack (struct socket *sock, struct netl_nlmsghdr *hdr, int flags, 
 
 /* HSL socket initialization. */
 int
-netlk_sock_init (netlk_sock_process_msg_func_t cb) {
+netlk_sock_init (void) {
     int ret;
-    if(cb) {
-        netlk_sock_process_msg_hook = cb;
-    } else {
+    if(NULL == netlk_sock_process_msg_hook) {
         netlk_sock_process_msg_hook = netlk_sock_process_msg_default;
     }
     ret = sock_register (&netlk_family_ops);
     //printk("#%s() %d module ref %d\n",__func__, __LINE__, module_refcount(THIS_MODULE));
     return ret;
+}
+
+
+int 
+netlk_sock_msg_cb_register (netlk_sock_process_msg_func_t cb) {
+    if(cb) {
+        netlk_sock_process_msg_hook = cb;
+    } else {
+        netlk_sock_process_msg_hook = netlk_sock_process_msg_default;
+    }
+    return 0;
 }
 
 /* HSL socket deinitialization. */

@@ -129,7 +129,7 @@ int hsl_msg_process_db(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigne
     TLV_DECODE_GETW(op_type);
 
     if(msglen != tlv_length) {
-        printk("msglen %d, tlv_length %d, should eq\n");
+        printk("msglen %d, tlv_length %d, should eq\n", msglen, tlv_length);
     }
     process_size =  *pnt - sp;
     remain_size =  (msglen - process_size);
@@ -205,9 +205,9 @@ hsl_msg_process (struct socket *sock, char *buf, int buflen)
     default:
         printk("hsl_process_msg() unknown type %d\n", nlhdr->nlmsg_type);
         NETLK_MSG_PROCESS_RETURN_WITH_VALUE (sock, nlhdr, 0);
-        return 0;
     }
-    
+    return 0;
+
 not_implement:
     printk("hsl_process_msg() not_implement type %d\n", nlhdr->nlmsg_type);
     return 0;
@@ -227,7 +227,7 @@ int hsl_msg_op_dump(      struct socket *sock,
     hsl_log_dump_hex8(msg, msglen);
     return 0;
 }
-void hsl_msg_init(void)
+int hsl_msg_cb_init(void)
 {
     int i;
     int j;
@@ -243,5 +243,5 @@ void hsl_msg_init(void)
             hsl_msg_mgr_misc_cb_register(hsl_msg_op_dump, i, j, "default cb");
         }           
     }
-
+    return 0;
 }

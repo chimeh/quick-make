@@ -39,7 +39,7 @@ struct hsl_msg_mgr_handler {
 
 #define HSL_MSG_CB_CHECK(mgr, obj, tbl, op) (mgr.obj && mgr.obj[tbl][op].f)
 #define HSL_MSG_CB_CALL(mgr, obj, tbl, op) (mgr.obj[tbl][op].f)
-
+#define HSL_MSG_CB_STR(mgr, obj, tbl, op) (mgr.obj[tbl][op].f)
 int hsl_msg_mgr_db_cb_register_name(HSL_MSG_MGR_CALLBACK cb, unsigned short table_id, unsigned short op,
                                            char *fname, char *opname, char *note);
 
