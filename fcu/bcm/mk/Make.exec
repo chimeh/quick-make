@@ -24,8 +24,7 @@ $(targetexec): $(BLDDIR)/.tree $(OUTDIR)/strip/.tree ${LD_O_FILES}
 	@$(ECHO) "[$(target)] LINK    $@" # This is needed for error parsing
 	$(Q)$(CC) \
 	-o $@ \
-	$(LDFLAGS) -L${LIBDIR}  \
-	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) 	$(LD_L_LISTS) $(_LD_END_GROUP) \
+	$(_LD_START_GROUP) $(LD_O_FILES) $(LD_A_FILES) 	$(LD_L_LISTS) $(LDFLAGS) -L${LIBDIR} $(_LD_END_GROUP) \
 	$(LD_INFO_OPTS)
 	$(CP) $@ $(OUTDIR)
 	$(Q)$(STRIP) --strip-debug $@ -o $(OUTDIR)/strip/$(notdir $@)

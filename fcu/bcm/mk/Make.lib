@@ -6,7 +6,8 @@
 
 BOBJS_MAKE_CMD =
 
-ifeq ($(LINUX_MAKE_SHARED_LIB),1)
+
+ifneq ($(LINUX_MAKE_SHARED_LIB),)
 LIBSUFFIX=so.${SHAREDLIBVER}
 
 targetlibsoname = ${lib}.${LIBSUFFIX}
