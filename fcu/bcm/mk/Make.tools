@@ -118,7 +118,6 @@ endif
 #
 ifeq "$(HOSTTYPE)" "Windows2000PC"
 MKTOOL	=	$(PERL) ${SDK}/script/mktool.pl
-BCM2C	=	$(PERL) ${SDK}/script/bcm2c.pl
 MKVERS	=	$(PERL) ${SDK}/script/version.pl
 RM	=	rm -f
 CP	=	cp
@@ -135,7 +134,6 @@ TOUCH	=	c:/windriver/workbench-3.0/x86-win32/bin/touch
 MKBEEP	=	$(MKTOOL) -beep
 else
 MKTOOL	=	$(PERL) ${SDK}/script/mktool.pl
-BCM2C	=	$(PERL) ${SDK}/script/bcm2c.pl
 MKVERS	=	$(PERL) ${SDK}/script/version.pl
 RM	=	/bin/rm -rf
 CP	=	/bin/cp

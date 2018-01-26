@@ -25,13 +25,25 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 include ${SDK}/mk/Make.config
 
 ifeq (linuxkern,$(targetos))
-CFLAGS += -DNO_FILEIO
 endif
 
-subdirs=${targetos} editline
-
+ 
+subdirs = editline
+ 
 include ${SDK}/mk/Make.subdirs
 
+ifeq ($(targetos),linuxkern)
+    LSRC += $(wildcard linuxkern)
+endif
+ifeq ($(targetos),linuxkern)
+    LSRC += $(wildcard linuxuser)
+    CFLAGS += -DNO_FILEIO
+endif
+ifeq ($(targetos),vxworks)
+    LSRC += $(wildcard vxworks)
+endif
+
+CFLAGS += -I$(realpath $(SDK)/$(LOCALDIR)/../h)
 
 lib = libsal_appl
 

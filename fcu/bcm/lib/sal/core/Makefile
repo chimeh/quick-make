@@ -24,10 +24,22 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 
 include ${SDK}/mk/Make.config
 
-subdirs=${targetos}
-include ${SDK}/mk/Make.subdirs
+
+
+ifeq ($(targetos),linuxkern)
+    LSRC += $(wildcard linuxkern)
+endif
+ifeq ($(targetos),linuxkern)
+    LSRC += $(wildcard linuxuser)
+endif
+ifeq ($(targetos),vxworks)
+    LSRC += $(wildcard vxworks)
+endif
+
+CFLAGS += -I$(realpath $(SDK)/$(LOCALDIR)/../h)
 
 lib = libsal_core
+
 include ${SDK}/mk/Make.lib
 
 include ${SDK}/mk/Make.depend

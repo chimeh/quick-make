@@ -31,7 +31,7 @@ export TARGET
 export BLDDIR
 export LIBDIR
 
-subdirs = customer sal unixlib netl npas
+subdirs = sal unixlib netl npas
 
 ifeq ($(targetos),linuxkern)
 subdirs = hsl
