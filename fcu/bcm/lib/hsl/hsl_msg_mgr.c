@@ -86,10 +86,10 @@ hsl_msg_invalid_misc_id:
 int hsl_msg_mgr_db_cb_register_name(HSL_MSG_MGR_CALLBACK cb, unsigned short table_id, unsigned short op,
                                            char *fname, char *tlbname, char *note)
 {
-	if (table_id >= HSL_MISC_MAX_TABLE || op >= HSL_MISC_MAX_FUNCTIONS)
+	if (table_id >= HSL_DB_MAX_TABLE || op >= HSL_DB_MAX_FUNCTIONS)
 		return -1;
 		
-	memset(&hsl_msg_mgr.misc_cb[table_id][op], 0, sizeof(HSL_MSG_MGR_CALLBACK_ENTRY));
+	memset(&hsl_msg_mgr.db_cb[table_id][op], 0, sizeof(HSL_MSG_MGR_CALLBACK_ENTRY));
 	hsl_msg_mgr.db_cb[table_id][op].f = cb;
 	hsl_msg_mgr.db_cb[table_id][op].fname = fname;
 	hsl_msg_mgr.db_cb[table_id][op].tblname = tlbname;
@@ -123,6 +123,11 @@ int hsl_msg_process_db(struct socket *sock, struct netl_nlmsghdr *nlhdr, unsigne
     if (*size <  HSL_MSG_DB_HEADER_SIZE)
         goto hsl_msg_pkt_too_small;
 
+    if(1) {
+        printk("HSL_MSG_DB_HEADER_SIZE:\n");
+        hsl_log_dump_hex8(msg, HSL_MSG_DB_HEADER_SIZE);
+    }
+    
     TLV_DECODE_GETW(tlv_type);
     TLV_DECODE_GETW(tlv_length);
     TLV_DECODE_GETW(table_id);
@@ -227,21 +232,64 @@ int hsl_msg_op_dump(      struct socket *sock,
     hsl_log_dump_hex8(msg, msglen);
     return 0;
 }
+
 int hsl_msg_cb_init(void)
 {
     int i;
     int j;
     memset(&hsl_msg_mgr, 0 ,sizeof(hsl_msg_mgr));
+    
+    hsl_msg_mgr.db_set.setname = "db_set";
+    hsl_msg_mgr.db_set.cb = &hsl_msg_mgr.db_cb[0][0];
+    hsl_msg_mgr.db_set.tbl_size = HSL_DB_MAX_TABLE;
+    hsl_msg_mgr.db_set.op_size = HSL_DB_MAX_FUNCTIONS;
     for (i = 0; i < HSL_DB_MAX_TABLE; i++ ) {
-        for (i = 0,j = 0; i < HSL_DB_MAX_FUNCTIONS; i++ ) {
+        for (j = 0; j < HSL_DB_MAX_FUNCTIONS; j++ ) {
             hsl_msg_mgr_db_cb_register(hsl_msg_op_dump, i, j, "default cb");
         }           
     }
 
+    hsl_msg_mgr.misc_set.setname = "misc_set";
+    hsl_msg_mgr.misc_set.cb = &hsl_msg_mgr.misc_cb[0][0];
+    hsl_msg_mgr.misc_set.tbl_size = HSL_MISC_MAX_TABLE;
+    hsl_msg_mgr.misc_set.op_size = HSL_MISC_MAX_FUNCTIONS;
     for (i = 0; i < HSL_MISC_MAX_TABLE; i++ ) {
-        for (i = 0, j = 0; i < HSL_MISC_MAX_FUNCTIONS; i++ ) {
+        for (j = 0; j < HSL_MISC_MAX_FUNCTIONS; j++ ) {
             hsl_msg_mgr_misc_cb_register(hsl_msg_op_dump, i, j, "default cb");
+        }           
+    }
+
+    return 0;
+}
+
+int hsl_msg_cbset_iter(HSL_MSG_MGR_CALLBACK_SET *pset, int (*apply) (const char *setname, unsigned int tbl_id, unsigned int op_id, HSL_MSG_MGR_CALLBACK_ENTRY *cbe))
+{
+    int i;
+    int j;
+    for (i = 0; i < pset->tbl_size; i++ ) {
+        for (j = 0; j < pset->op_size; j++ ) {
+            if(apply) {
+                (*apply)(pset->setname, i, j, &pset->cb[pset->op_size*i + j]);
+            }
         }           
     }
     return 0;
 }
+
+
+int hsl_msg_cb_show_entry(const char *setname, unsigned int tbl_id, unsigned int op_id, HSL_MSG_MGR_CALLBACK_ENTRY *cbe)
+{
+    if(cbe) {
+        printk("%s[%2d][%2d] = %p = {%p, %s, %s, %s}\n", setname, tbl_id, op_id, cbe, cbe->f, cbe->fname, cbe->tblname, cbe->note);
+    }
+    return 0;
+}
+int hsl_msg_cb_show_all(void)
+{
+    hsl_msg_cbset_iter(&hsl_msg_mgr.db_set, hsl_msg_cb_show_entry);
+    hsl_msg_cbset_iter(&hsl_msg_mgr.misc_set, hsl_msg_cb_show_entry);
+    return 0;
+}
+
+
+

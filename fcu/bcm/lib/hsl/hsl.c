@@ -16,12 +16,13 @@ extern int hsl_msg_cb_init(void);
 
 
 extern int netlk_sock_msg_cb_register (int (*cb)(struct socket *sock, char *buf, int buflen));
-
+extern int  hsl_msg_cb_show_all(void);
 
 
 static int hsl_initialized = 0;
 
 extern int hsl_op_init(void);
+
 /*
   Initialize HSL.
 */
@@ -35,10 +36,11 @@ hsl_init (void) {
         return 0;
     SYSTEM_INIT_CHECK(get_chip_profile("/tmp/chip_profile.cfg", NULL), "chip_profile_parser");
     
-    SYSTEM_INIT_CHECK(hsl_op_init(), "hsl_op_init");
     SYSTEM_INIT_CHECK(hsl_msg_cb_init(), "hsl_msg_cb_init");
+    SYSTEM_INIT_CHECK(hsl_op_init(), "hsl_op_init");
     SYSTEM_INIT_CHECK(netlk_sock_msg_cb_register(hsl_msg_process), "netlk_sock_msg_cb_register");
     SYSTEM_INIT_CHECK(netlk_sock_init(), "netlk_sock_init");
+    SYSTEM_INIT_CHECK(hsl_msg_cb_show_all(), "hsl_msg_cb_show_all");
     hsl_initialized = 1;
     HSL_FN_EXIT (0);
 }
