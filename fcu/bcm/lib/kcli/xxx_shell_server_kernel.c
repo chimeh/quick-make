@@ -20,35 +20,35 @@
 
 #include "sal/core/libc.h"
 #include "sal/core/alloc.h"
-#include "ctc_types.h"
-#include "ctc_sal.h"
-#include "ctc_shell.h"
-#include "ctc_shell_server.h"
-#include "ctc_cli.h"
+#include "xxx_types.h"
+#include "xxx_sal.h"
+#include "xxx_shell.h"
+#include "xxx_shell_server.h"
+#include "xxx_cli.h"
 
 int
-ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len);
+xxx_vti_read_cmd(xxx_vti_t* vty, const char* szbuf, const int buf_len);
 static int
-ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len);
+xxx_vty_sendto(xxx_vti_t* vti, const char *szPtr, const int szPtr_len);
 static int
-ctc_vty_send_quit(ctc_vti_t* vti);
+xxx_vty_send_quit(xxx_vti_t* vti);
 
-static struct sock *ctc_master_cli_netlinkfd = NULL;
+static struct sock *xxx_master_cli_netlinkfd = NULL;
 
 #if 0
-LIST_HEAD(ctc_master_cli_vty_list);
+LIST_HEAD(xxx_master_cli_vty_list);
 
-typedef struct ctc_master_vty_item_s
+typedef struct xxx_master_vty_item_s
 {
     struct list_head    list;
-    ctc_vti_t           *pvty;
-}ctc_master_vty_item_t;
+    xxx_vti_t           *pvty;
+}xxx_master_vty_item_t;
 #endif
-static ctc_vti_t* ctc_vty_lookup_by_pid_errno(unsigned int pid)
+static xxx_vti_t* xxx_vty_lookup_by_pid_errno(unsigned int pid)
 {
 #if 0
-    ctc_master_vty_item_t   *pitem = NULL;
-    list_for_each_entry(pitem,&ctc_master_cli_vty_list,list)
+    xxx_master_vty_item_t   *pitem = NULL;
+    list_for_each_entry(pitem,&xxx_master_cli_vty_list,list)
     {
         if(pitem->pvty->pid == pid)
         {
@@ -56,30 +56,30 @@ static ctc_vti_t* ctc_vty_lookup_by_pid_errno(unsigned int pid)
         }
     }
 
-    pitem = kmalloc(sizeof(ctc_master_vty_item_t),GFP_KERNEL);
+    pitem = kmalloc(sizeof(xxx_master_vty_item_t),GFP_KERNEL);
 
     if(pitem)
     {
-        pitem->pvty = ctc_vti_create(CTC_SDK_MODE);
+        pitem->pvty = xxx_vti_create(XXX_SDK_MODE);
         pitem->pvty->pid    = pid;
-        pitem->pvty->printf = ctc_vty_sendto;
-        ctc_vti_prompt(pitem->pvty);
+        pitem->pvty->printf = xxx_vty_sendto;
+        xxx_vti_prompt(pitem->pvty);
     }
 
     return pitem->pvty;
 #endif
-    if(g_ctc_vti->pid != pid)
+    if(g_xxx_vti->pid != pid)
     {
-        g_ctc_vti->pid    = pid;
-        g_ctc_vti->printf = ctc_vty_sendto;
-        g_ctc_vti->quit   = ctc_vty_send_quit;
-	    g_ctc_vti->node   = CTC_SDK_MODE;
-        ctc_vti_prompt(g_ctc_vti);
+        g_xxx_vti->pid    = pid;
+        g_xxx_vti->printf = xxx_vty_sendto;
+        g_xxx_vti->quit   = xxx_vty_send_quit;
+	    g_xxx_vti->node   = XXX_SDK_MODE;
+        xxx_vti_prompt(g_xxx_vti);
     }
-    return g_ctc_vti;
+    return g_xxx_vti;
 }
 
-static int ctc_vty_send_quit(ctc_vti_t* vti)
+static int xxx_vty_send_quit(xxx_vti_t* vti)
 {
     int size;
     struct sk_buff *skb;
@@ -88,18 +88,18 @@ static int ctc_vty_send_quit(ctc_vti_t* vti)
 
     int retval;
 
-    size = NLMSG_SPACE(CTC_SDK_NETLINK_MSG_LEN);
+    size = NLMSG_SPACE(XXX_SDK_NETLINK_MSG_LEN);
     skb =  alloc_skb(size, GFP_KERNEL);
 
 	old_tail = skb->tail;
-    nlh = nlmsg_put(skb, 0, 0, CTC_SDK_CMD_QUIT, NLMSG_SPACE(0), 0);
+    nlh = nlmsg_put(skb, 0, 0, XXX_SDK_CMD_QUIT, NLMSG_SPACE(0), 0);
     old_tail = skb->tail;
 
     nlh->nlmsg_len  = skb->tail - old_tail;
 
     NETLINK_CB(skb).dst_group = 0;
 
-    retval = netlink_unicast(ctc_master_cli_netlinkfd, skb, vti->pid, MSG_DONTWAIT);
+    retval = netlink_unicast(xxx_master_cli_netlinkfd, skb, vti->pid, MSG_DONTWAIT);
 
     if(retval < 0)
     {
@@ -110,7 +110,7 @@ static int ctc_vty_send_quit(ctc_vti_t* vti)
 }
 
 
-static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len)
+static int xxx_vty_sendto(xxx_vti_t* vti, const char *szPtr, const int szPtr_len)
 {
     int size;
     struct sk_buff *skb;
@@ -119,7 +119,7 @@ static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len
 
     int retval;
 
-    size = NLMSG_SPACE(CTC_SDK_NETLINK_MSG_LEN);
+    size = NLMSG_SPACE(XXX_SDK_NETLINK_MSG_LEN);
     skb =  alloc_skb(size, GFP_KERNEL);
 
 	old_tail = skb->tail;
@@ -135,7 +135,7 @@ static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len
 
     NETLINK_CB(skb).dst_group = 0;
 
-    retval = netlink_unicast(ctc_master_cli_netlinkfd, skb, vti->pid, MSG_DONTWAIT);
+    retval = netlink_unicast(xxx_master_cli_netlinkfd, skb, vti->pid, MSG_DONTWAIT);
 
     if(retval < 0)
     {
@@ -146,7 +146,7 @@ static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len
 }
 
 
-static void ctc_vty_recvfrom(struct sk_buff *skb)
+static void xxx_vty_recvfrom(struct sk_buff *skb)
 {
     struct nlmsghdr *nlh = NULL;
 
@@ -157,7 +157,7 @@ static void ctc_vty_recvfrom(struct sk_buff *skb)
             && (skb->len >= nlh->nlmsg_len))
         {
 
-            ctc_vti_read_cmd(ctc_vty_lookup_by_pid_errno(nlh->nlmsg_pid),
+            xxx_vti_read_cmd(xxx_vty_lookup_by_pid_errno(nlh->nlmsg_pid),
                                  (char *)NLMSG_DATA(nlh),
                                  nlh->nlmsg_seq);
         }
@@ -169,15 +169,15 @@ static void ctc_vty_recvfrom(struct sk_buff *skb)
 }
 
 
-int ctc_vty_socket()
+int xxx_vty_socket()
 {
     //struct netlink_kernel_cfg cfg = {0};
-    //cfg.input = ctc_vty_recvfrom;
+    //cfg.input = xxx_vty_recvfrom;
 
-    ctc_master_cli_netlinkfd = netlink_kernel_create(&init_net, CTC_SDK_NETLINK, 0, ctc_vty_recvfrom, NULL, THIS_MODULE);
+    xxx_master_cli_netlinkfd = netlink_kernel_create(&init_net, XXX_SDK_NETLINK, 0, xxx_vty_recvfrom, NULL, THIS_MODULE);
 
-    //ctc_master_cli_netlinkfd = __netlink_kernel_create(&init_net, CTC_SDK_NETLINK, THIS_MODULE, NULL);
-    if(!ctc_master_cli_netlinkfd){
+    //xxx_master_cli_netlinkfd = __netlink_kernel_create(&init_net, XXX_SDK_NETLINK, THIS_MODULE, NULL);
+    if(!xxx_master_cli_netlinkfd){
         printk("%s:%d can't create a netlink socket\n",__FUNCTION__,__LINE__);
         return -1;
     }
@@ -185,8 +185,8 @@ int ctc_vty_socket()
     return 0;
 }
 
-void ctc_vty_close()
+void xxx_vty_close()
 {
-    sock_release(ctc_master_cli_netlinkfd->sk_socket);
+    sock_release(xxx_master_cli_netlinkfd->sk_socket);
 }
 #endif

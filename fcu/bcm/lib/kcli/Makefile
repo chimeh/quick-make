@@ -32,7 +32,7 @@ CFLAGS += -Dsal_printf=printk
 CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
 CFLAGS += -I${SDK}/lib
 CFLAGS += -I${SDK}/lib/sal/h
-CFLAGS += -I${SDK}/$(LOCALDIR)/ctc_shell
+CFLAGS += -I${SDK}/$(LOCALDIR)/userspace_shell
 lib = libcli
 include ${SDK}/mk/Make.lib
 

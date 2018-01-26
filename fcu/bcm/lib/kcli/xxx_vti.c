@@ -22,10 +22,10 @@
 
 #include "sal/core/libc.h"
 #include "sal/core/alloc.h"
-#include "ctc_types.h"
-#include "ctc_sal.h"
-#include "ctc_cmd.h"
-#include "ctc_cli.h"
+#include "xxx_types.h"
+#include "xxx_sal.h"
+#include "xxx_cmd.h"
+#include "xxx_cli.h"
 #ifdef SDK_IN_VXWORKS
 #include "timers.h "
 #endif
@@ -37,10 +37,10 @@
 /* Vty events */
 enum event
 {
-    CTC_VTI_SERV,
-    CTC_VTI_READ,
-    CTC_VTI_WRITE,
-    CTC_VTI_TIMEOUT_RESET,
+    XXX_VTI_SERV,
+    XXX_VTI_READ,
+    XXX_VTI_WRITE,
+    XXX_VTI_TIMEOUT_RESET,
 #ifdef VTYSH
     VTYSH_SERV,
     VTYSH_READ
@@ -51,7 +51,7 @@ enum event
 static vector vtivec;
 
 /* Vty timeout value. */
-static unsigned long vti_timeout_val = CTC_VTI_TIMEOUT_DEFAULT;
+static unsigned long vti_timeout_val = XXX_VTI_TIMEOUT_DEFAULT;
 
 /* Current directory. */
 char* vti_cwd = NULL;
@@ -59,17 +59,17 @@ char* vti_cwd = NULL;
 /* Configure lock. */
 static int vti_config;
 
-ctc_vti_t* g_ctc_vti = NULL;
+xxx_vti_t* g_xxx_vti = NULL;
 
 extern void *sal_realloc(void *ptr, size_t size);
 
 
-ctc_vti_t*
-ctc_vti_create(int mode);
+xxx_vti_t*
+xxx_vti_create(int mode);
 
-static char g_ctc_vti_out_buf[1024] = "";
+static char g_xxx_vti_out_buf[1024] = "";
 int
-ctc_vti_out(ctc_vti_t* vti, const char* format, ...)
+xxx_vti_out(xxx_vti_t* vti, const char* format, ...)
 {
     va_list args;
     int len = 0;
@@ -80,9 +80,9 @@ ctc_vti_out(ctc_vti_t* vti, const char* format, ...)
 
     /* Try to write to initial buffer.  */
 #ifdef SDK_IN_VXWORKS
-    len = vsprintf(g_ctc_vti_out_buf, format, args);
+    len = vsprintf(g_xxx_vti_out_buf, format, args);
 #else
-    len = vsnprintf(g_ctc_vti_out_buf, sizeof(g_ctc_vti_out_buf), format, args);
+    len = vsnprintf(g_xxx_vti_out_buf, sizeof(g_xxx_vti_out_buf), format, args);
 #endif
 
     va_end(args);
@@ -123,7 +123,7 @@ ctc_vti_out(ctc_vti_t* vti, const char* format, ...)
     /* When initial buffer is enough to store all output.  */
     if (!p)
     {
-        p = g_ctc_vti_out_buf;
+        p = g_xxx_vti_out_buf;
     }
 
     /* Pointer p must point out buffer. */
@@ -131,7 +131,7 @@ ctc_vti_out(ctc_vti_t* vti, const char* format, ...)
         vti->printf(vti,p,len);
 
     /* If p is not different with buf, it is allocated buffer.  */
-    if (p != g_ctc_vti_out_buf)
+    if (p != g_xxx_vti_out_buf)
     {
         sal_free(p);
     }
@@ -141,52 +141,52 @@ ctc_vti_out(ctc_vti_t* vti, const char* format, ...)
 
 /* Put out prompt and wait input from user. */
 void
-ctc_vti_prompt(ctc_vti_t* vti)
+xxx_vti_prompt(xxx_vti_t* vti)
 {
-    ctc_vti_out(vti,"%s",ctc_cmd_prompt(vti->node));
+    xxx_vti_out(vti,"%s",xxx_cmd_prompt(vti->node));
 }
 
 /* Allocate new vti struct. */
-ctc_vti_t*
-ctc_vti_new()
+xxx_vti_t*
+xxx_vti_new()
 {
-    ctc_vti_t* new = sal_alloc(sizeof(ctc_vti_t),"kcli");
+    xxx_vti_t* new = sal_alloc(sizeof(xxx_vti_t),"kcli");
 
     if (!new)
     {
         return NULL;
     }
-    sal_memset(new, 0, sizeof(ctc_vti_t));
+    sal_memset(new, 0, sizeof(xxx_vti_t));
 
-    new->buf = sal_alloc(CTC_VTI_BUFSIZ, "kcli");
+    new->buf = sal_alloc(XXX_VTI_BUFSIZ, "kcli");
     if (!new->buf)
     {
         sal_free(new);
         return NULL;
     }
-    sal_memset(new->buf, 0, CTC_VTI_BUFSIZ);
+    sal_memset(new->buf, 0, XXX_VTI_BUFSIZ);
 
-    new->max = CTC_VTI_BUFSIZ;
+    new->max = XXX_VTI_BUFSIZ;
 
     return new;
 }
 
 /* Command execution over the vti interface. */
 int
-ctc_vti_command(ctc_vti_t* vti, char* buf)
+xxx_vti_command(xxx_vti_t* vti, char* buf)
 {
     int ret;
     vector vline;
 
     /* Split readline string up into the vector */
-    vline = ctc_cmd_make_strvec(buf);
+    vline = xxx_cmd_make_strvec(buf);
 
     if (vline == NULL)
     {
         return CMD_SUCCESS;
     }
 
-    ret = ctc_cmd_execute_command(vline, vti, NULL);
+    ret = xxx_cmd_execute_command(vline, vti, NULL);
 
     if (ret != CMD_SUCCESS)
     {
@@ -198,19 +198,19 @@ ctc_vti_command(ctc_vti_t* vti, char* buf)
             break;
 
         case CMD_ERR_AMBIGUOUS:
-            ctc_vti_out(vti, "%% Ambiguous command\n\r");
+            xxx_vti_out(vti, "%% Ambiguous command\n\r");
             break;
 
         case CMD_ERR_NO_MATCH:
-            ctc_vti_out(vti, "%% Unrecognized command\n\r");
+            xxx_vti_out(vti, "%% Unrecognized command\n\r");
             break;
 
         case CMD_ERR_INCOMPLETE:
-            ctc_vti_out(vti, "%% Incomplete command\n\r");
+            xxx_vti_out(vti, "%% Incomplete command\n\r");
             break;
 
         case CMD_SYS_ERROR:
-            ctc_vti_out(vti, "%% System warning...\n\r");
+            xxx_vti_out(vti, "%% System warning...\n\r");
             break;
 
         default:
@@ -218,7 +218,7 @@ ctc_vti_command(ctc_vti_t* vti, char* buf)
         }
     }
 
-    ctc_cmd_free_strvec(vline);
+    xxx_cmd_free_strvec(vline);
 
     return ret;
 }
@@ -228,14 +228,14 @@ char telnet_space_char = ' ';
 
 /* Basic function to write buffer to vti. */
 void
-ctc_vti_write(ctc_vti_t* vti, char* buf, uint32 nbytes)
+xxx_vti_write(xxx_vti_t* vti, char* buf, uint32 nbytes)
 {
     vti->printf(vti,buf,nbytes);
 }
 
 /* Ensure length of input buffer.  Is buffer is short, double it. */
 static void
-ctc_vti_ensure(ctc_vti_t* vti, int length)
+xxx_vti_ensure(xxx_vti_t* vti, int length)
 {
     if (vti->max <= length)
     {
@@ -246,18 +246,18 @@ ctc_vti_ensure(ctc_vti_t* vti, int length)
 
 /* Basic function to insert character into vti. */
 static void
-ctc_vti_self_insert(ctc_vti_t* vti, char c)
+xxx_vti_self_insert(xxx_vti_t* vti, char c)
 {
     int length;
 
-    ctc_vti_ensure(vti, vti->length + 1);
+    xxx_vti_ensure(vti, vti->length + 1);
     length = vti->length - vti->cp;
     sal_memmove(&vti->buf[vti->cp + 1], &vti->buf[vti->cp], length);
     vti->buf[vti->cp] = c;
 
-    /*ctc_vti_write (vti, &vti->buf[vti->cp], length + 1);
+    /*xxx_vti_write (vti, &vti->buf[vti->cp], length + 1);
     for (i = 0; i < length; i++)
-      ctc_vti_write (vti, &telnet_backward_char, 1);*/
+      xxx_vti_write (vti, &telnet_backward_char, 1);*/
 
     vti->cp++;
     vti->length++;
@@ -265,9 +265,9 @@ ctc_vti_self_insert(ctc_vti_t* vti, char c)
 
 /* Self insert character 'c' in overwrite mode. */
 static void
-ctc_vti_self_insert_overwrite(ctc_vti_t* vti, char c)
+xxx_vti_self_insert_overwrite(xxx_vti_t* vti, char c)
 {
-    ctc_vti_ensure(vti, vti->length + 1);
+    xxx_vti_ensure(vti, vti->length + 1);
     vti->buf[vti->cp++] = c;
 
     if (vti->cp > vti->length)
@@ -279,16 +279,16 @@ ctc_vti_self_insert_overwrite(ctc_vti_t* vti, char c)
   if ((vti->node == AUTH_NODE) || (vti->node == AUTH_ENABLE_NODE))
     return;
 */
-    ctc_vti_write(vti, &c, 1);
+    xxx_vti_write(vti, &c, 1);
 }
 
 /* Insert a word into vti interface with overwrite mode. */
 static void
-ctc_vti_insert_word_overwrite(ctc_vti_t* vti, char* str)
+xxx_vti_insert_word_overwrite(xxx_vti_t* vti, char* str)
 {
     int len = sal_strlen(str);
 
-    ctc_vti_write(vti, str, len);
+    xxx_vti_write(vti, str, len);
     sal_strcpy(&vti->buf[vti->cp], str);
     vti->cp += len;
     vti->length = vti->cp;
@@ -296,57 +296,57 @@ ctc_vti_insert_word_overwrite(ctc_vti_t* vti, char* str)
 
 /* Forward character. */
 static void
-ctc_vti_forward_char(ctc_vti_t* vti)
+xxx_vti_forward_char(xxx_vti_t* vti)
 {
     if (vti->cp < vti->length)
     {
-        ctc_vti_write(vti, &vti->buf[vti->cp], 1);
+        xxx_vti_write(vti, &vti->buf[vti->cp], 1);
         vti->cp++;
     }
 }
 
 /* Backward character. */
 static void
-ctc_vti_backward_char(ctc_vti_t* vti)
+xxx_vti_backward_char(xxx_vti_t* vti)
 {
     if (vti->cp > 0)
     {
         vti->cp--;
-        ctc_vti_write(vti, &telnet_backward_char, 1);
+        xxx_vti_write(vti, &telnet_backward_char, 1);
     }
 }
 
 /* Move to the beginning of the line. */
 static void
-ctc_vti_beginning_of_line(ctc_vti_t* vti)
+xxx_vti_beginning_of_line(xxx_vti_t* vti)
 {
     while (vti->cp)
     {
-        ctc_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
     }
 }
 
 /* Move to the end of the line. */
 static void
-ctc_vti_end_of_line(ctc_vti_t* vti)
+xxx_vti_end_of_line(xxx_vti_t* vti)
 {
     while (vti->cp < vti->length)
     {
-        ctc_vti_forward_char(vti);
+        xxx_vti_forward_char(vti);
     }
 }
 
-static void ctc_vti_kill_line_from_beginning(ctc_vti_t*);
-static void ctc_vti_redraw_line(ctc_vti_t*);
+static void xxx_vti_kill_line_from_beginning(xxx_vti_t*);
+static void xxx_vti_redraw_line(xxx_vti_t*);
 
 /* Print command line history.  This function is called from
-   ctc_vti_next_line and ctc_vti_previous_line. */
+   xxx_vti_next_line and xxx_vti_previous_line. */
 static void
-ctc_vti_history_print(ctc_vti_t* vti)
+xxx_vti_history_print(xxx_vti_t* vti)
 {
     int length;
 
-    ctc_vti_kill_line_from_beginning(vti);
+    xxx_vti_kill_line_from_beginning(vti);
 
     if (vti->hist[vti->hp] != NULL)
     {
@@ -356,26 +356,26 @@ ctc_vti_history_print(ctc_vti_t* vti)
         vti->cp = vti->length = length;
 
         /* Redraw current line */
-        ctc_vti_redraw_line(vti);
+        xxx_vti_redraw_line(vti);
     }
 }
 
 /* Show next command line history. */
 void
-ctc_vti_next_line(ctc_vti_t* vti)
+xxx_vti_next_line(xxx_vti_t* vti)
 {
     int try_index;
     int try_count = 0;
 
     if (vti->hp == vti->hindex)
     {
-        ctc_vti_kill_line_from_beginning(vti);
+        xxx_vti_kill_line_from_beginning(vti);
         return;
     }
 
     /* Try is there history exist or not. */
     try_index = vti->hp;
-    if (try_index == (CTC_VTI_MAXHIST - 1))
+    if (try_index == (XXX_VTI_MAXHIST - 1))
     {
         try_index = 0;
     }
@@ -384,9 +384,9 @@ ctc_vti_next_line(ctc_vti_t* vti)
         try_index++;
     }
 
-    while ((vti->hist[try_index] == NULL) && (try_count < CTC_VTI_MAXHIST))
+    while ((vti->hist[try_index] == NULL) && (try_count < XXX_VTI_MAXHIST))
     {
-        if (try_index == (CTC_VTI_MAXHIST - 1))
+        if (try_index == (XXX_VTI_MAXHIST - 1))
         {
             try_index = 0;
         }
@@ -401,7 +401,7 @@ ctc_vti_next_line(ctc_vti_t* vti)
     /* If there is not history return. */
     if (vti->hist[try_index] == NULL)
     {
-        ctc_vti_kill_line_from_beginning(vti);
+        xxx_vti_kill_line_from_beginning(vti);
         return;
     }
     else
@@ -409,12 +409,12 @@ ctc_vti_next_line(ctc_vti_t* vti)
         vti->hp = try_index;
     }
 
-    ctc_vti_history_print(vti);
+    xxx_vti_history_print(vti);
 }
 
 /* Show previous command line history. */
 void
-ctc_vti_previous_line(ctc_vti_t* vti)
+xxx_vti_previous_line(xxx_vti_t* vti)
 {
     int try_index;
     int try_count = 0;
@@ -423,18 +423,18 @@ ctc_vti_previous_line(ctc_vti_t* vti)
 
     if (try_index == 0)
     {
-        try_index = CTC_VTI_MAXHIST - 1;
+        try_index = XXX_VTI_MAXHIST - 1;
     }
     else
     {
         try_index--;
     }
 
-    while (vti->hist[try_index] == NULL && try_count < CTC_VTI_MAXHIST)
+    while (vti->hist[try_index] == NULL && try_count < XXX_VTI_MAXHIST)
     {
         if (try_index == 0)
         {
-            try_index = CTC_VTI_MAXHIST - 1;
+            try_index = XXX_VTI_MAXHIST - 1;
         }
         else
         {
@@ -446,7 +446,7 @@ ctc_vti_previous_line(ctc_vti_t* vti)
 
     if (vti->hist[try_index] == NULL)
     {
-        ctc_vti_kill_line_from_beginning(vti);
+        xxx_vti_kill_line_from_beginning(vti);
         return;
     }
     else
@@ -454,88 +454,88 @@ ctc_vti_previous_line(ctc_vti_t* vti)
         vti->hp = try_index;
     }
 
-    ctc_vti_history_print(vti);
+    xxx_vti_history_print(vti);
 }
 
 /* This function redraw all of the command line character. */
 static void
-ctc_vti_redraw_line(ctc_vti_t* vti)
+xxx_vti_redraw_line(xxx_vti_t* vti)
 {
-    ctc_vti_write(vti, vti->buf, vti->length);
+    xxx_vti_write(vti, vti->buf, vti->length);
     vti->cp = vti->length;
 }
 
 /* Forward word. */
 void
-ctc_vti_forward_word(ctc_vti_t* vti)
+xxx_vti_forward_word(xxx_vti_t* vti)
 {
     while (vti->cp != vti->length && vti->buf[vti->cp] != ' ')
     {
-        ctc_vti_forward_char(vti);
+        xxx_vti_forward_char(vti);
     }
 
     while (vti->cp != vti->length && vti->buf[vti->cp] == ' ')
     {
-        ctc_vti_forward_char(vti);
+        xxx_vti_forward_char(vti);
     }
 }
 
 /* Backward word without skipping training space. */
 void
-ctc_vti_backward_pure_word(ctc_vti_t* vti)
+xxx_vti_backward_pure_word(xxx_vti_t* vti)
 {
     while (vti->cp > 0 && vti->buf[vti->cp - 1] != ' ')
     {
-        ctc_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
     }
 }
 
 /* Backward word. */
 void
-ctc_vti_backward_word(ctc_vti_t* vti)
+xxx_vti_backward_word(xxx_vti_t* vti)
 {
     while (vti->cp > 0 && vti->buf[vti->cp - 1] == ' ')
     {
-        ctc_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
     }
 
     while (vti->cp > 0 && vti->buf[vti->cp - 1] != ' ')
     {
-        ctc_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
     }
 }
 
 /* When '^D' is typed at the beginning of the line we move to the down
    level. */
 static void
-ctc_vti_down_level(ctc_vti_t* vti)
+xxx_vti_down_level(xxx_vti_t* vti)
 {
-    ctc_vti_out(vti, "%s", CTC_VTI_NEWLINE);
-    ctc_vti_prompt(vti);
+    xxx_vti_out(vti, "%s", XXX_VTI_NEWLINE);
+    xxx_vti_prompt(vti);
     vti->cp = 0;
 }
 
 /* When '^Z' is received from vti, move down to the enable mode. */
 void
-ctc_vti_end_config(ctc_vti_t* vti)
+xxx_vti_end_config(xxx_vti_t* vti)
 {
-    ctc_vti_out(vti, "%s", CTC_VTI_NEWLINE);
+    xxx_vti_out(vti, "%s", XXX_VTI_NEWLINE);
 
     switch (vti->node)
     {
-    case CTC_VIEW_NODE:
-    case CTC_ENABLE_NODE:
+    case XXX_VIEW_NODE:
+    case XXX_ENABLE_NODE:
         /* Nothing to do. */
         break;
 
-    case CTC_CONFIG_NODE:
-    case CTC_INTERFACE_NODE:
-    case CTC_KEYCHAIN_NODE:
-    case CTC_KEYCHAIN_KEY_NODE:
-    case CTC_MASC_NODE:
-    case CTC_VTI_NODE:
-        ctc_vti_config_unlock(vti);
-        vti->node = CTC_ENABLE_NODE;
+    case XXX_CONFIG_NODE:
+    case XXX_INTERFACE_NODE:
+    case XXX_KEYCHAIN_NODE:
+    case XXX_KEYCHAIN_KEY_NODE:
+    case XXX_MASC_NODE:
+    case XXX_VTI_NODE:
+        xxx_vti_config_unlock(vti);
+        vti->node = XXX_ENABLE_NODE;
         break;
 
     default:
@@ -543,20 +543,20 @@ ctc_vti_end_config(ctc_vti_t* vti)
         break;
     }
 
-    ctc_vti_prompt(vti);
+    xxx_vti_prompt(vti);
     vti->cp = 0;
 }
 
 /* Delete a charcter at the current point. */
 static void
-ctc_vti_delete_char(ctc_vti_t* vti)
+xxx_vti_delete_char(xxx_vti_t* vti)
 {
     int i;
     int size;
 
     if (vti->length == 0)
     {
-        ctc_vti_down_level(vti);
+        xxx_vti_down_level(vti);
         return;
     }
 
@@ -572,31 +572,31 @@ ctc_vti_delete_char(ctc_vti_t* vti)
     sal_memmove(&vti->buf[vti->cp], &vti->buf[vti->cp + 1], size - 1);
     vti->buf[vti->length] = '\0';
 
-    ctc_vti_write(vti, &vti->buf[vti->cp], size - 1);
-    ctc_vti_write(vti, &telnet_space_char, 1);
+    xxx_vti_write(vti, &vti->buf[vti->cp], size - 1);
+    xxx_vti_write(vti, &telnet_space_char, 1);
 
     for (i = 0; i < size; i++)
     {
-        ctc_vti_write(vti, &telnet_backward_char, 1);
+        xxx_vti_write(vti, &telnet_backward_char, 1);
     }
 }
 
 /* Delete a character before the point. */
 static void
-ctc_vti_delete_backward_char(ctc_vti_t* vti)
+xxx_vti_delete_backward_char(xxx_vti_t* vti)
 {
     if (vti->cp == 0)
     {
         return;
     }
 
-    ctc_vti_backward_char(vti);
-    ctc_vti_delete_char(vti);
+    xxx_vti_backward_char(vti);
+    xxx_vti_delete_char(vti);
 }
 
 /* Kill rest of line from current point. */
 static void
-ctc_vti_kill_line(ctc_vti_t* vti)
+xxx_vti_kill_line(xxx_vti_t* vti)
 {
     int i;
     int size;
@@ -610,12 +610,12 @@ ctc_vti_kill_line(ctc_vti_t* vti)
 
     for (i = 0; i < size; i++)
     {
-        ctc_vti_write(vti, &telnet_space_char, 1);
+        xxx_vti_write(vti, &telnet_space_char, 1);
     }
 
     for (i = 0; i < size; i++)
     {
-        ctc_vti_write(vti, &telnet_backward_char, 1);
+        xxx_vti_write(vti, &telnet_backward_char, 1);
     }
 
     sal_memset(&vti->buf[vti->cp], 0, size);
@@ -624,51 +624,51 @@ ctc_vti_kill_line(ctc_vti_t* vti)
 
 /* Kill line from the beginning. */
 static void
-ctc_vti_kill_line_from_beginning(ctc_vti_t* vti)
+xxx_vti_kill_line_from_beginning(xxx_vti_t* vti)
 {
-    ctc_vti_beginning_of_line(vti);
-    ctc_vti_kill_line(vti);
+    xxx_vti_beginning_of_line(vti);
+    xxx_vti_kill_line(vti);
 }
 
 /* Delete a word before the point. */
 void
-ctc_vti_forward_kill_word(ctc_vti_t* vti)
+xxx_vti_forward_kill_word(xxx_vti_t* vti)
 {
     while (vti->cp != vti->length && vti->buf[vti->cp] == ' ')
     {
-        ctc_vti_delete_char(vti);
+        xxx_vti_delete_char(vti);
     }
 
     while (vti->cp != vti->length && vti->buf[vti->cp] != ' ')
     {
-        ctc_vti_delete_char(vti);
+        xxx_vti_delete_char(vti);
     }
 }
 
 /* Delete a word before the point. */
 static void
-ctc_vti_backward_kill_word(ctc_vti_t* vti)
+xxx_vti_backward_kill_word(xxx_vti_t* vti)
 {
     while (vti->cp > 0 && vti->buf[vti->cp - 1] == ' ')
     {
-        ctc_vti_delete_backward_char(vti);
+        xxx_vti_delete_backward_char(vti);
     }
 
     while (vti->cp > 0 && vti->buf[vti->cp - 1] != ' ')
     {
-        ctc_vti_delete_backward_char(vti);
+        xxx_vti_delete_backward_char(vti);
     }
 }
 
 void
-ctc_vti_clear_buf(ctc_vti_t* vti)
+xxx_vti_clear_buf(xxx_vti_t* vti)
 {
     sal_memset(vti->buf, 0, vti->max);
 }
 
 /* Transpose chars before or at the point. */
 static void
-ctc_vti_transpose_chars(ctc_vti_t* vti)
+xxx_vti_transpose_chars(xxx_vti_t* vti)
 {
     char c1, c2;
 
@@ -685,25 +685,25 @@ ctc_vti_transpose_chars(ctc_vti_t* vti)
         c1 = vti->buf[vti->cp - 1];
         c2 = vti->buf[vti->cp - 2];
 
-        ctc_vti_backward_char(vti);
-        ctc_vti_backward_char(vti);
-        ctc_vti_self_insert_overwrite(vti, c1);
-        ctc_vti_self_insert_overwrite(vti, c2);
+        xxx_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
+        xxx_vti_self_insert_overwrite(vti, c1);
+        xxx_vti_self_insert_overwrite(vti, c2);
     }
     else
     {
         c1 = vti->buf[vti->cp];
         c2 = vti->buf[vti->cp - 1];
 
-        ctc_vti_backward_char(vti);
-        ctc_vti_self_insert_overwrite(vti, c1);
-        ctc_vti_self_insert_overwrite(vti, c2);
+        xxx_vti_backward_char(vti);
+        xxx_vti_self_insert_overwrite(vti, c1);
+        xxx_vti_self_insert_overwrite(vti, c2);
     }
 }
 
 /* Do completion at vti interface. */
 static void
-ctc_vti_complete_command(ctc_vti_t* vti)
+xxx_vti_complete_command(xxx_vti_t* vti)
 {
     int i;
     int ret;
@@ -711,7 +711,7 @@ ctc_vti_complete_command(ctc_vti_t* vti)
     vector vline;
     char match_list[256] = {'\0'};
 
-    vline = ctc_cmd_make_strvec(vti->buf);
+    vline = xxx_cmd_make_strvec(vti->buf);
     if (vline == NULL)
     {
         return;
@@ -720,14 +720,14 @@ ctc_vti_complete_command(ctc_vti_t* vti)
     /* In case of 'help \t'. */
     if (sal_isspace((int)vti->buf[vti->length - 1]))
     {
-        ctc_vti_vec_set(vline, '\0');
+        xxx_vti_vec_set(vline, '\0');
     }
 
-    matched = ctc_cmd_complete_command(vline, vti, &ret);
+    matched = xxx_cmd_complete_command(vline, vti, &ret);
 
-    ctc_cmd_free_strvec(vline);
+    xxx_cmd_free_strvec(vline);
 
-    /*printf( "%s", CTC_VTI_NEWLINE);
+    /*printf( "%s", XXX_VTI_NEWLINE);
     */
     switch (ret)
     {
@@ -740,53 +740,53 @@ ctc_vti_complete_command(ctc_vti_t* vti)
         break;
 
     case CMD_COMPLETE_FULL_MATCH:
-        ctc_vti_backward_pure_word(vti);
-        ctc_vti_insert_word_overwrite(vti, matched[0]);
-        ctc_vti_self_insert(vti, ' ');
-        ctc_vti_out(vti, " ");
+        xxx_vti_backward_pure_word(vti);
+        xxx_vti_insert_word_overwrite(vti, matched[0]);
+        xxx_vti_self_insert(vti, ' ');
+        xxx_vti_out(vti, " ");
         sal_free(matched[0]);
         break;
 
     case CMD_COMPLETE_MATCH:
-        ctc_vti_backward_pure_word(vti);
-        ctc_vti_insert_word_overwrite(vti, matched[0]);
+        xxx_vti_backward_pure_word(vti);
+        xxx_vti_insert_word_overwrite(vti, matched[0]);
         sal_free(matched[0]);
-        ctc_vti_vec_only_index_free(matched);
+        xxx_vti_vec_only_index_free(matched);
         return;
         break;
 
     case CMD_COMPLETE_LIST_MATCH:
-        ctc_vti_out(vti, "\n\r");
+        xxx_vti_out(vti, "\n\r");
 
         for (i = 0; matched[i] != NULL; i++)
         {
             if (i != 0 && ((i % 6) == 0))
             {
-                /*printf( "%s", CTC_VTI_NEWLINE);
+                /*printf( "%s", XXX_VTI_NEWLINE);
                 */
-                ctc_vti_out(vti, "\n\r");
+                xxx_vti_out(vti, "\n\r");
             }
 
             /*printf( "%-10s ", matched[i]);
             */
             sal_sprintf(match_list, "%-18s ", matched[i]);
-            ctc_vti_write(vti, match_list, sal_strlen(match_list));
+            xxx_vti_write(vti, match_list, sal_strlen(match_list));
             if (sal_strcmp(matched[i], "<cr>") != 0)
             {
                 sal_free(matched[i]);
             }
         }
 
-        /*printf( "%s", CTC_VTI_NEWLINE);
+        /*printf( "%s", XXX_VTI_NEWLINE);
         */
-        ctc_vti_out(vti, "\n\r");
-        ctc_vti_prompt(vti);
-        ctc_vti_redraw_line(vti);
+        xxx_vti_out(vti, "\n\r");
+        xxx_vti_prompt(vti);
+        xxx_vti_redraw_line(vti);
         break;
 
     case CMD_ERR_NOTHING_TODO:
-        /*ctc_vti_prompt (vti);
-        ctc_vti_redraw_line (vti);
+        /*xxx_vti_prompt (vti);
+        xxx_vti_redraw_line (vti);
         */
         break;
 
@@ -796,12 +796,12 @@ ctc_vti_complete_command(ctc_vti_t* vti)
 
     if (matched)
     {
-        ctc_vti_vec_only_index_free(matched);
+        xxx_vti_vec_only_index_free(matched);
     }
 }
 
 void
-ctc_vti_describe_fold(ctc_vti_t* vti, int cmd_width, int desc_width, ctc_cmd_desc_t* desc)
+xxx_vti_describe_fold(xxx_vti_t* vti, int cmd_width, int desc_width, xxx_cmd_desc_t* desc)
 {
     char* buf, * cmd, * p;
     int pos;
@@ -810,7 +810,7 @@ ctc_vti_describe_fold(ctc_vti_t* vti, int cmd_width, int desc_width, ctc_cmd_des
 
     if (desc_width <= 0)
     {
-        ctc_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, desc->str, CTC_VTI_NEWLINE);
+        xxx_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, desc->str, XXX_VTI_NEWLINE);
         return;
     }
 
@@ -838,59 +838,59 @@ ctc_vti_describe_fold(ctc_vti_t* vti, int cmd_width, int desc_width, ctc_cmd_des
 
         sal_strncpy(buf, p, pos);
         buf[pos] = '\0';
-        ctc_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, buf, CTC_VTI_NEWLINE);
+        xxx_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, buf, XXX_VTI_NEWLINE);
 
         cmd = "";
     }
 
-    ctc_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, p, CTC_VTI_NEWLINE);
+    xxx_vti_out(vti, "  %-*s  %s%s", cmd_width, cmd, p, XXX_VTI_NEWLINE);
 
     sal_free(buf);
 }
 
 /* Describe matched command function. */
 static void
-ctc_vti_describe_command(ctc_vti_t* vti)
+xxx_vti_describe_command(xxx_vti_t* vti)
 {
     int ret;
     vector vline;
     vector describe;
     int i, width, desc_width;
-    ctc_cmd_desc_t* desc, * desc_cr = NULL;
+    xxx_cmd_desc_t* desc, * desc_cr = NULL;
 
-    vline = ctc_cmd_make_strvec(vti->buf);
+    vline = xxx_cmd_make_strvec(vti->buf);
 
     /* In case of '> ?'. */
     if (vline == NULL)
     {
-        vline = ctc_vti_vec_init(1);
-        ctc_vti_vec_set(vline, '\0');
+        vline = xxx_vti_vec_init(1);
+        xxx_vti_vec_set(vline, '\0');
     }
     else if (sal_isspace((int)vti->buf[vti->length - 1]))
     {
-        ctc_vti_vec_set(vline, '\0');
+        xxx_vti_vec_set(vline, '\0');
     }
 
-    describe = ctc_cmd_describe_command(vline, vti, &ret);
+    describe = xxx_cmd_describe_command(vline, vti, &ret);
 
-    ctc_vti_out(vti, "%s", CTC_VTI_NEWLINE);
+    xxx_vti_out(vti, "%s", XXX_VTI_NEWLINE);
 
     /* Ambiguous error. */
     switch (ret)
     {
     case CMD_ERR_AMBIGUOUS:
-        ctc_cmd_free_strvec(vline);
-        ctc_vti_out(vti, "%% Ambiguous command%s", CTC_VTI_NEWLINE);
-        ctc_vti_prompt(vti);
-        ctc_vti_redraw_line(vti);
+        xxx_cmd_free_strvec(vline);
+        xxx_vti_out(vti, "%% Ambiguous command%s", XXX_VTI_NEWLINE);
+        xxx_vti_prompt(vti);
+        xxx_vti_redraw_line(vti);
         return;
         break;
 
     case CMD_ERR_NO_MATCH:
-        ctc_cmd_free_strvec(vline);
-        ctc_vti_out(vti, "%% Unrecognized command%s", CTC_VTI_NEWLINE);
-        ctc_vti_prompt(vti);
-        ctc_vti_redraw_line(vti);
+        xxx_cmd_free_strvec(vline);
+        xxx_vti_out(vti, "%% Unrecognized command%s", XXX_VTI_NEWLINE);
+        xxx_vti_prompt(vti);
+        xxx_vti_redraw_line(vti);
         return;
         break;
     }
@@ -943,19 +943,19 @@ ctc_vti_describe_command(ctc_vti_t* vti)
 
             if (!desc->str)
             {
-                ctc_vti_out(vti, "  %-s%s",
+                xxx_vti_out(vti, "  %-s%s",
                             desc->cmd[0] == '.' ? desc->cmd + 1 : desc->cmd,
-                            CTC_VTI_NEWLINE);
+                            XXX_VTI_NEWLINE);
             }
             else if (desc_width >= sal_strlen(desc->str))
             {
-                ctc_vti_out(vti, "  %-*s  %s%s", width,
+                xxx_vti_out(vti, "  %-*s  %s%s", width,
                             desc->cmd[0] == '.' ? desc->cmd + 1 : desc->cmd,
-                            desc->str, CTC_VTI_NEWLINE);
+                            desc->str, XXX_VTI_NEWLINE);
             }
             else
             {
-                ctc_vti_describe_fold(vti, width, desc_width, desc);
+                xxx_vti_describe_fold(vti, width, desc_width, desc);
             }
         }
     }
@@ -964,52 +964,52 @@ ctc_vti_describe_command(ctc_vti_t* vti)
     {
         if (!desc->str)
         {
-            ctc_vti_out(vti, "  %-s%s",
+            xxx_vti_out(vti, "  %-s%s",
                         desc->cmd[0] == '.' ? desc->cmd + 1 : desc->cmd,
-                        CTC_VTI_NEWLINE);
+                        XXX_VTI_NEWLINE);
         }
         else if (desc_width >= sal_strlen(desc->str))
         {
-            ctc_vti_out(vti, "  %-*s  %s%s", width,
+            xxx_vti_out(vti, "  %-*s  %s%s", width,
                         desc->cmd[0] == '.' ? desc->cmd + 1 : desc->cmd,
-                        desc->str, CTC_VTI_NEWLINE);
+                        desc->str, XXX_VTI_NEWLINE);
         }
         else
         {
-            ctc_vti_describe_fold(vti, width, desc_width, desc);
+            xxx_vti_describe_fold(vti, width, desc_width, desc);
         }
     }
 
-    ctc_cmd_free_strvec(vline);
-    ctc_vti_vec_free(describe);
+    xxx_cmd_free_strvec(vline);
+    xxx_vti_vec_free(describe);
 
-    ctc_vti_prompt(vti);
-    ctc_vti_redraw_line(vti);
+    xxx_vti_prompt(vti);
+    xxx_vti_redraw_line(vti);
 }
 
 /* ^C stop current input and do not add command line to the history. */
 static void
-ctc_vti_stop_input(ctc_vti_t* vti)
+xxx_vti_stop_input(xxx_vti_t* vti)
 {
     vti->cp = vti->length = 0;
-    ctc_vti_clear_buf(vti);
-    ctc_vti_out(vti, "%s", CTC_VTI_NEWLINE);
+    xxx_vti_clear_buf(vti);
+    xxx_vti_out(vti, "%s", XXX_VTI_NEWLINE);
 
     switch (vti->node)
     {
-    case CTC_VIEW_NODE:
-    case CTC_ENABLE_NODE:
+    case XXX_VIEW_NODE:
+    case XXX_ENABLE_NODE:
         /* Nothing to do. */
         break;
 
-    case CTC_CONFIG_NODE:
-    case CTC_INTERFACE_NODE:
-    case CTC_KEYCHAIN_NODE:
-    case CTC_KEYCHAIN_KEY_NODE:
-    case CTC_MASC_NODE:
-    case CTC_VTI_NODE:
-        ctc_vti_config_unlock(vti);
-        vti->node = CTC_ENABLE_NODE;
+    case XXX_CONFIG_NODE:
+    case XXX_INTERFACE_NODE:
+    case XXX_KEYCHAIN_NODE:
+    case XXX_KEYCHAIN_KEY_NODE:
+    case XXX_MASC_NODE:
+    case XXX_VTI_NODE:
+        xxx_vti_config_unlock(vti);
+        vti->node = XXX_ENABLE_NODE;
         break;
 
     default:
@@ -1017,14 +1017,14 @@ ctc_vti_stop_input(ctc_vti_t* vti)
         break;
     }
 
-    ctc_vti_prompt(vti);
+    xxx_vti_prompt(vti);
 
     /* Set history pointer to the latest one. */
     vti->hp = vti->hindex;
 }
 
 void
-ctc_vti_append_history_command(char* cmd)
+xxx_vti_append_history_command(char* cmd)
 {
 #ifdef ISGCOV
     FILE* p_history_file = NULL;
@@ -1046,7 +1046,7 @@ ctc_vti_append_history_command(char* cmd)
 
 /* Add current command line to the history buffer. */
 static void
-ctc_vti_hist_add(ctc_vti_t* vti)
+xxx_vti_hist_add(xxx_vti_t* vti)
 {
     int index;
 
@@ -1055,9 +1055,9 @@ ctc_vti_hist_add(ctc_vti_t* vti)
         return;
     }
 
-    index = vti->hindex ? vti->hindex - 1 : CTC_VTI_MAXHIST - 1;
+    index = vti->hindex ? vti->hindex - 1 : XXX_VTI_MAXHIST - 1;
 
-    ctc_vti_append_history_command(vti->buf);
+    xxx_vti_append_history_command(vti->buf);
 
     /* Ignore the same string as previous one. */
     if (vti->hist[index])
@@ -1079,7 +1079,7 @@ ctc_vti_hist_add(ctc_vti_t* vti)
 
     /* History index rotation. */
     vti->hindex++;
-    if (vti->hindex == CTC_VTI_MAXHIST)
+    if (vti->hindex == XXX_VTI_MAXHIST)
     {
         vti->hindex = 0;
     }
@@ -1089,19 +1089,19 @@ ctc_vti_hist_add(ctc_vti_t* vti)
 
 /* Execute current command line. */
 static int
-ctc_vti_execute(ctc_vti_t* vti)
+xxx_vti_execute(xxx_vti_t* vti)
 {
     int ret;
 
     ret = CMD_SUCCESS;
 
-    ctc_vti_out(vti, "\n\r");
-    ret = ctc_vti_command(vti, vti->buf);
-    ctc_vti_hist_add(vti);
+    xxx_vti_out(vti, "\n\r");
+    ret = xxx_vti_command(vti, vti->buf);
+    xxx_vti_hist_add(vti);
     vti->cp = vti->length = 0;
-    ctc_vti_clear_buf(vti);
+    xxx_vti_clear_buf(vti);
 
-    ctc_vti_prompt(vti);
+    xxx_vti_prompt(vti);
 
     return ret;
 }
@@ -1113,24 +1113,24 @@ ctc_vti_execute(ctc_vti_t* vti)
 
 /* Escape character command map. */
 void
-ctc_vti_escape_map(unsigned char c, ctc_vti_t* vti)
+xxx_vti_escape_map(unsigned char c, xxx_vti_t* vti)
 {
     switch (c)
     {
     case ('A'):
-        ctc_vti_previous_line(vti);
+        xxx_vti_previous_line(vti);
         break;
 
     case ('B'):
-        ctc_vti_next_line(vti);
+        xxx_vti_next_line(vti);
         break;
 
     case ('C'):
-        ctc_vti_forward_char(vti);
+        xxx_vti_forward_char(vti);
         break;
 
     case ('D'):
-        ctc_vti_backward_char(vti);
+        xxx_vti_backward_char(vti);
         break;
 
     default:
@@ -1138,7 +1138,7 @@ ctc_vti_escape_map(unsigned char c, ctc_vti_t* vti)
     }
 
     /* Go back to normal mode. */
-    vti->escape = CTC_VTI_NORMAL;
+    vti->escape = XXX_VTI_NORMAL;
 }
 
 static int
@@ -1156,16 +1156,16 @@ is_char_visible(unsigned char c)
 
 /* Read data via vti netlink. */
 static char g_vti_out_buf[2048] = {0};
-static char g_ctc_vti_read_buf[CTC_VTI_READ_BUFSIZ] = {0};
+static char g_xxx_vti_read_buf[XXX_VTI_READ_BUFSIZ] = {0};
 int
-ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
+xxx_vti_read_cmd(xxx_vti_t* vty, const char* szbuf, const int buf_len)
 {
     int i = 0;
     int flag = 1;
     int nbytes;
 
 
-    sal_memcpy(g_ctc_vti_read_buf,szbuf,buf_len < CTC_VTI_READ_BUFSIZ ? buf_len : CTC_VTI_READ_BUFSIZ);
+    sal_memcpy(g_xxx_vti_read_buf,szbuf,buf_len < XXX_VTI_READ_BUFSIZ ? buf_len : XXX_VTI_READ_BUFSIZ);
     nbytes = buf_len;
     /*read(ioTaskStdGet(0,0), &buf[i], 1) *//*for vxworks*/
     for (i = 0; i < nbytes; i++)
@@ -1178,11 +1178,11 @@ ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
         *//*1 ms */
 #endif
 
-        if (is_char_visible(g_ctc_vti_read_buf[i]) && (vty->escape == VTI_NORMAL))
+        if (is_char_visible(g_xxx_vti_read_buf[i]) && (vty->escape == VTI_NORMAL))
         {
             uint8   out_buf_len = 0;
             sal_memset(g_vti_out_buf,'\0',sizeof(g_vti_out_buf));
-            g_vti_out_buf[0] = g_ctc_vti_read_buf[i];
+            g_vti_out_buf[0] = g_xxx_vti_read_buf[i];
             out_buf_len++;
             if (vty->cp != vty->length)
             {
@@ -1202,39 +1202,39 @@ ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
             }
             vty->printf(vty,g_vti_out_buf,out_buf_len);
 
-            /*sal_memcpy(&g_ctc_vti->buf[g_ctc_vti->cp], &buf[i], 1); */
+            /*sal_memcpy(&g_xxx_vti->buf[g_xxx_vti->cp], &buf[i], 1); */
         }
 
         /* Escape character. */
         if (vty->escape == VTI_ESCAPE)
         {
-            ctc_vti_escape_map (g_ctc_vti_read_buf[i], vty);
+            xxx_vti_escape_map (g_xxx_vti_read_buf[i], vty);
             continue;
         }
 
         /* Pre-escape status. */
         if (vty->escape == VTI_PRE_ESCAPE)
         {
-            switch (g_ctc_vti_read_buf[i])
+            switch (g_xxx_vti_read_buf[i])
             {
                 case '[':
                     vty->escape = VTI_ESCAPE;
                     break;
                 case 'b':
-                    ctc_vti_backward_word (vty);
+                    xxx_vti_backward_word (vty);
                     vty->escape = VTI_NORMAL;
                     break;
                 case 'f':
-                    ctc_vti_forward_word (vty);
+                    xxx_vti_forward_word (vty);
                     vty->escape = VTI_NORMAL;
                     break;
                 case 'd':
-                    ctc_vti_forward_kill_word (vty);
+                    xxx_vti_forward_kill_word (vty);
                     vty->escape = VTI_NORMAL;
                     break;
                 case CONTROL('H'):
                 case 0x7f:
-                    ctc_vti_backward_kill_word (vty);
+                    xxx_vti_backward_kill_word (vty);
                     vty->escape = VTI_NORMAL;
                     break;
                 default:
@@ -1245,81 +1245,81 @@ ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
 
         }
 
-        switch (g_ctc_vti_read_buf[i])
+        switch (g_xxx_vti_read_buf[i])
         {
             case CONTROL('A'):
-                ctc_vti_beginning_of_line(vty);
+                xxx_vti_beginning_of_line(vty);
                 break;
 
             case CONTROL('B'):
-                ctc_vti_backward_char(vty);
+                xxx_vti_backward_char(vty);
                 break;
 
             case CONTROL('C'):
-                ctc_vti_stop_input(vty);
+                xxx_vti_stop_input(vty);
                 flag = 0;
                 break;
 
             case CONTROL('D'):
-                ctc_vti_delete_char(vty);
+                xxx_vti_delete_char(vty);
                 break;
 
             case CONTROL('E'):
-                ctc_vti_end_of_line(vty);
+                xxx_vti_end_of_line(vty);
                 break;
 
             case CONTROL('F'):
-                ctc_vti_forward_char(vty);
+                xxx_vti_forward_char(vty);
                 break;
 
             case CONTROL('H'):
             case 0x7f:
-                ctc_vti_delete_backward_char(vty);
+                xxx_vti_delete_backward_char(vty);
                 break;
 
             case CONTROL('K'):
-                ctc_vti_kill_line(vty);
+                xxx_vti_kill_line(vty);
                 break;
 
             case CONTROL('N'):
-                ctc_vti_next_line(vty);
+                xxx_vti_next_line(vty);
                 break;
 
             case CONTROL('P'):
-                ctc_vti_previous_line(vty);
+                xxx_vti_previous_line(vty);
                 break;
 
             case CONTROL('T'):
-                ctc_vti_transpose_chars(vty);
+                xxx_vti_transpose_chars(vty);
                 break;
 
             case CONTROL('U'):
-                ctc_vti_kill_line_from_beginning(vty);
+                xxx_vti_kill_line_from_beginning(vty);
                 break;
 
             case CONTROL('W'):
-                ctc_vti_backward_kill_word(vty);
+                xxx_vti_backward_kill_word(vty);
                 break;
 
             case CONTROL('Z'):
-                ctc_vti_end_config(vty);
+                xxx_vti_end_config(vty);
                 break;
 
             case '\n':
             case '\r':
-                ctc_vti_execute(vty);
+                xxx_vti_execute(vty);
                 break;
 
             case '\t':
-                ctc_vti_complete_command(vty);
+                xxx_vti_complete_command(vty);
                 break;
 
             case '?':
-                ctc_vti_describe_command(vty);
+                xxx_vti_describe_command(vty);
                 break;
 
             case '\033':
-                if (i + 1 < nbytes && g_ctc_vti_read_buf[i + 1] == '[')
+                if (i + 1 < nbytes && g_xxx_vti_read_buf[i + 1] == '[')
                 {
                     vty->escape = VTI_ESCAPE;
                     i++;
@@ -1334,9 +1334,9 @@ ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
 
 
             default:
-                if (g_ctc_vti_read_buf[i] > 31 && g_ctc_vti_read_buf[i] < 127)
+                if (g_xxx_vti_read_buf[i] > 31 && g_xxx_vti_read_buf[i] < 127)
                 {
-                    ctc_vti_self_insert(vty, g_ctc_vti_read_buf[i]);
+                    xxx_vti_self_insert(vty, g_xxx_vti_read_buf[i]);
                 }
 
                 break;
@@ -1349,11 +1349,11 @@ ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len)
 
 /* Read data via vti socket. */
 int
-ctc_vti_read(char* buf, uint32 buf_size,uint32 mode)
+xxx_vti_read(char* buf, uint32 buf_size,uint32 mode)
 {
     int nbytes = 0;
 
-    if (CTC_VTI_SHELL_MODE_DEFAULT == mode)
+    if (XXX_VTI_SHELL_MODE_DEFAULT == mode)
     {
         //nbytes = sal_read(0, buf, buf_size);
     }
@@ -1365,33 +1365,33 @@ ctc_vti_read(char* buf, uint32 buf_size,uint32 mode)
     return nbytes;
 }
 
-/* Create new g_ctc_vti structure. */
-ctc_vti_t*
-ctc_vti_create(int mode)
+/* Create new g_xxx_vti structure. */
+xxx_vti_t*
+xxx_vti_create(int mode)
 {
-    ctc_vti_t* vti;
+    xxx_vti_t* vti;
 
     /* Allocate new vti structure and set up default values. */
-    vti = ctc_vti_new();
+    vti = xxx_vti_new();
     if (!vti)
     {
         return NULL;
     }
 
     vti->fd = 0;
-    vti->type = CTC_VTI_TERM;
+    vti->type = XXX_VTI_TERM;
     vti->address = "";
 
     vti->node = mode;
 
     vti->fail = 0;
     vti->cp = 0;
-    ctc_vti_clear_buf(vti);
+    xxx_vti_clear_buf(vti);
     vti->length = 0;
     sal_memset(vti->hist, 0, sizeof(vti->hist));
     vti->hp = 0;
     vti->hindex = 0;
-    ctc_vti_vec_set_index(vtivec, 0, vti);
+    xxx_vti_vec_set_index(vtivec, 0, vti);
     vti->status = VTI_NORMAL;
     vti->v_timeout = vti_timeout_val;
 
@@ -1400,13 +1400,13 @@ ctc_vti_create(int mode)
     vti->iac_sb_in_progress = 0;
     vti->width = 0;
 
-    ctc_vti_prompt(vti);
+    xxx_vti_prompt(vti);
 
     return vti;
 }
 
 int
-ctc_vti_config_lock(ctc_vti_t* vti)
+xxx_vti_config_lock(xxx_vti_t* vti)
 {
     if (vti_config == 0)
     {
@@ -1418,7 +1418,7 @@ ctc_vti_config_lock(ctc_vti_t* vti)
 }
 
 int
-ctc_vti_config_unlock(ctc_vti_t* vti)
+xxx_vti_config_unlock(xxx_vti_t* vti)
 {
     if (vti_config == 1 && vti->config == 1)
     {
@@ -1430,42 +1430,42 @@ ctc_vti_config_unlock(ctc_vti_t* vti)
 }
 
 char*
-ctc_vti_get_cwd()
+xxx_vti_get_cwd()
 {
     return vti_cwd;
 }
 
 int
-ctc_vti_shell(ctc_vti_t* vti)
+xxx_vti_shell(xxx_vti_t* vti)
 {
-    return vti->type == CTC_VTI_SHELL ? 1 : 0;
+    return vti->type == XXX_VTI_SHELL ? 1 : 0;
 }
 
 int
-ctc_vti_shell_serv(ctc_vti_t* vti)
+xxx_vti_shell_serv(xxx_vti_t* vti)
 {
-    return vti->type == CTC_VTI_SHELL_SERV ? 1 : 0;
+    return vti->type == XXX_VTI_SHELL_SERV ? 1 : 0;
 }
 
 void
-ctc_vti_init_vtish()
+xxx_vti_init_vtish()
 {
-    vtivec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+    vtivec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
 }
 
 /* Install vti's own commands like `who' command. */
 void
-ctc_vti_init(int mode)
+xxx_vti_init(int mode)
 {
     /* For further configuration read, preserve current directory. */
-    vtivec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+    vtivec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
 
     /* Initilize server thread vector. */
-    /*Vctc_vti_serv_thread = ctc_vti_vec_init (VECTOR_MIN_SIZE);*/
+    /*Vxxx_vti_serv_thread = xxx_vti_vec_init (VECTOR_MIN_SIZE);*/
 
-    if (!g_ctc_vti)
+    if (!g_xxx_vti)
     {
-        g_ctc_vti = ctc_vti_create(mode);
+        g_xxx_vti = xxx_vti_create(mode);
     }
 }
 

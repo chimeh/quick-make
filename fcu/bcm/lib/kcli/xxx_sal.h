@@ -1,11 +1,11 @@
-#ifndef __CTC_SAL__
-#define __CTC_SAL__
+#ifndef __XXX_SAL__
+#define __XXX_SAL__
 
 /**
  * @file kal.h
  */
 
-#include "ctc_types.h"
+#include "xxx_types.h"
 
 #define _SAL_DEBUG
 #if defined(_SAL_LINUX_KM)
@@ -302,5 +302,5 @@ struct in6_addr
 #endif
 
 
-#endif /* !__CTC_SAL__ */
+#endif /* !__XXX_SAL__ */
 

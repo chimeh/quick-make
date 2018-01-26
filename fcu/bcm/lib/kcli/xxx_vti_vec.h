@@ -1,5 +1,5 @@
 /****************************************************************************
- * ctc_vti_vec.h :         header
+ * xxx_vti_vec.h :         header
  *
  * Copyright (C) 2010 Centec Networks Inc.  All rights reserved.
  *
@@ -9,8 +9,8 @@
  * Reason         :         First Create
  ****************************************************************************/
 
-#ifndef _CTC_VTI_VEC_H
-#define _CTC_VTI_VEC_H
+#ifndef _XXX_VTI_VEC_H
+#define _XXX_VTI_VEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,26 +39,26 @@ typedef struct _vector* vector;
 #define vector_reset(V)   ((V)->max = 0)
 
 /* Prototypes. */
-vector ctc_vti_vec_init(uint32 size);
-void ctc_vti_vec_ensure(vector v, uint32 num);
-int ctc_vti_vec_empty_slot(vector v);
-int ctc_vti_vec_set(vector v, void* val);
-int ctc_vti_vec_set_index(vector v, uint32 i, void* val);
-void ctc_vti_vec_unset(vector v, uint32 i);
-uint32 ctc_vti_vec_count(vector v);
-void ctc_vti_vec_only_wrapper_free(vector v);
-void ctc_vti_vec_only_index_free(void* index);
-void ctc_vti_vec_free(vector v);
-vector ctc_vti_vec_copy(vector v);
+vector xxx_vti_vec_init(uint32 size);
+void xxx_vti_vec_ensure(vector v, uint32 num);
+int xxx_vti_vec_empty_slot(vector v);
+int xxx_vti_vec_set(vector v, void* val);
+int xxx_vti_vec_set_index(vector v, uint32 i, void* val);
+void xxx_vti_vec_unset(vector v, uint32 i);
+uint32 xxx_vti_vec_count(vector v);
+void xxx_vti_vec_only_wrapper_free(vector v);
+void xxx_vti_vec_only_index_free(void* index);
+void xxx_vti_vec_free(vector v);
+vector xxx_vti_vec_copy(vector v);
 
-void* ctc_vti_vec_lookup(vector, uint32);
-void* ctc_vti_vec_lookup_ensure(vector, uint32);
-void ctc_vti_vec_add(vector dest, vector src);
-void ctc_vti_vec_dup(vector dest, vector src);
+void* xxx_vti_vec_lookup(vector, uint32);
+void* xxx_vti_vec_lookup_ensure(vector, uint32);
+void xxx_vti_vec_add(vector dest, vector src);
+void xxx_vti_vec_dup(vector dest, vector src);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _CTC_VTI_VEC_H */
+#endif /* _XXX_VTI_VEC_H */
 

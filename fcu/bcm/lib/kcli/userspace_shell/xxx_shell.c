@@ -120,7 +120,7 @@ static int ctc_netlink_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
     int                        skfd = - 1;
     struct sockaddr_nl         local;
     ctc_sdk_vty_netlink_t    *pvty_netlink = (ctc_sdk_vty_netlink_t*)pctc_sdk_vty;
-    skfd = socket(PF_NETLINK, SOCK_RAW, CTC_SDK_NETLINK);
+    skfd = socket(PF_NETLINK, SOCK_RAW, XXX_SDK_NETLINK);
     if (skfd < 0)
     {
         perror("can't create socket:");
@@ -238,7 +238,7 @@ static int ctc_tcp_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port      = htons(CTC_SDK_TCP_PORT);
+    serv_addr.sin_port      = htons(XXX_SDK_TCP_PORT);
     serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     if (connect(skfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
@@ -345,7 +345,7 @@ static void* ctc_socket_recv_print_thread(void* arg)
             exit(0);
         }
 
-        if (CTC_SDK_CMD_QUIT == pctc_sdk_vty->socket_recv_buf.hdr.msg_type)
+        if (XXX_SDK_CMD_QUIT == pctc_sdk_vty->socket_recv_buf.hdr.msg_type)
         {
             restore_terminal_mode();
             pctc_sdk_vty->close(pctc_sdk_vty);

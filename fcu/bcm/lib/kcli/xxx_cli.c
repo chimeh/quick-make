@@ -1,16 +1,16 @@
 /**
- @file ctc_cli.c
+ @file xxx_cli.c
 
  @date 2010-8-03
 
  @version v2.0
 
-  This file contains ctc cli api implementation
+  This file contains xxx cli api implementation
 */
 
 #include "sal/core/libc.h"
-#include "ctc_types.h"
-#include "ctc_cli.h"
+#include "xxx_types.h"
+#include "xxx_cli.h"
 #ifdef SDK_IN_KERNEL
 #include <linux/kernel.h>
 #endif
@@ -29,12 +29,12 @@
 #define DECIMAL_STRLEN_MIN 1
 #define DECIMAL_STRLEN_MAX 10
 
-CTC_CLI_PORT_MAP_FUNC cli_port_map_func_ptr;
+XXX_CLI_PORT_MAP_FUNC cli_port_map_func_ptr;
 
-CTC_CLI_OUT_FUNC cli_print_func_ptr = sal_printf;
+XXX_CLI_OUT_FUNC cli_print_func_ptr = sal_printf;
 
 unsigned char
-ctc_cli_get_prefix_item(char** argv, unsigned char argc, char* prefix, unsigned char prefix_len)
+xxx_cli_get_prefix_item(char** argv, unsigned char argc, char* prefix, unsigned char prefix_len)
 {
     unsigned char index = 0;
 
@@ -52,17 +52,17 @@ ctc_cli_get_prefix_item(char** argv, unsigned char argc, char* prefix, unsigned 
 }
 
 void
-ctc_cli_register_print_fun(CTC_CLI_OUT_FUNC func)
+xxx_cli_register_print_fun(XXX_CLI_OUT_FUNC func)
 {
     cli_print_func_ptr = func;
 }
 
 char print_buf[1024];
-char g_ctc_cli_out_print_buf[1026];
+char g_xxx_cli_out_print_buf[1026];
 char print_line[512];
 
 int
-ctc_cli_out(const char* fmt, ...)
+xxx_cli_out(const char* fmt, ...)
 {
     int i = 0;
     int j = 0;
@@ -85,11 +85,11 @@ ctc_cli_out(const char* fmt, ...)
         {
         case '\n':
             print_line[j] = '\0';
-            if(g_ctc_vti && g_ctc_vti->printf)
+            if(g_xxx_vti && g_xxx_vti->printf)
             {
-                sal_strcpy(g_ctc_cli_out_print_buf,print_line);
-                sal_strcat(g_ctc_cli_out_print_buf,"\r\n");
-                g_ctc_vti->printf(g_ctc_vti,g_ctc_cli_out_print_buf,sal_strlen(g_ctc_cli_out_print_buf));
+                sal_strcpy(g_xxx_cli_out_print_buf,print_line);
+                sal_strcat(g_xxx_cli_out_print_buf,"\r\n");
+                g_xxx_vti->printf(g_xxx_vti,g_xxx_cli_out_print_buf,sal_strlen(g_xxx_cli_out_print_buf));
             }
             else
             {
@@ -112,9 +112,9 @@ ctc_cli_out(const char* fmt, ...)
     {
         print_line[j] = '\0';
 
-        if(g_ctc_vti && g_ctc_vti->printf)
+        if(g_xxx_vti && g_xxx_vti->printf)
         {
-            g_ctc_vti->printf(g_ctc_vti,print_line,sal_strlen(print_line) );
+            g_xxx_vti->printf(g_xxx_vti,print_line,sal_strlen(print_line) );
         }
         else
         {
@@ -126,7 +126,7 @@ ctc_cli_out(const char* fmt, ...)
 }
 
 int32
-ctc_cmd_str2int(char* str, int32* ret)
+xxx_cmd_str2int(char* str, int32* ret)
 {
     uint32 i;
     uint32 len;
@@ -237,7 +237,7 @@ ctc_cmd_str2int(char* str, int32* ret)
 }
 
 uint32
-ctc_cmd_str2uint(char* str, int32* ret)
+xxx_cmd_str2uint(char* str, int32* ret)
 {
     uint32 i;
     uint32 len;
@@ -325,7 +325,7 @@ ctc_cmd_str2uint(char* str, int32* ret)
 }
 
 int32
-ctc_cmd_judge_is_num(char* str)
+xxx_cmd_judge_is_num(char* str)
 {
     uint32 i;
     uint32 len;
@@ -380,7 +380,7 @@ ctc_cmd_judge_is_num(char* str)
 }
 
 void
-ctc_uint64_to_str(uint64 src, char dest[UINT64_STR_LEN])
+xxx_uint64_to_str(uint64 src, char dest[UINT64_STR_LEN])
 {
     int8 i = UINT64_STR_LEN - 1, j = 0;
     uint64 value, sum;
@@ -428,7 +428,7 @@ struct termios termios_old;
 void
 set_terminal_raw_mode(uint32 mode)
 {
-    if(CTC_VTI_SHELL_MODE_DEFAULT == mode)
+    if(XXX_VTI_SHELL_MODE_DEFAULT == mode)
     {
 #ifdef SDK_IN_VXWORKS
         termios_fd = ioTaskStdGet(0, STD_IN);
@@ -463,7 +463,7 @@ set_terminal_raw_mode(uint32 mode)
 void
 restore_terminal_mode(uint32 mode)
 {
-    if(CTC_VTI_SHELL_MODE_DEFAULT == mode)
+    if(XXX_VTI_SHELL_MODE_DEFAULT == mode)
     {
 #ifdef SDK_IN_VXWORKS
         ioctl(ioTaskStdGet(0, STD_IN), FIOSETOPTIONS, termios_old);
@@ -480,7 +480,7 @@ restore_terminal_mode(uint32 mode)
 }
 
 extern char*
-ctc_cli_get_debug_desc(unsigned char level)
+xxx_cli_get_debug_desc(unsigned char level)
 {
     static char debug_level_desc[64];
 

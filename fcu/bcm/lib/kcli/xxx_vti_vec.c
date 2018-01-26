@@ -1,5 +1,5 @@
 /****************************************************************************
- * ctc_vti_vec.c :         header
+ * xxx_vti_vec.c :         header
  *
  * Copyright (C) 2010 Centec Networks Inc.  All rights reserved.
  *
@@ -11,14 +11,14 @@
 
 #include "sal/core/libc.h"
 #include "sal/core/alloc.h"
-#include "ctc_types.h"
-#include "ctc_sal.h"
-#include "ctc_vti_vec.h"
+#include "xxx_types.h"
+#include "xxx_sal.h"
+#include "xxx_vti_vec.h"
 
 extern void *sal_realloc(void *ptr, size_t size);
 /* Initialize vector : allocate memory and return vector. */
 vector
-ctc_vti_vec_init(uint32 size)
+xxx_vti_vec_init(uint32 size)
 {
     vector v = sal_alloc(sizeof(struct _vector),"kcli");
 
@@ -52,26 +52,26 @@ ctc_vti_vec_init(uint32 size)
 }
 
 void
-ctc_vti_vec_only_wrapper_free(vector v)
+xxx_vti_vec_only_wrapper_free(vector v)
 {
     sal_free(v);
 }
 
 void
-ctc_vti_vec_only_index_free(void* index)
+xxx_vti_vec_only_index_free(void* index)
 {
     sal_free(index);
 }
 
 void
-ctc_vti_vec_free(vector v)
+xxx_vti_vec_free(vector v)
 {
     sal_free(v->index);
     sal_free(v);
 }
 
 vector
-ctc_vti_vec_copy(vector v)
+xxx_vti_vec_copy(vector v)
 {
     uint32 size;
     vector new_v = sal_alloc(sizeof(struct _vector), "kcli");
@@ -103,7 +103,7 @@ ctc_vti_vec_copy(vector v)
 
 /* Check assigned index, and if it runs short double index pointer */
 void
-ctc_vti_vec_ensure(vector v, uint32 num)
+xxx_vti_vec_ensure(vector v, uint32 num)
 {
     if (v->alloced > num)
     {
@@ -116,15 +116,15 @@ ctc_vti_vec_ensure(vector v, uint32 num)
 
     if (v->alloced <= num)
     {
-        ctc_vti_vec_ensure(v, num);
+        xxx_vti_vec_ensure(v, num);
     }
 }
 
 /* This function only returns next empty slot index.  It dose not mean
-   the slot's index memory is assigned, please call ctc_vti_vec_ensure()
+   the slot's index memory is assigned, please call xxx_vti_vec_ensure()
    after calling this function. */
 int
-ctc_vti_vec_empty_slot(vector v)
+xxx_vti_vec_empty_slot(vector v)
 {
     uint32 i;
 
@@ -146,12 +146,12 @@ ctc_vti_vec_empty_slot(vector v)
 
 /* Set value to the smallest empty slot. */
 int
-ctc_vti_vec_set(vector v, void* val)
+xxx_vti_vec_set(vector v, void* val)
 {
     uint32 i;
 
-    i = ctc_vti_vec_empty_slot(v);
-    ctc_vti_vec_ensure(v, i);
+    i = xxx_vti_vec_empty_slot(v);
+    xxx_vti_vec_ensure(v, i);
 
     v->index[i] = val;
 
@@ -165,9 +165,9 @@ ctc_vti_vec_set(vector v, void* val)
 
 /* Set value to specified index slot. */
 int
-ctc_vti_vec_set_index(vector v, uint32 i, void* val)
+xxx_vti_vec_set_index(vector v, uint32 i, void* val)
 {
-    ctc_vti_vec_ensure(v, i);
+    xxx_vti_vec_ensure(v, i);
 
     v->index[i] = val;
 
@@ -181,7 +181,7 @@ ctc_vti_vec_set_index(vector v, uint32 i, void* val)
 
 /* Look up vector.  */
 void*
-ctc_vti_vec_lookup(vector v, uint32 i)
+xxx_vti_vec_lookup(vector v, uint32 i)
 {
     if (i >= v->max)
     {
@@ -193,15 +193,15 @@ ctc_vti_vec_lookup(vector v, uint32 i)
 
 /* Lookup vector, ensure it. */
 void*
-ctc_vti_vec_lookup_ensure(vector v, uint32 i)
+xxx_vti_vec_lookup_ensure(vector v, uint32 i)
 {
-    ctc_vti_vec_ensure(v, i);
+    xxx_vti_vec_ensure(v, i);
     return v->index[i];
 }
 
 /* Unset value at specified index slot. */
 void
-ctc_vti_vec_unset(vector v, uint32 i)
+xxx_vti_vec_unset(vector v, uint32 i)
 {
     if (i >= v->alloced)
     {
@@ -223,7 +223,7 @@ ctc_vti_vec_unset(vector v, uint32 i)
 
 /* Count the number of not emplty slot. */
 uint32
-ctc_vti_vec_count(vector v)
+xxx_vti_vec_count(vector v)
 {
     uint32 i;
     uint32 count = 0;
@@ -239,9 +239,9 @@ ctc_vti_vec_count(vector v)
     return count;
 }
 
-/* Add ctc_vector src items to ctc_vector dest.  */
+/* Add xxx_vector src items to xxx_vector dest.  */
 void
-ctc_vti_vec_add(vector dest, vector src)
+xxx_vti_vec_add(vector dest, vector src)
 {
     int i;
     void* val;
@@ -250,16 +250,16 @@ ctc_vti_vec_add(vector dest, vector src)
     {
         if ((val = vector_slot(src, i)))
         {
-            ctc_vti_vec_set(dest, val);
+            xxx_vti_vec_set(dest, val);
         }
     }
 }
 
 /* Reset dest before vector add.  */
 void
-ctc_vti_vec_dup(vector dest, vector src)
+xxx_vti_vec_dup(vector dest, vector src)
 {
     vector_reset(dest);
-    ctc_vti_vec_add(dest, src);
+    xxx_vti_vec_add(dest, src);
 }
 

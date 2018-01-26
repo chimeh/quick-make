@@ -86,7 +86,7 @@ typedef int32    intptr; /**< intptr define */
 //typedef int            bool;   /**< Boolean type */
 //#endif
 /* show port mac-link bug, 
- * ctc_greatbelt_port_get_mac_link_up(), cast between (bool*) and (uint32*) lead to linkstate lost
+ * xxx_greatbelt_port_get_mac_link_up(), cast between (bool*) and (uint32*) lead to linkstate lost
  * sizeof(bool)>=4, don't use kernel's bool(which is _Bool, sizeof(_Bool)=1)
  */
 #define bool           int  

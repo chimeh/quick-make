@@ -1,5 +1,5 @@
 /****************************************************************************
- * ctc_cmd.h :         header
+ * xxx_cmd.h :         header
  *
  * Copyright (C) 2010 Centec Networks Inc.  All rights reserved.
  *
@@ -11,13 +11,13 @@
 
 #include "sal/core/libc.h"
 #include "sal/core/alloc.h"
-#include "ctc_types.h"
-#include "ctc_sal.h"
+#include "xxx_types.h"
+#include "xxx_sal.h"
 #ifdef SDK_IN_KERNEL
 #include <linux/kernel.h>
 #endif
-#include "ctc_cli.h"
-#include "ctc_cmd.h"
+#include "xxx_cli.h"
+#include "xxx_cmd.h"
 
 #define MAX_OPTIONAL_CMD_NUM 100 /* max optional cmd number in {} */
 
@@ -26,7 +26,7 @@
 vector cmdvec;
 int32 cmd_debug = 0;
 int32 cmd_arg_debug = 0;
-ctc_cmd_desc_t** matched_desc_ptr  = NULL;
+xxx_cmd_desc_t** matched_desc_ptr  = NULL;
 
 #define CHAR_BIT 8
 #define STACK_SIZE	(CHAR_BIT * sizeof(size_t))
@@ -204,12 +204,12 @@ sal_qsort(void *const pbase, size_t total_elems, size_t size,
 	}
 }
 best_match_type_t
-ctc_cmd_best_match_check(vector vline, ctc_cmd_desc_t** matched_desc_ptr, int32 if_describe)
+xxx_cmd_best_match_check(vector vline, xxx_cmd_desc_t** matched_desc_ptr, int32 if_describe)
 {
     int32 i = 0;
     char* command = NULL;
     char* str = NULL;
-    ctc_cmd_desc_t* matched_desc = NULL;
+    xxx_cmd_desc_t* matched_desc = NULL;
     int32 max_index = vector_max(vline);
 
     if (if_describe)
@@ -224,9 +224,9 @@ ctc_cmd_best_match_check(vector vline, ctc_cmd_desc_t** matched_desc_ptr, int32 
         if (command && command[0] >= 'a' && command[0] <= 'z') /* keyword format*/
         {
             str = matched_desc->cmd;
-            if (CTC_CMD_VARIABLE(str))
+            if (XXX_CMD_VARIABLE(str))
             {
-                return CTC_CMD_EXTEND_MATCH; /* extend match */
+                return XXX_CMD_EXTEND_MATCH; /* extend match */
             }
 
             if (sal_strncmp(command, str, sal_strlen(command)) == 0)
@@ -237,17 +237,17 @@ ctc_cmd_best_match_check(vector vline, ctc_cmd_desc_t** matched_desc_ptr, int32 
                 }
                 else
                 {
-                    return CTC_CMD_PARTLY_MATCH; /* partly match */
+                    return XXX_CMD_PARTLY_MATCH; /* partly match */
                 }
             }
         }
     }
 
-    return CTC_CMD_EXACT_MATCH; /* exact match */
+    return XXX_CMD_EXACT_MATCH; /* exact match */
 }
 
 char*
-ctc_strdup(char* str)
+xxx_strdup(char* str)
 {
     char* new_str = sal_alloc(sal_strlen(str) + 1, "clicmd");
 
@@ -261,44 +261,44 @@ ctc_strdup(char* str)
 
 /* Install top node of command vector. */
 void
-ctc_install_node(ctc_cmd_node_t* node, int32 (* func)(ctc_vti_t*))
+xxx_install_node(xxx_cmd_node_t* node, int32 (* func)(xxx_vti_t*))
 {
-    ctc_vti_vec_set_index(cmdvec, node->node, node);
+    xxx_vti_vec_set_index(cmdvec, node->node, node);
     node->func = func;
-    node->cmd_vector = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+    node->cmd_vector = xxx_vti_vec_init(VECTOR_MIN_SIZE);
     if (!node->cmd_vector)
     {
-        ctc_cli_out("System error: no memory for install node!\n\r");
+        xxx_cli_out("System error: no memory for install node!\n\r");
     }
 }
 
-/* Compare two command's string.  Used in ctc_sort_node (). */
+/* Compare two command's string.  Used in xxx_sort_node (). */
 int32
-ctc_cmp_node(const void* p, const void* q)
+xxx_cmp_node(const void* p, const void* q)
 {
-    ctc_cmd_element_t* a = *(ctc_cmd_element_t**)p;
-    ctc_cmd_element_t* b = *(ctc_cmd_element_t**)q;
+    xxx_cmd_element_t* a = *(xxx_cmd_element_t**)p;
+    xxx_cmd_element_t* b = *(xxx_cmd_element_t**)q;
 
     return sal_strcmp(a->string, b->string);
 }
 
 /* Sort each node's command element according to command string. */
 void
-ctc_sort_node()
+xxx_sort_node()
 {
     int32 i;
     /* int32 j;*/
-    ctc_cmd_node_t* cnode;
+    xxx_cmd_node_t* cnode;
 
     /*vector descvec;*/
-    /*ctc_cmd_element_t *cmd_element;*/
+    /*xxx_cmd_element_t *cmd_element;*/
 
     for (i = 0; i < vector_max(cmdvec); i++)
     {
         if ((cnode = vector_slot(cmdvec, i)) != NULL)
         {
             vector cmd_vector = cnode->cmd_vector;
-            sal_qsort(cmd_vector->index, cmd_vector->max, sizeof(void*), ctc_cmp_node);
+            sal_qsort(cmd_vector->index, cmd_vector->max, sizeof(void*), xxx_cmp_node);
         }
     }
 }
@@ -307,7 +307,7 @@ ctc_sort_node()
    character is separated by a space character. Return value is a
    vector which includes char ** data element. */
 vector
-ctc_cmd_make_strvec(char* string)
+xxx_cmd_make_strvec(char* string)
 {
     char* cp, * start, * token;
     int32 strlen;
@@ -338,7 +338,7 @@ ctc_cmd_make_strvec(char* string)
     }
 
     /* Prepare return vector. */
-    strvec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+    strvec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
     if (!strvec)
     {
         return NULL;
@@ -358,7 +358,7 @@ ctc_cmd_make_strvec(char* string)
         token = sal_alloc(strlen + 1, "clicmd");
         sal_memcpy(token, start, strlen);
         *(token + strlen) = '\0';
-        ctc_vti_vec_set(strvec, token);
+        xxx_vti_vec_set(strvec, token);
 
         while ((sal_isspace((int32) * cp) || *cp == '\n' || *cp == '\r') && *cp != '\0')
         {
@@ -374,7 +374,7 @@ ctc_cmd_make_strvec(char* string)
 
 /* Free allocated string vector. */
 void
-ctc_cmd_free_strvec(vector v)
+xxx_cmd_free_strvec(vector v)
 {
     int32 i;
     char* cp;
@@ -392,12 +392,12 @@ ctc_cmd_free_strvec(vector v)
         }
     }
 
-    ctc_vti_vec_free(v);
+    xxx_vti_vec_free(v);
 }
 
-/* Fetch next description.  Used in ctc_cmd_make_descvec(). */
+/* Fetch next description.  Used in xxx_cmd_make_descvec(). */
 char*
-ctc_cmd_desc_str(char** string)
+xxx_cmd_desc_str(char** string)
 {
     char* cp, * start, * token;
     int32 strlen;
@@ -514,7 +514,7 @@ cmd_parse_token(char** cp, cmd_token_type* token_type)
         token = sal_alloc(len + 1, "clicmd");
         sal_memcpy(token, sp, len);
         *(token + len) = '\0';
-        if (CTC_CMD_VARIABLE(token))
+        if (XXX_CMD_VARIABLE(token))
         {
             *token_type = cmd_token_var;
         }
@@ -531,7 +531,7 @@ cmd_parse_token(char** cp, cmd_token_type* token_type)
 }
 
 vector
-cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32* dp_index, int32 depth)
+cmd_make_cli_tree(xxx_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32* dp_index, int32 depth)
 {
     cmd_token_type token_type = 0;
 
@@ -539,7 +539,7 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
     vector cur_vec = NULL;
     vector pending_vec = NULL;
     vector sub_parent_vec = NULL;
-    ctc_cmd_desc_t* desc = NULL;
+    xxx_cmd_desc_t* desc = NULL;
     int32 flag = 0;
     vector p = NULL;
 
@@ -550,7 +550,7 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
         switch (token_type)
         {
         case cmd_token_paren_open:
-            cur_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+            cur_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
             cur_vec->is_desc = 0;
             cur_vec->is_multiple = 0;
             cur_vec->direction = 0;
@@ -563,19 +563,19 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
                 }
                 else if (flag == 3)  /* 2 words are after seperator, current and pending vectors belong to sub_parent_vec */
                 {
-                    sub_parent_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
-                    ctc_vti_vec_set(sub_parent_vec, pending_vec);
-                    ctc_vti_vec_set(sub_parent_vec, cur_vec);
-                    ctc_vti_vec_set(parent, sub_parent_vec);
+                    sub_parent_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
+                    xxx_vti_vec_set(sub_parent_vec, pending_vec);
+                    xxx_vti_vec_set(sub_parent_vec, cur_vec);
+                    xxx_vti_vec_set(parent, sub_parent_vec);
                 }
                 else    /* 2 more words are after seperator */
                 {
-                    ctc_vti_vec_set(sub_parent_vec, cur_vec);     /* all more vectors belong to sub_parent_vec */
+                    xxx_vti_vec_set(sub_parent_vec, cur_vec);     /* all more vectors belong to sub_parent_vec */
                 }
             }
             else
             {
-                ctc_vti_vec_set(parent, cur_vec);
+                xxx_vti_vec_set(parent, cur_vec);
             }
 
             cmd_make_cli_tree(tmp_desc, descstr, cur_vec, dp_index, depth + 1);
@@ -583,7 +583,7 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
             break;
 
         case cmd_token_cbrace_open:
-            cur_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+            cur_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
             cur_vec->is_desc = 0;
             cur_vec->is_multiple = 1;     /* this is difference for {} and(), other codes are same */
             cur_vec->direction = 0;
@@ -596,19 +596,19 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
                 }
                 else if (flag == 3)
                 {
-                    sub_parent_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
-                    ctc_vti_vec_set(sub_parent_vec, pending_vec);
-                    ctc_vti_vec_set(sub_parent_vec, cur_vec);
-                    ctc_vti_vec_set(parent, sub_parent_vec);
+                    sub_parent_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
+                    xxx_vti_vec_set(sub_parent_vec, pending_vec);
+                    xxx_vti_vec_set(sub_parent_vec, cur_vec);
+                    xxx_vti_vec_set(parent, sub_parent_vec);
                 }
                 else
                 {
-                    ctc_vti_vec_set(sub_parent_vec, cur_vec);
+                    xxx_vti_vec_set(sub_parent_vec, cur_vec);
                 }
             }
             else
             {
-                ctc_vti_vec_set(parent, cur_vec);
+                xxx_vti_vec_set(parent, cur_vec);
             }
 
             cmd_make_cli_tree(tmp_desc, descstr, cur_vec, dp_index, depth + 1);
@@ -623,7 +623,7 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
             }
             else if (flag == 2)  /* flag==2 first keyword after seperator, only one keyword  */
             {
-                ctc_vti_vec_set(parent, pending_vec);
+                xxx_vti_vec_set(parent, pending_vec);
             }
 
             flag = 0;
@@ -631,18 +631,18 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
             break;
 
         case cmd_token_separator:
-            if (!parent->direction && (ctc_vti_vec_count(parent) > 1)) /* if current parent is tranverse and has more than 2 vector, make it a sub parent*/
+            if (!parent->direction && (xxx_vti_vec_count(parent) > 1)) /* if current parent is tranverse and has more than 2 vector, make it a sub parent*/
             {
-                p = ctc_vti_vec_copy(parent);
+                p = xxx_vti_vec_copy(parent);
                 sal_memset(parent->index, 0, sizeof(void*) * parent->max);
                 vector_reset(parent);
-                ctc_vti_vec_set(parent, p);
+                xxx_vti_vec_set(parent, p);
             }
 
             parent->direction = 1;
             if (flag == 2)    /* new seperator starts, finish previous */
             {
-                ctc_vti_vec_set(parent, pending_vec);
+                xxx_vti_vec_set(parent, pending_vec);
             }
 
             flag = 1;     /*flag=1, new seperator starts*/
@@ -652,7 +652,7 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
         case cmd_token_keyword:
             if (!cur_vec)
             {
-                cur_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+                cur_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
                 cur_vec->direction = 0;
                 cur_vec->is_multiple = 0;
                 cur_vec->is_desc = 1;
@@ -666,24 +666,24 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
                     }
                     else if (flag == 3)  /* flag==3 seconds keyword or VAR after seperator */
                     {
-                        sub_parent_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
-                        ctc_vti_vec_set(sub_parent_vec, pending_vec);
-                        ctc_vti_vec_set(sub_parent_vec, cur_vec);
-                        ctc_vti_vec_set(parent, sub_parent_vec);
+                        sub_parent_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
+                        xxx_vti_vec_set(sub_parent_vec, pending_vec);
+                        xxx_vti_vec_set(sub_parent_vec, cur_vec);
+                        xxx_vti_vec_set(parent, sub_parent_vec);
                     }
                     else     /* flag>3, more keywords */
                     {
-                        ctc_vti_vec_set(sub_parent_vec, cur_vec);
+                        xxx_vti_vec_set(sub_parent_vec, cur_vec);
                     }
                 }
                 else
                 {
-                    ctc_vti_vec_set(parent, cur_vec);
+                    xxx_vti_vec_set(parent, cur_vec);
                 }
             }
 
-            desc = sal_alloc(sizeof(ctc_cmd_desc_t), "clicmd");
-            sal_memset(desc, 0, sizeof(ctc_cmd_desc_t));
+            desc = sal_alloc(sizeof(xxx_cmd_desc_t), "clicmd");
+            sal_memset(desc, 0, sizeof(xxx_cmd_desc_t));
             desc->cmd = token;
             desc->str = descstr[*dp_index];
             if (depth > 0)
@@ -697,13 +697,13 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
 
             (*dp_index)++;
 
-            ctc_vti_vec_set(cur_vec, desc);
+            xxx_vti_vec_set(cur_vec, desc);
             break;
 
         case cmd_token_var:
             if (!cur_vec)
             {
-                cur_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+                cur_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
                 cur_vec->direction = 0;
                 cur_vec->is_multiple = 0;
                 cur_vec->is_desc = 1;
@@ -717,30 +717,30 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
                     }
                     else if (flag == 3)  /* flag==3 seconds keyword or VAR after seperator */
                     {
-                        sub_parent_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
-                        ctc_vti_vec_set(sub_parent_vec, pending_vec);
-                        ctc_vti_vec_set(sub_parent_vec, cur_vec);
-                        ctc_vti_vec_set(parent, sub_parent_vec);
+                        sub_parent_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
+                        xxx_vti_vec_set(sub_parent_vec, pending_vec);
+                        xxx_vti_vec_set(sub_parent_vec, cur_vec);
+                        xxx_vti_vec_set(parent, sub_parent_vec);
                     }
                     else     /* flag>3, more keywords or VAR */
                     {
-                        ctc_vti_vec_set(sub_parent_vec, cur_vec);
+                        xxx_vti_vec_set(sub_parent_vec, cur_vec);
                     }
                 }
                 else
                 {
-                    ctc_vti_vec_set(parent, cur_vec);
+                    xxx_vti_vec_set(parent, cur_vec);
                 }
             }
 
-            desc = sal_alloc(sizeof(ctc_cmd_desc_t), "clicmd");
-            sal_memset(desc, 0, sizeof(ctc_cmd_desc_t));
+            desc = sal_alloc(sizeof(xxx_cmd_desc_t), "clicmd");
+            sal_memset(desc, 0, sizeof(xxx_cmd_desc_t));
             desc->cmd = token;
             desc->str = descstr[*dp_index];
             desc->is_arg = 1;
             (*dp_index)++;
 
-            ctc_vti_vec_set(cur_vec, desc);
+            xxx_vti_vec_set(cur_vec, desc);
             break;
 
         default:
@@ -752,11 +752,11 @@ cmd_make_cli_tree(ctc_cmd_desc_t* tmp_desc, char** descstr, vector parent, int32
 }
 
 vector
-ctc_cmd_make_descvec(char* string, char** descstr)
+xxx_cmd_make_descvec(char* string, char** descstr)
 {
     vector all_vec = NULL;
     int32 dp_index = 0;
-    ctc_cmd_desc_t tmp_desc;
+    xxx_cmd_desc_t tmp_desc;
 
     tmp_desc.str = string;
 
@@ -765,7 +765,7 @@ ctc_cmd_make_descvec(char* string, char** descstr)
         return NULL;
     }
 
-    all_vec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
+    all_vec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
     all_vec->is_desc = 0;
     all_vec->direction = 0;
     all_vec->is_multiple = 0;
@@ -780,7 +780,7 @@ cmd_dump_vector_tree(vector all_vec, int32 depth)
     int32 i = 0;
     int32 j = 0;
     int32 space = 0;
-    ctc_cmd_desc_t* desc;
+    xxx_cmd_desc_t* desc;
 
     for (i = 0; i < vector_max(all_vec); i++)
     {
@@ -788,45 +788,45 @@ cmd_dump_vector_tree(vector all_vec, int32 depth)
 
         for (space = 0; space < depth; space++)
         {
-            ctc_cli_out("  ");
+            xxx_cli_out("  ");
         }
 
-        ctc_cli_out("%d:", i);
+        xxx_cli_out("%d:", i);
         if (cur_vec->direction)
         {
-            ctc_cli_out("V:");
+            xxx_cli_out("V:");
         }
         else
         {
-            ctc_cli_out("T:");
+            xxx_cli_out("T:");
         }
 
         if (cur_vec->is_desc)
         {
-            ctc_cli_out("s:");
+            xxx_cli_out("s:");
         }
         else
         {
-            ctc_cli_out("v:");
+            xxx_cli_out("v:");
         }
 
-        ctc_cli_out("\n\r");
+        xxx_cli_out("\n\r");
 
         if (cur_vec->is_desc)
         {
             for (space = 0; space < depth; space++)
             {
-                ctc_cli_out("  ");
+                xxx_cli_out("  ");
             }
 
             for (j = 0; j < vector_max(cur_vec); j++)
             {
                 desc = vector_slot(cur_vec, j);
-                /*ctc_cli_out("  %s [%s] ", desc->cmd, desc->str);*/
-                ctc_cli_out("  %s ", desc->cmd);
+                /*xxx_cli_out("  %s [%s] ", desc->cmd, desc->str);*/
+                xxx_cli_out("  %s ", desc->cmd);
             }
 
-            ctc_cli_out("\n\r");
+            xxx_cli_out("\n\r");
         }
         else
         {
@@ -838,7 +838,7 @@ cmd_dump_vector_tree(vector all_vec, int32 depth)
 /* Count mandantory string vector size.  This is to determine inputed
    command has enough command length. */
 int32
-ctc_cmd_cmdsize(vector strvec)
+xxx_cmd_cmdsize(vector strvec)
 {
     int32 i;
     int32 size = 0;
@@ -854,15 +854,15 @@ ctc_cmd_cmdsize(vector strvec)
 
 /* Return prompt character of specified node. */
 char*
-ctc_cmd_prompt(ctc_node_type_t node)
+xxx_cmd_prompt(xxx_node_type_t node)
 {
-    ctc_cmd_node_t* cnode;
+    xxx_cmd_node_t* cnode;
 
     cnode = vector_slot(cmdvec, node);
     return cnode->prompt;
 }
 
-ctc_cmd_desc_t*
+xxx_cmd_desc_t*
 cmd_get_desc(vector strvec, int32 index, int32 depth)
 {
     vector descvec;
@@ -888,33 +888,33 @@ cmd_get_desc(vector strvec, int32 index, int32 depth)
 
 /* Install a command into a node. */
 void
-install_element(ctc_node_type_t ntype, ctc_cmd_element_t* cmd)
+install_element(xxx_node_type_t ntype, xxx_cmd_element_t* cmd)
 {
-    ctc_cmd_node_t* cnode;
+    xxx_cmd_node_t* cnode;
 
     cnode = vector_slot(cmdvec, ntype);
 
     if (cnode == NULL)
     {
-        ctc_cli_out("Command node %d doesn't exist, please check it\n", ntype);
+        xxx_cli_out("Command node %d doesn't exist, please check it\n", ntype);
         return;
     }
 
-    ctc_vti_vec_set(cnode->cmd_vector, cmd);
+    xxx_vti_vec_set(cnode->cmd_vector, cmd);
 
-    cmd->strvec = ctc_cmd_make_descvec(cmd->string, cmd->doc);
-    cmd->cmdsize = ctc_cmd_cmdsize(cmd->strvec);
+    cmd->strvec = xxx_cmd_make_descvec(cmd->string, cmd->doc);
+    cmd->cmdsize = xxx_cmd_cmdsize(cmd->strvec);
 
     if (cmd_debug)
     {
-        ctc_cli_out("cmdsize=%d for cmd: %s\n\r", cmd->cmdsize, cmd->string);
+        xxx_cli_out("cmdsize=%d for cmd: %s\n\r", cmd->cmdsize, cmd->string);
         if (cmd->strvec->direction)
         {
-            ctc_cli_out("Parent V\n\r");
+            xxx_cli_out("Parent V\n\r");
         }
         else
         {
-            ctc_cli_out("Parent T\n\r");
+            xxx_cli_out("Parent T\n\r");
         }
 
         cmd_dump_vector_tree(cmd->strvec, 0);
@@ -923,16 +923,16 @@ install_element(ctc_node_type_t ntype, ctc_cmd_element_t* cmd)
 
 /* Utility function for getting command vector. */
 vector
-ctc_cmd_node_vector(vector v, ctc_node_type_t ntype)
+xxx_cmd_node_vector(vector v, xxx_node_type_t ntype)
 {
-    ctc_cmd_node_t* cnode = vector_slot(v, ntype);
+    xxx_cmd_node_t* cnode = vector_slot(v, ntype);
 
     return cnode->cmd_vector;
 }
 
 /* Filter command vector by symbol */
 int32
-ctc_cmd_filter_by_symbol(char* command, char* symbol)
+xxx_cmd_filter_by_symbol(char* command, char* symbol)
 {
     int32 i, lim;
 
@@ -993,8 +993,8 @@ ctc_cmd_filter_by_symbol(char* command, char* symbol)
     return 0;
 }
 
-ctc_match_type_t
-ctc_cmd_CTC_IPV4_MATCH(char* str)
+xxx_match_type_t
+xxx_cmd_XXX_IPV4_MATCH(char* str)
 {
     char* sp;
     int32 dots = 0, nums = 0;
@@ -1002,7 +1002,7 @@ ctc_cmd_CTC_IPV4_MATCH(char* str)
 
     if (str == NULL)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
     for (;;)
@@ -1016,17 +1016,17 @@ ctc_cmd_CTC_IPV4_MATCH(char* str)
             {
                 if (dots >= 3)
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 if (*(str + 1) == '.')
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 if (*(str + 1) == '\0')
                 {
-                    return CTC_PARTLY_MATCH;
+                    return XXX_PARTLY_MATCH;
                 }
 
                 dots++;
@@ -1035,7 +1035,7 @@ ctc_cmd_CTC_IPV4_MATCH(char* str)
 
             if (!sal_isdigit((int32) * str))
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
 
             str++;
@@ -1043,13 +1043,13 @@ ctc_cmd_CTC_IPV4_MATCH(char* str)
 
         if (str - sp > 3)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         sal_strncpy(buf, sp, str - sp);
         if (sal_strtos32(buf, NULL, 10) > 255)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         nums++;
@@ -1064,14 +1064,14 @@ ctc_cmd_CTC_IPV4_MATCH(char* str)
 
     if (nums < 4)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
-    return CTC_EXACT_MATCH;
+    return XXX_EXACT_MATCH;
 }
 
-ctc_match_type_t
-ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
+xxx_match_type_t
+xxx_cmd_XXX_IPV4_PREFIX_MATCH(char* str)
 {
     char* sp;
     int32 dots = 0;
@@ -1079,7 +1079,7 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
 
     if (str == NULL)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
     for (;;)
@@ -1093,17 +1093,17 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
             {
                 if (dots == 3)
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 if (*(str + 1) == '.' || *(str + 1) == '/')
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 if (*(str + 1) == '\0')
                 {
-                    return CTC_PARTLY_MATCH;
+                    return XXX_PARTLY_MATCH;
                 }
 
                 dots++;
@@ -1112,7 +1112,7 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
 
             if (!sal_isdigit((int32) * str))
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
 
             str++;
@@ -1120,13 +1120,13 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
 
         if (str - sp > 3)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         sal_strncpy(buf, sp, str - sp);
         if (sal_atoi(buf) > 255)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         if (dots == 3)
@@ -1135,7 +1135,7 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
             {
                 if (*(str + 1) == '\0')
                 {
-                    return CTC_PARTLY_MATCH;
+                    return XXX_PARTLY_MATCH;
                 }
 
                 str++;
@@ -1143,13 +1143,13 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
             }
             else if (*str == '\0')
             {
-                return CTC_PARTLY_MATCH;
+                return XXX_PARTLY_MATCH;
             }
         }
 
         if (*str == '\0')
         {
-            return CTC_PARTLY_MATCH;
+            return XXX_PARTLY_MATCH;
         }
 
         str++;
@@ -1161,7 +1161,7 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
     {
         if (!sal_isdigit((int32) * str))
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         str++;
@@ -1169,10 +1169,10 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
 
     if (sal_strtos32(sp, NULL, 10) > 32)
     {
-        return CTC_CTC_NO_MATCH;
+        return XXX_XXX_NO_MATCH;
     }
 
-    return CTC_EXACT_MATCH;
+    return XXX_EXACT_MATCH;
 }
 
 #define IPV6_ADDR_STR       "0123456789abcdefABCDEF:.%"
@@ -1185,8 +1185,8 @@ ctc_cmd_CTC_IPV4_PREFIX_MATCH(char* str)
 #define STATE_SLASH         6
 #define STATE_MASK          7
 
-ctc_match_type_t
-ctc_cmd_CTC_IPV6_MATCH(char* str)
+xxx_match_type_t
+xxx_cmd_XXX_IPV6_MATCH(char* str)
 {
     int32 state = STATE_START;
     int32 colons = 0, nums = 0, double_colon = 0;
@@ -1194,12 +1194,12 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
 
     if (str == NULL)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
     if (sal_strspn(str, IPV6_ADDR_STR) != sal_strlen(str))
     {
-        return CTC_CTC_NO_MATCH;
+        return XXX_XXX_NO_MATCH;
     }
 
     while (*str != '\0')
@@ -1211,7 +1211,7 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
             {
                 if (*(str + 1) != ':' && *(str + 1) != '\0')
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 colons--;
@@ -1242,12 +1242,12 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
         case STATE_DOUBLE:
             if (double_colon)
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
 
             if (*(str + 1) == ':')
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
             else
             {
@@ -1269,7 +1269,7 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
             {
                 if (str - sp > 3)
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 nums++;
@@ -1293,12 +1293,12 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
 
         if (nums > 8)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         if (colons > 7)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         str++;
@@ -1307,16 +1307,16 @@ ctc_cmd_CTC_IPV6_MATCH(char* str)
 #if 0
     if (nums < 11)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
 #endif /* 0 */
 
-    return CTC_EXACT_MATCH;
+    return XXX_EXACT_MATCH;
 }
 
-ctc_match_type_t
-ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
+xxx_match_type_t
+xxx_cmd_XXX_IPV6_PREFIX_MATCH(char* str)
 {
     int32 state = STATE_START;
     int32 colons = 0, nums = 0, double_colon = 0;
@@ -1326,12 +1326,12 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
 
     if (str == NULL)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
     if (sal_strspn(str, IPV6_PREFIX_STR) != sal_strlen(str))
     {
-        return CTC_CTC_NO_MATCH;
+        return XXX_XXX_NO_MATCH;
     }
 
     while (*str != '\0' && state != STATE_MASK)
@@ -1343,7 +1343,7 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
             {
                 if (*(str + 1) != ':' && *(str + 1) != '\0')
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 colons--;
@@ -1361,7 +1361,7 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
             colons++;
             if (*(str + 1) == '/')
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
             else if (*(str + 1) == ':')
             {
@@ -1378,12 +1378,12 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
         case STATE_DOUBLE:
             if (double_colon)
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
 
             if (*(str + 1) == ':')
             {
-                return CTC_CTC_NO_MATCH;
+                return XXX_XXX_NO_MATCH;
             }
             else
             {
@@ -1414,14 +1414,14 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
             {
                 if (str - sp > 3)
                 {
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 for (; sp <= str; sp++)
                 {
                     if (*sp == '/')
                     {
-                        return CTC_CTC_NO_MATCH;
+                        return XXX_XXX_NO_MATCH;
                     }
                 }
 
@@ -1450,7 +1450,7 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
         case STATE_SLASH:
             if (*(str + 1) == '\0')
             {
-                return CTC_PARTLY_MATCH;
+                return XXX_PARTLY_MATCH;
             }
 
             state = STATE_MASK;
@@ -1462,12 +1462,12 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
 
         if (nums > 11)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         if (colons > 7)
         {
-            return CTC_CTC_NO_MATCH;
+            return XXX_XXX_NO_MATCH;
         }
 
         str++;
@@ -1475,27 +1475,27 @@ ctc_cmd_CTC_IPV6_PREFIX_MATCH(char* str)
 
     if (state < STATE_MASK)
     {
-        return CTC_PARTLY_MATCH;
+        return XXX_PARTLY_MATCH;
     }
 
     mask = sal_strtol(str, &endptr, 10);
     if (*endptr != '\0')
     {
-        return CTC_CTC_NO_MATCH;
+        return XXX_XXX_NO_MATCH;
     }
 
     if (mask < 0 || mask > 128)
     {
-        return CTC_CTC_NO_MATCH;
+        return XXX_XXX_NO_MATCH;
     }
 
-    return CTC_EXACT_MATCH;
+    return XXX_EXACT_MATCH;
 }
 
 #define DECIMAL_STRLEN_MAX 10
 
 int32
-ctc_cmd_CTC_RANGE_MATCH(char* range, char* str)
+xxx_cmd_XXX_RANGE_MATCH(char* range, char* str)
 {
     char* p;
     char buf[DECIMAL_STRLEN_MAX + 1];
@@ -1562,17 +1562,17 @@ ctc_cmd_CTC_RANGE_MATCH(char* range, char* str)
 }
 
 /* Filter vector by command character with index. */
-ctc_match_type_t
-ctc_cmd_filter_by_string(char* command, vector v, int32 index)
+xxx_match_type_t
+xxx_cmd_filter_by_string(char* command, vector v, int32 index)
 {
     int32 i;
     char* str;
-    ctc_cmd_element_t* cmd_element;
-    ctc_match_type_t match_type;
+    xxx_cmd_element_t* cmd_element;
+    xxx_match_type_t match_type;
     vector descvec;
-    ctc_cmd_desc_t* desc;
+    xxx_cmd_desc_t* desc;
 
-    match_type = CTC_CTC_NO_MATCH;
+    match_type = XXX_XXX_NO_MATCH;
 
     /* If command and cmd_element string does not match set NULL to vector */
     for (i = 0; i < vector_max(v); i++)
@@ -1597,80 +1597,80 @@ ctc_cmd_filter_by_string(char* command, vector v, int32 index)
                     desc = vector_slot(descvec, j);
                     str = desc->cmd;
 
-                    if (CTC_CMD_VARARG(str))
+                    if (XXX_CMD_VARARG(str))
                     {
-                        if (match_type < CTC_VARARG_MATCH)
+                        if (match_type < XXX_VARARG_MATCH)
                         {
-                            match_type = CTC_VARARG_MATCH;
+                            match_type = XXX_VARARG_MATCH;
                         }
 
                         matched++;
                     }
-                    else if (CTC_CMD_RANGE(str))
+                    else if (XXX_CMD_RANGE(str))
                     {
-                        if (ctc_cmd_CTC_RANGE_MATCH(str, command))
+                        if (xxx_cmd_XXX_RANGE_MATCH(str, command))
                         {
-                            if (match_type < CTC_RANGE_MATCH)
+                            if (match_type < XXX_RANGE_MATCH)
                             {
-                                match_type = CTC_RANGE_MATCH;
+                                match_type = XXX_RANGE_MATCH;
                             }
 
                             matched++;
                         }
                     }
-                    else if (CTC_CMD_IPV6(str))
+                    else if (XXX_CMD_IPV6(str))
                     {
-                        if (ctc_cmd_CTC_IPV6_MATCH(command) == CTC_EXACT_MATCH)
+                        if (xxx_cmd_XXX_IPV6_MATCH(command) == XXX_EXACT_MATCH)
                         {
-                            if (match_type < CTC_IPV6_MATCH)
+                            if (match_type < XXX_IPV6_MATCH)
                             {
-                                match_type = CTC_IPV6_MATCH;
+                                match_type = XXX_IPV6_MATCH;
                             }
 
                             matched++;
                         }
                     }
-                    else if (CTC_CMD_IPV6_PREFIX(str))
+                    else if (XXX_CMD_IPV6_PREFIX(str))
                     {
-                        if (ctc_cmd_CTC_IPV6_PREFIX_MATCH(command) == CTC_EXACT_MATCH)
+                        if (xxx_cmd_XXX_IPV6_PREFIX_MATCH(command) == XXX_EXACT_MATCH)
                         {
-                            if (match_type < CTC_IPV6_PREFIX_MATCH)
+                            if (match_type < XXX_IPV6_PREFIX_MATCH)
                             {
-                                match_type = CTC_IPV6_PREFIX_MATCH;
+                                match_type = XXX_IPV6_PREFIX_MATCH;
                             }
 
                             matched++;
                         }
                     }
-                    else if (CTC_CMD_IPV4(str))
+                    else if (XXX_CMD_IPV4(str))
                     {
-                        if (ctc_cmd_CTC_IPV4_MATCH(command) == CTC_EXACT_MATCH)
+                        if (xxx_cmd_XXX_IPV4_MATCH(command) == XXX_EXACT_MATCH)
                         {
-                            if (match_type < CTC_IPV4_MATCH)
+                            if (match_type < XXX_IPV4_MATCH)
                             {
-                                match_type = CTC_IPV4_MATCH;
+                                match_type = XXX_IPV4_MATCH;
                             }
 
                             matched++;
                         }
                     }
-                    else if (CTC_CMD_IPV4_PREFIX(str))
+                    else if (XXX_CMD_IPV4_PREFIX(str))
                     {
-                        if (ctc_cmd_CTC_IPV4_PREFIX_MATCH(command) == CTC_EXACT_MATCH)
+                        if (xxx_cmd_XXX_IPV4_PREFIX_MATCH(command) == XXX_EXACT_MATCH)
                         {
-                            if (match_type < CTC_IPV4_PREFIX_MATCH)
+                            if (match_type < XXX_IPV4_PREFIX_MATCH)
                             {
-                                match_type = CTC_IPV4_PREFIX_MATCH;
+                                match_type = XXX_IPV4_PREFIX_MATCH;
                             }
 
                             matched++;
                         }
                     }
-                    else if (CTC_CMD_OPTION(str) || CTC_CMD_VARIABLE(str))
+                    else if (XXX_CMD_OPTION(str) || XXX_CMD_VARIABLE(str))
                     {
-                        if (match_type < CTC_EXTEND_MATCH)
+                        if (match_type < XXX_EXTEND_MATCH)
                         {
-                            match_type = CTC_EXTEND_MATCH;
+                            match_type = XXX_EXTEND_MATCH;
                         }
 
                         matched++;
@@ -1679,7 +1679,7 @@ ctc_cmd_filter_by_string(char* command, vector v, int32 index)
                     {
                         if (sal_strcmp(command, str) == 0)
                         {
-                            match_type = CTC_EXACT_MATCH;
+                            match_type = XXX_EXACT_MATCH;
                             matched++;
                         }
                     }
@@ -1698,15 +1698,15 @@ ctc_cmd_filter_by_string(char* command, vector v, int32 index)
 
 /* Check ambiguous match */
 int32
-is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
+is_cmd_ambiguous(char* command, vector v, int32 index, xxx_match_type_t type)
 {
     int32 i;
     int32 j;
     char* str = NULL;
-    ctc_cmd_element_t* cmd_element;
+    xxx_cmd_element_t* cmd_element;
     char* matched = NULL;
     vector descvec;
-    ctc_cmd_desc_t* desc;
+    xxx_cmd_desc_t* desc;
 
     for (i = 0; i < vector_max(v); i++)
     {
@@ -1717,7 +1717,7 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
             for (j = 0; j < vector_max(descvec); j++)
             {
-                ctc_match_type_t ret;
+                xxx_match_type_t ret;
 
                 desc = vector_slot(descvec, j);
                 str = desc->cmd;
@@ -1728,8 +1728,8 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                 switch (type)
                 {
-                case CTC_EXACT_MATCH:
-                    if (!(CTC_CMD_OPTION(str) || CTC_CMD_VARIABLE(str))
+                case XXX_EXACT_MATCH:
+                    if (!(XXX_CMD_OPTION(str) || XXX_CMD_VARIABLE(str))
                         && sal_strcmp(command, str) == 0)
                     {
                         match++;
@@ -1737,8 +1737,8 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                     break;
 
-                case CTC_PARTLY_MATCH:
-                    if (!(CTC_CMD_OPTION(str) || CTC_CMD_VARIABLE(str))
+                case XXX_PARTLY_MATCH:
+                    if (!(XXX_CMD_OPTION(str) || XXX_CMD_VARIABLE(str))
                         && sal_strncmp(command, str, sal_strlen(command)) == 0)
                     {
                         if (matched && sal_strcmp(matched, str) != 0)
@@ -1755,8 +1755,8 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                     break;
 
-                case CTC_RANGE_MATCH:
-                    if (ctc_cmd_CTC_RANGE_MATCH(str, command))
+                case XXX_RANGE_MATCH:
+                    if (xxx_cmd_XXX_RANGE_MATCH(str, command))
                     {
                         if (matched && sal_strcmp(matched, str) != 0)
                         {
@@ -1772,18 +1772,18 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                     break;
 
-                case CTC_IPV6_MATCH:
-                    if (CTC_CMD_IPV6(str))
+                case XXX_IPV6_MATCH:
+                    if (XXX_CMD_IPV6(str))
                     {
                         match++;
                     }
 
                     break;
 
-                case CTC_IPV6_PREFIX_MATCH:
-                    if ((ret = ctc_cmd_CTC_IPV6_PREFIX_MATCH(command)) != CTC_CTC_NO_MATCH)
+                case XXX_IPV6_PREFIX_MATCH:
+                    if ((ret = xxx_cmd_XXX_IPV6_PREFIX_MATCH(command)) != XXX_XXX_NO_MATCH)
                     {
-                        if (ret == CTC_PARTLY_MATCH)
+                        if (ret == XXX_PARTLY_MATCH)
                         {
                             return 2; /* There is incomplete match. */
 
@@ -1794,18 +1794,18 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                     break;
 
-                case CTC_IPV4_MATCH:
-                    if (CTC_CMD_IPV4(str))
+                case XXX_IPV4_MATCH:
+                    if (XXX_CMD_IPV4(str))
                     {
                         match++;
                     }
 
                     break;
 
-                case CTC_IPV4_PREFIX_MATCH:
-                    if ((ret = ctc_cmd_CTC_IPV4_PREFIX_MATCH(command)) != CTC_CTC_NO_MATCH)
+                case XXX_IPV4_PREFIX_MATCH:
+                    if ((ret = xxx_cmd_XXX_IPV4_PREFIX_MATCH(command)) != XXX_XXX_NO_MATCH)
                     {
-                        if (ret == CTC_PARTLY_MATCH)
+                        if (ret == XXX_PARTLY_MATCH)
                         {
                             return 2; /* There is incomplete match. */
 
@@ -1816,19 +1816,19 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
                     break;
 
-                case CTC_EXTEND_MATCH:
-                    if (CTC_CMD_OPTION(str) || CTC_CMD_VARIABLE(str))
+                case XXX_EXTEND_MATCH:
+                    if (XXX_CMD_OPTION(str) || XXX_CMD_VARIABLE(str))
                     {
                         match++;
                     }
 
                     break;
 
-                case CTC_OPTION_MATCH:
+                case XXX_OPTION_MATCH:
                     match++;
                     break;
 
-                case CTC_CTC_NO_MATCH:
+                case XXX_XXX_NO_MATCH:
                 default:
                     break;
                 }
@@ -1839,7 +1839,7 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
                 vector_slot(v, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("vector %d filtered by is_cmd_ambiguous\n\r", i);
+                    xxx_cli_out("vector %d filtered by is_cmd_ambiguous\n\r", i);
                 }
             }
         }
@@ -1850,11 +1850,11 @@ is_cmd_ambiguous(char* command, vector v, int32 index, ctc_match_type_t type)
 
 /* If src matches dst return dst string, otherwise return NULL */
 char*
-ctc_cmd_entry_function(char* src, char* dst)
+xxx_cmd_entry_function(char* src, char* dst)
 {
     /* Skip variable arguments. */
-    if (CTC_CMD_OPTION(dst) || CTC_CMD_VARIABLE(dst) || CTC_CMD_VARARG(dst) ||
-        CTC_CMD_IPV4(dst) || CTC_CMD_IPV4_PREFIX(dst) || CTC_CMD_RANGE(dst))
+    if (XXX_CMD_OPTION(dst) || XXX_CMD_VARIABLE(dst) || XXX_CMD_VARARG(dst) ||
+        XXX_CMD_IPV4(dst) || XXX_CMD_IPV4_PREFIX(dst) || XXX_CMD_RANGE(dst))
     {
         return NULL;
     }
@@ -1876,18 +1876,18 @@ ctc_cmd_entry_function(char* src, char* dst)
 
 /* If src matches dst return dst string, otherwise return NULL */
 /* This version will return the dst string always if it is
-   CTC_CMD_VARIABLE for '?' key processing */
+   XXX_CMD_VARIABLE for '?' key processing */
 char*
-ctc_cmd_entry_function_desc(char* src, char* dst)
+xxx_cmd_entry_function_desc(char* src, char* dst)
 {
-    if (CTC_CMD_VARARG(dst))
+    if (XXX_CMD_VARARG(dst))
     {
         return dst;
     }
 
-    if (CTC_CMD_RANGE(dst))
+    if (XXX_CMD_RANGE(dst))
     {
-        if (ctc_cmd_CTC_RANGE_MATCH(dst, src))
+        if (xxx_cmd_XXX_RANGE_MATCH(dst, src))
         {
             return dst;
         }
@@ -1897,9 +1897,9 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
         }
     }
 
-    if (CTC_CMD_IPV6(dst))
+    if (XXX_CMD_IPV6(dst))
     {
-        if (ctc_cmd_CTC_IPV6_MATCH(src))
+        if (xxx_cmd_XXX_IPV6_MATCH(src))
         {
             return dst;
         }
@@ -1909,9 +1909,9 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
         }
     }
 
-    if (CTC_CMD_IPV6_PREFIX(dst))
+    if (XXX_CMD_IPV6_PREFIX(dst))
     {
-        if (ctc_cmd_CTC_IPV6_PREFIX_MATCH(src))
+        if (xxx_cmd_XXX_IPV6_PREFIX_MATCH(src))
         {
             return dst;
         }
@@ -1921,9 +1921,9 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
         }
     }
 
-    if (CTC_CMD_IPV4(dst))
+    if (XXX_CMD_IPV4(dst))
     {
-        if (ctc_cmd_CTC_IPV4_MATCH(src))
+        if (xxx_cmd_XXX_IPV4_MATCH(src))
         {
             return dst;
         }
@@ -1933,9 +1933,9 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
         }
     }
 
-    if (CTC_CMD_IPV4_PREFIX(dst))
+    if (XXX_CMD_IPV4_PREFIX(dst))
     {
-        if (ctc_cmd_CTC_IPV4_PREFIX_MATCH(src))
+        if (xxx_cmd_XXX_IPV4_PREFIX_MATCH(src))
         {
             return dst;
         }
@@ -1946,7 +1946,7 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
     }
 
     /* Optional or variable commands always match on '?' */
-    if (CTC_CMD_OPTION(dst) || CTC_CMD_VARIABLE(dst))
+    if (XXX_CMD_OPTION(dst) || XXX_CMD_VARIABLE(dst))
     {
         return dst;
     }
@@ -1970,7 +1970,7 @@ ctc_cmd_entry_function_desc(char* src, char* dst)
 /* Check same string element existence.  If it isn't there return
     1. */
 int32
-ctc_cmd_unique_string(vector v, char* str)
+xxx_cmd_unique_string(vector v, char* str)
 {
     int32 i;
     char* match;
@@ -1995,7 +1995,7 @@ int32
 desc_unique_string(vector v, char* str)
 {
     int32 i;
-    ctc_cmd_desc_t* desc;
+    xxx_cmd_desc_t* desc;
 
     for (i = 0; i < vector_max(v); i++)
     {
@@ -2017,88 +2017,88 @@ desc_unique_string(vector v, char* str)
     { \
         if (!desc_unique_string(matchvec, string)) \
         { \
-            ctc_vti_vec_set(matchvec, desc); \
+            xxx_vti_vec_set(matchvec, desc); \
         } \
     } \
     else \
     { \
-        if (ctc_cmd_unique_string(matchvec, string)) \
+        if (xxx_cmd_unique_string(matchvec, string)) \
         { \
-            ctc_vti_vec_set(matchvec, XSTRDUP(MTYPE_TMP, string)); \
+            xxx_vti_vec_set(matchvec, XSTRDUP(MTYPE_TMP, string)); \
         } \
     }
 
-ctc_match_type_t
-ctc_cmd_string_match(char* str, char* command)
+xxx_match_type_t
+xxx_cmd_string_match(char* str, char* command)
 {
-    ctc_match_type_t match_type = CTC_CTC_NO_MATCH;
+    xxx_match_type_t match_type = XXX_XXX_NO_MATCH;
 
-    if (CTC_CMD_VARARG(str))
+    if (XXX_CMD_VARARG(str))
     {
-        match_type = CTC_VARARG_MATCH;
+        match_type = XXX_VARARG_MATCH;
     }
-    else if (CTC_CMD_RANGE(str))
+    else if (XXX_CMD_RANGE(str))
     {
-        if (ctc_cmd_CTC_RANGE_MATCH(str, command))
+        if (xxx_cmd_XXX_RANGE_MATCH(str, command))
         {
-            match_type = CTC_RANGE_MATCH;
+            match_type = XXX_RANGE_MATCH;
         }
     }
-    else if (CTC_CMD_IPV6(str))
+    else if (XXX_CMD_IPV6(str))
     {
-        if (ctc_cmd_CTC_IPV6_MATCH(command))
+        if (xxx_cmd_XXX_IPV6_MATCH(command))
         {
-            match_type = CTC_IPV6_MATCH;
+            match_type = XXX_IPV6_MATCH;
         }
     }
-    else if (CTC_CMD_IPV6_PREFIX(str))
+    else if (XXX_CMD_IPV6_PREFIX(str))
     {
-        if (ctc_cmd_CTC_IPV6_PREFIX_MATCH(command))
+        if (xxx_cmd_XXX_IPV6_PREFIX_MATCH(command))
         {
-            match_type = CTC_IPV6_PREFIX_MATCH;
+            match_type = XXX_IPV6_PREFIX_MATCH;
         }
     }
-    else if (CTC_CMD_IPV4(str))
+    else if (XXX_CMD_IPV4(str))
     {
-        if (ctc_cmd_CTC_IPV4_MATCH(command))
+        if (xxx_cmd_XXX_IPV4_MATCH(command))
         {
-            match_type = CTC_IPV4_MATCH;
+            match_type = XXX_IPV4_MATCH;
         }
     }
-    else if (CTC_CMD_IPV4_PREFIX(str))
+    else if (XXX_CMD_IPV4_PREFIX(str))
     {
-        if (ctc_cmd_CTC_IPV4_PREFIX_MATCH(command))
+        if (xxx_cmd_XXX_IPV4_PREFIX_MATCH(command))
         {
-            match_type = CTC_IPV4_PREFIX_MATCH;
+            match_type = XXX_IPV4_PREFIX_MATCH;
         }
     }
-    else if (CTC_CMD_OPTION(str) || CTC_CMD_VARIABLE(str))
+    else if (XXX_CMD_OPTION(str) || XXX_CMD_VARIABLE(str))
     {
-        match_type = CTC_EXTEND_MATCH;
+        match_type = XXX_EXTEND_MATCH;
     }
     else if (sal_strncmp(command, str, sal_strlen(command)) == 0)
     {
         if (sal_strcmp(command, str) == 0)
         {
-            match_type = CTC_EXACT_MATCH;
+            match_type = XXX_EXACT_MATCH;
         }
         else
         {
-            match_type = CTC_PARTLY_MATCH;
+            match_type = XXX_PARTLY_MATCH;
         }
     }
 
     return match_type;
 }
 
-ctc_match_type_t
-ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_desc_t** matched_desc_ptr, int32 depth, int32* if_CTC_EXACT_MATCH)
+xxx_match_type_t
+xxx_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, xxx_cmd_desc_t** matched_desc_ptr, int32 depth, int32* if_XXX_EXACT_MATCH)
 {
     int32 j = 0;
     char* str = NULL;
-    ctc_match_type_t match_type = CTC_CTC_NO_MATCH;
+    xxx_match_type_t match_type = XXX_XXX_NO_MATCH;
     vector cur_vec = NULL;
-    ctc_cmd_desc_t* desc = NULL;
+    xxx_cmd_desc_t* desc = NULL;
     char* command = NULL;
     int32 old_index = 0;
     int32 k = 0;
@@ -2109,7 +2109,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
         command = vector_slot(vline, *index);
         if (!command)
         {
-            return CTC_OPTION_MATCH;
+            return XXX_OPTION_MATCH;
         }
 
         if (str_vec->is_desc)
@@ -2120,9 +2120,9 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                 {
                     desc = vector_slot(str_vec, j);
                     str = desc->cmd;
-                    if ((match_type = ctc_cmd_string_match(str, command)) == CTC_CTC_NO_MATCH)
+                    if ((match_type = xxx_cmd_string_match(str, command)) == XXX_XXX_NO_MATCH)
                     {
-                        return CTC_CTC_NO_MATCH;
+                        return XXX_XXX_NO_MATCH;
                     }
                     else /* matched */
                     {
@@ -2133,7 +2133,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                             command = vector_slot(vline, *index);
                             if (!command) /* next is null */
                             {
-                                return CTC_OPTION_MATCH;
+                                return XXX_OPTION_MATCH;
                             }
                         }
                         else
@@ -2146,7 +2146,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
 
                 if (j < vector_max(str_vec))
                 {
-                    return CTC_INCOMPLETE_CMD;
+                    return XXX_INCOMPLETE_CMD;
                 }
 
                 return match_type;
@@ -2157,7 +2157,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                 {
                     desc = vector_slot(str_vec, j);
                     str = desc->cmd;
-                    if ((match_type = ctc_cmd_string_match(str, command)) == CTC_CTC_NO_MATCH)
+                    if ((match_type = xxx_cmd_string_match(str, command)) == XXX_XXX_NO_MATCH)
                     {
                         continue;
                     }
@@ -2169,15 +2169,15 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                     }
                 }
 
-                if (match_type == CTC_CTC_NO_MATCH)
+                if (match_type == XXX_XXX_NO_MATCH)
                 {
                     if (vector_max(str_vec) > 1)
                     {
-                        return CTC_CTC_NO_MATCH;
+                        return XXX_XXX_NO_MATCH;
                     }
                     else /* if vetical vector and only has one element, it is optional */
                     {
-                        return CTC_OPTION_MATCH;
+                        return XXX_OPTION_MATCH;
                     }
                 }
                 else
@@ -2202,11 +2202,11 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
 
                         desc = vector_slot(cur_vec, 0);
                         command = vector_slot(vline, *index);
-                        if (command && CTC_CMD_VARIABLE(desc->cmd) && !CTC_CMD_NUMBER(command) && !CTC_CMD_VARIABLE(command)) /* skip if input is keyword but desc is VAR */
+                        if (command && XXX_CMD_VARIABLE(desc->cmd) && !XXX_CMD_NUMBER(command) && !XXX_CMD_VARIABLE(command)) /* skip if input is keyword but desc is VAR */
                         {
                             if (cmd_debug)
                             {
-                                ctc_cli_out("\n\rLine: %d, index=%d,  skip if input is keyword but desc is VAR", __LINE__, *index);
+                                xxx_cli_out("\n\rLine: %d, index=%d,  skip if input is keyword but desc is VAR", __LINE__, *index);
                             }
 
                             continue;
@@ -2214,9 +2214,9 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                     }
 
                     cur_vec = vector_slot(str_vec, j); /* retry to get the current vector */
-                    if ((match_type = ctc_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_CTC_EXACT_MATCH)) == CTC_CTC_NO_MATCH)
+                    if ((match_type = xxx_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_XXX_EXACT_MATCH)) == XXX_XXX_NO_MATCH)
                     {
-                        return CTC_CTC_NO_MATCH;
+                        return XXX_XXX_NO_MATCH;
                     } /* else, matched, index will be increased and go on next match */
 
                     /* else, matched, index will be increased and go on next match */
@@ -2225,7 +2225,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                         j++;
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\n\rLine: %d, index=%d, j=%d: reach the end of input word", __LINE__, *index, j);
+                            xxx_cli_out("\n\rLine: %d, index=%d, j=%d: reach the end of input word", __LINE__, *index, j);
                         }
 
                         break;
@@ -2253,7 +2253,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
 
                 if ((j < vector_max(str_vec)) && no_option)
                 {
-                    return CTC_INCOMPLETE_CMD;
+                    return XXX_INCOMPLETE_CMD;
                 }
 
                 /* too many input words */
@@ -2261,10 +2261,10 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                 {
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\n\rLine: %d, index=%d,  too more cmds", __LINE__, *index);
+                        xxx_cli_out("\n\rLine: %d, index=%d,  too more cmds", __LINE__, *index);
                     }
 
-                    return CTC_CTC_NO_MATCH;
+                    return XXX_XXX_NO_MATCH;
                 }
 
                 return match_type;
@@ -2278,7 +2278,7 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                     char match_j[MAX_OPTIONAL_CMD_NUM] = {0};
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\r\nLine %d: *index: %d, entering cbrace checking", __LINE__, *index);
+                        xxx_cli_out("\r\nLine %d: *index: %d, entering cbrace checking", __LINE__, *index);
                     }
 
                     do
@@ -2289,21 +2289,21 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                         {
                             if (j >= MAX_OPTIONAL_CMD_NUM)
                             {
-                                ctc_cli_out("\n\rLine: %d, index=%d,  too many optional cmds", __LINE__, *index);
+                                xxx_cli_out("\n\rLine: %d, index=%d,  too many optional cmds", __LINE__, *index);
                                 break;
                             }
 
                             if (!match_j[j])
                             {
                                 cur_vec = vector_slot(str_vec, j);
-                                match_type = ctc_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_CTC_EXACT_MATCH);
-                                if (match_type == CTC_CTC_NO_MATCH)
+                                match_type = xxx_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_XXX_EXACT_MATCH);
+                                if (match_type == XXX_XXX_NO_MATCH)
                                 {
                                     continue;
                                 }
-                                else if (match_type == CTC_INCOMPLETE_CMD)
+                                else if (match_type == XXX_INCOMPLETE_CMD)
                                 {
-                                    return CTC_INCOMPLETE_CMD;
+                                    return XXX_INCOMPLETE_CMD;
                                 }
                                 else
                                 {
@@ -2321,23 +2321,23 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                     {
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\ncbrace_matched: Line %d: *index: %d, command: %s, j: %d", __LINE__, *index, command, j);
+                            xxx_cli_out("\r\ncbrace_matched: Line %d: *index: %d, command: %s, j: %d", __LINE__, *index, command, j);
                         }
 
-                        return CTC_OPTION_MATCH;
+                        return XXX_OPTION_MATCH;
                     }
                     else
                     {
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\nNone cbrace matched in Line %d: *index: %d, command: %s, j: %d", __LINE__, *index, command, j);
+                            xxx_cli_out("\r\nNone cbrace matched in Line %d: *index: %d, command: %s, j: %d", __LINE__, *index, command, j);
                         }
                     }
                 }
                 else /* paren:(a1 |a2 ) */
                 {
                     int32 matched_j = -1;
-                    ctc_match_type_t previous_match_type = CTC_CTC_NO_MATCH;
+                    xxx_match_type_t previous_match_type = XXX_XXX_NO_MATCH;
                     old_index = *index;
 
                     for (j = 0; j < vector_max(str_vec); j++) /* try to get best match in the paren list */
@@ -2346,14 +2346,14 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                         *index = old_index;
                         if (!cur_vec->is_desc)
                         {
-                            match_type = ctc_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_CTC_EXACT_MATCH);
+                            match_type = xxx_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_XXX_EXACT_MATCH);
                         }
                         else
                         {
                             desc = vector_slot(cur_vec, 0);
                             str = desc->cmd;
                             command = vector_slot(vline, *index);
-                            match_type = ctc_cmd_string_match(str, command);
+                            match_type = xxx_cmd_string_match(str, command);
                         }
 
                         if (match_type > previous_match_type)
@@ -2363,14 +2363,14 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                         }
                     }
 
-                    if (previous_match_type != CTC_CTC_NO_MATCH) /* found best match */
+                    if (previous_match_type != XXX_XXX_NO_MATCH) /* found best match */
                     {
                         cur_vec = vector_slot(str_vec, matched_j);
                         *index = old_index;
-                        match_type = ctc_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_CTC_EXACT_MATCH);
+                        match_type = xxx_cmd_filter_command_tree(cur_vec, vline, index, matched_desc_ptr, depth + 1, if_XXX_EXACT_MATCH);
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\nLine %d: *index: %d, Found best match %d, returned type: %d",  __LINE__, *index, matched_j, match_type);
+                            xxx_cli_out("\r\nLine %d: *index: %d, Found best match %d, returned type: %d",  __LINE__, *index, matched_j, match_type);
                         }
 
                         return match_type;
@@ -2379,11 +2379,11 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
                     {
                         if (vector_max(str_vec) > 1)
                         {
-                            return CTC_CTC_NO_MATCH;
+                            return XXX_XXX_NO_MATCH;
                         }
                         else  /* if vertical vector only has one element, it is optional */
                         {
-                            return CTC_OPTION_MATCH;
+                            return XXX_OPTION_MATCH;
                         }
                     }
                 }
@@ -2396,25 +2396,25 @@ ctc_cmd_filter_command_tree(vector str_vec, vector vline, int32* index, ctc_cmd_
     return match_type;
 }
 
-ctc_match_type_t
-ctc_cmd_filter_by_completion(vector strvec, vector vline, ctc_cmd_desc_t** matched_desc_ptr, int32* if_CTC_EXACT_MATCH)
+xxx_match_type_t
+xxx_cmd_filter_by_completion(vector strvec, vector vline, xxx_cmd_desc_t** matched_desc_ptr, int32* if_XXX_EXACT_MATCH)
 {
     int32 index = 0;
 
-    return ctc_cmd_filter_command_tree(strvec, vline, &index, matched_desc_ptr, 0, if_CTC_EXACT_MATCH);
+    return xxx_cmd_filter_command_tree(strvec, vline, &index, matched_desc_ptr, 0, if_XXX_EXACT_MATCH);
 }
 
-static ctc_cmd_desc_t desc_cr = { "<cr>", "" };
+static xxx_cmd_desc_t desc_cr = { "<cr>", "" };
 /*returns: 0 no match; 1 matched but not last word, continue searching; 2 match and last word, finish searching */
 int32
-ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector matchvec, int32 if_describe, int32 depth)
+xxx_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector matchvec, int32 if_describe, int32 depth)
 {
     int32 j = 0;
     int32 ret = 0;
     char* str = NULL;
-    ctc_match_type_t match_type = CTC_CTC_NO_MATCH;
+    xxx_match_type_t match_type = XXX_XXX_NO_MATCH;
     vector cur_vec = NULL;
-    ctc_cmd_desc_t* desc = NULL;
+    xxx_cmd_desc_t* desc = NULL;
     char* command = NULL;
     char* string = NULL;
     int32 old_index  = 0;
@@ -2427,7 +2427,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
         {
             if (str_vec->direction == 0) /* Tranverse */
             {
-                int32 if_CTC_EXACT_MATCH = 0;
+                int32 if_XXX_EXACT_MATCH = 0;
 
                 for (j = 0; j < vector_max(str_vec); j++)
                 {
@@ -2437,7 +2437,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                     if (command) /* not null command */
                     {
-                        if ((match_type = ctc_cmd_string_match(str, command)) == CTC_CTC_NO_MATCH)
+                        if ((match_type = xxx_cmd_string_match(str, command)) == XXX_XXX_NO_MATCH)
                         {
                             return 0;
                         }
@@ -2445,7 +2445,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                         {
                             if (*index == (vector_max(vline) - 1)) /* command is last string*/
                             {
-                                string = ctc_cmd_entry_function_desc(command, desc->cmd);
+                                string = xxx_cmd_entry_function_desc(command, desc->cmd);
                                 if (string)
                                 {
                                     VECTOR_SET;
@@ -2453,7 +2453,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                                 if (cmd_debug)
                                 {
-                                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, string: %s, j: %d", __LINE__, depth, *index, string, j);
+                                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, string: %s, j: %d", __LINE__, depth, *index, string, j);
                                 }
 
                                 return 2; /* not null, last word match */
@@ -2464,19 +2464,19 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                                 command = vector_slot(vline, *index);
                                 if (cmd_debug)
                                 {
-                                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                                 }
 
-                                if (CTC_PARTLY_MATCH != match_type)
+                                if (XXX_PARTLY_MATCH != match_type)
                                 {
-                                    if_CTC_EXACT_MATCH = 1; /* exact match */
+                                    if_XXX_EXACT_MATCH = 1; /* exact match */
                                 }
                             }
                         }
                     }
                     else /* command is null, always the last word */
                     {
-                        string = ctc_cmd_entry_function_desc(command, desc->cmd);
+                        string = xxx_cmd_entry_function_desc(command, desc->cmd);
                         if (string)
                         {
                             VECTOR_SET;
@@ -2484,7 +2484,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, string: %s, j: %d", __LINE__, depth, *index, string, j);
+                            xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, string: %s, j: %d", __LINE__, depth, *index, string, j);
                         }
 
                         return 2;
@@ -2493,7 +2493,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                 if (cmd_debug)
                 {
-                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                 }
 
                 return 1;
@@ -2509,9 +2509,9 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                         {
                             desc = vector_slot(str_vec, j);
                             str = desc->cmd;
-                            if ((match_type = ctc_cmd_string_match(str, command)) != CTC_CTC_NO_MATCH)
+                            if ((match_type = xxx_cmd_string_match(str, command)) != XXX_XXX_NO_MATCH)
                             {
-                                string = ctc_cmd_entry_function_desc(command, desc->cmd);
+                                string = xxx_cmd_entry_function_desc(command, desc->cmd);
                                 if (string)
                                 {
                                     VECTOR_SET;
@@ -2519,7 +2519,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                                 if (cmd_debug)
                                 {
-                                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                                 }
 
                                 return 2; /* shall match only one */
@@ -2533,11 +2533,11 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                         {
                             desc = vector_slot(str_vec, j);
                             str = desc->cmd;
-                            if ((match_type = ctc_cmd_string_match(str, command)) != CTC_CTC_NO_MATCH)
+                            if ((match_type = xxx_cmd_string_match(str, command)) != XXX_XXX_NO_MATCH)
                             {
                                 if (cmd_debug)
                                 {
-                                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                                 }
 
                                 return 1; /* shall match only one */
@@ -2552,7 +2552,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                     {
                         desc = vector_slot(str_vec, j);
                         str = desc->cmd;
-                        string = ctc_cmd_entry_function_desc(command, desc->cmd);
+                        string = xxx_cmd_entry_function_desc(command, desc->cmd);
                         if (string)
                         {
                             VECTOR_SET;
@@ -2561,7 +2561,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                        xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                     }
 
                     return 2;
@@ -2569,7 +2569,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                 if (cmd_debug)
                 {
-                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                 }
 
                 return 0;
@@ -2591,7 +2591,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                         desc = vector_slot(cur_vec, 0);
                         command = vector_slot(vline, *index);
-                        if (command && CTC_CMD_VARIABLE(desc->cmd) && !CTC_CMD_NUMBER(command) && !CTC_CMD_VARIABLE(command)) /* skip if input is keyword but desc is VAR */
+                        if (command && XXX_CMD_VARIABLE(desc->cmd) && !XXX_CMD_NUMBER(command) && !XXX_CMD_VARIABLE(command)) /* skip if input is keyword but desc is VAR */
                         {
                             continue;
                         }
@@ -2599,7 +2599,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                     cur_vec = vector_slot(str_vec, j); /* retry to get the current vector */
                     old_index = *index;
-                    ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                    ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                     if (ret == 2)
                     {
                         if (cur_vec->direction && vector_max(cur_vec) == 1 && (old_index == *index)) /* optional vector */
@@ -2609,7 +2609,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                            xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                         }
 
                         return 2;
@@ -2624,7 +2624,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                     {
                         if (cmd_debug)
                         {
-                            ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d ", __LINE__, depth, *index, command, j);
+                            xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d ", __LINE__, depth, *index, command, j);
                         }
 
                         return 0;
@@ -2635,7 +2635,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                 {
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d ", __LINE__, depth, *index, command, j);
+                        xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d ", __LINE__, depth, *index, command, j);
                     }
 
                     string = "<cr>";
@@ -2644,21 +2644,21 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                     {
                         if (!desc_unique_string(matchvec, string))
                         {
-                            ctc_vti_vec_set(matchvec, &desc_cr);
+                            xxx_vti_vec_set(matchvec, &desc_cr);
                         }
                     }
                     else
                     {
-                        if (ctc_cmd_unique_string(matchvec, string))
+                        if (xxx_cmd_unique_string(matchvec, string))
                         {
-                            ctc_vti_vec_set(matchvec, XSTRDUP(MTYPE_TMP, desc_cr.cmd));
+                            xxx_vti_vec_set(matchvec, XSTRDUP(MTYPE_TMP, desc_cr.cmd));
                         }
                     }
                 }
 
                 if (cmd_debug)
                 {
-                    ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
+                    xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d", __LINE__, depth, *index, command, j);
                 }
 
                 return 1;
@@ -2688,12 +2688,12 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                             {
                                 if (*index == (vector_max(vline) - 1)) /* last word */
                                 {
-                                    ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                                    ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                                     if (ret)
                                     {
                                         if (cmd_debug)
                                         {
-                                            ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
+                                            xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
                                         }
 
                                         return ret;
@@ -2702,7 +2702,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                                 else /* not last word */
                                 {
                                     old_index = *index;
-                                    ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                                    ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                                     if (ret)
                                     {
                                         match_j[j] = 1; /* matched */
@@ -2734,14 +2734,14 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                             cur_vec = vector_slot(str_vec, j);
                             if (!match_j[j])
                             {
-                                ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                                ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                             }
                         }
                     }
 
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
+                        xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
                     }
 
                     if (cbrace_matched)
@@ -2758,7 +2758,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                     if (*index != (vector_max(vline) - 1)) /* not last word */
                     {
                         int32 matched_j = -1;
-                        ctc_match_type_t previous_match_type = CTC_CTC_NO_MATCH;
+                        xxx_match_type_t previous_match_type = XXX_XXX_NO_MATCH;
                         old_index = *index;
 
                         for (j = 0; j < vector_max(str_vec); j++)
@@ -2767,14 +2767,14 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                             cur_vec = vector_slot(str_vec, j);
                             if (!cur_vec->is_desc)
                             {
-                                match_type = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                                match_type = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                             }
                             else
                             {
                                 desc = vector_slot(cur_vec, 0);
                                 str = desc->cmd;
                                 command = vector_slot(vline, *index);
-                                match_type = ctc_cmd_string_match(str, command);
+                                match_type = xxx_cmd_string_match(str, command);
                             }
 
                             if (match_type > previous_match_type)
@@ -2784,11 +2784,11 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                             }
                         }
 
-                        if (previous_match_type != CTC_CTC_NO_MATCH) /* found best match*/
+                        if (previous_match_type != XXX_XXX_NO_MATCH) /* found best match*/
                         {
                             cur_vec = vector_slot(str_vec, matched_j);
                             *index = old_index;
-                            ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                            ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                         }
                         else /* all list not matched*/
                         {
@@ -2802,7 +2802,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
                         for (j = 0; j < vector_max(str_vec); j++)
                         {
                             cur_vec = vector_slot(str_vec, j);
-                            ret = ctc_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
+                            ret = xxx_cmd_describe_cmd_tree(vline, index, cur_vec, matchvec, if_describe, depth + 1);
                             if (ret)
                             {
                                 if_matched = ret;
@@ -2819,7 +2819,7 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
                     if (cmd_debug)
                     {
-                        ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
+                        xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d, ret: %d", __LINE__, depth, *index, command, j, ret);
                     }
 
                     return ret;
@@ -2830,25 +2830,25 @@ ctc_cmd_describe_cmd_tree(vector vline, int32* index, vector str_vec, vector mat
 
     if (cmd_debug)
     {
-        ctc_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d \n\r", __LINE__, depth, *index, command, j);
+        xxx_cli_out("\r\nLine %d:depth: %d, *index: %d, command: %s, j: %d \n\r", __LINE__, depth, *index, command, j);
     }
 
     return ret;
 }
 
 vector
-ctc_cmd_describe_complete_cmd(vector vline, vector cmd_vector, vector matchvec, int32 if_describe)
+xxx_cmd_describe_complete_cmd(vector vline, vector cmd_vector, vector matchvec, int32 if_describe)
 {
     int32 i = 0;
     int32 index = 0;
-    ctc_cmd_element_t* cmd_element = NULL;
+    xxx_cmd_element_t* cmd_element = NULL;
 
     for (i = 0; i < vector_max(cmd_vector); i++)
     {
         index = 0;
         if ((cmd_element = vector_slot(cmd_vector, i)) != NULL)
         {
-            ctc_cmd_describe_cmd_tree(vline, &index, cmd_element->strvec, matchvec, if_describe, 0);
+            xxx_cmd_describe_cmd_tree(vline, &index, cmd_element->strvec, matchvec, if_describe, 0);
         }
     }
 
@@ -2857,23 +2857,23 @@ ctc_cmd_describe_complete_cmd(vector vline, vector cmd_vector, vector matchvec, 
 
 /* '?' describe command support. */
 vector
-ctc_cmd_describe_command(vector vline, ctc_vti_t* vti, int32* status)
+xxx_cmd_describe_command(vector vline, xxx_vti_t* vti, int32* status)
 {
     int32 i;
-    int32 if_CTC_EXACT_MATCH = 0;
+    int32 if_XXX_EXACT_MATCH = 0;
 
     vector cmd_vector;
     vector matchvec;
-    ctc_match_type_t match;
-    ctc_cmd_element_t* cmd_element = NULL;
+    xxx_match_type_t match;
+    xxx_cmd_element_t* cmd_element = NULL;
 
     int32 best_match_type = 0;
     unsigned short matched_count[3] = {0};
-    char* CTC_PARTLY_MATCH_element = NULL;
-    char* CTC_EXTEND_MATCH_element = NULL;
+    char* XXX_PARTLY_MATCH_element = NULL;
+    char* XXX_EXTEND_MATCH_element = NULL;
 
     /* Make copy vector of current node's command vector. */
-    cmd_vector = ctc_vti_vec_copy(ctc_cmd_node_vector(cmdvec, vti->node));
+    cmd_vector = xxx_vti_vec_copy(xxx_cmd_node_vector(cmdvec, vti->node));
     if (!cmd_vector)
     {
         *status = CMD_SYS_ERROR;
@@ -2881,18 +2881,18 @@ ctc_cmd_describe_command(vector vline, ctc_vti_t* vti, int32* status)
     }
 
     /* Prepare match vector */
-    matchvec = ctc_vti_vec_init(INIT_MATCHVEC_SIZE);
+    matchvec = xxx_vti_vec_init(INIT_MATCHVEC_SIZE);
 
-    CTC_PARTLY_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
-    CTC_EXTEND_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
+    XXX_PARTLY_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
+    XXX_EXTEND_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
 
-    if (!CTC_PARTLY_MATCH_element || !CTC_EXTEND_MATCH_element)
+    if (!XXX_PARTLY_MATCH_element || !XXX_EXTEND_MATCH_element)
     {
-        ctc_cli_out("\n\rError: no memory!!");
+        xxx_cli_out("\n\rError: no memory!!");
     }
 
-    sal_memset(CTC_PARTLY_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
-    sal_memset(CTC_EXTEND_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
+    sal_memset(XXX_PARTLY_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
+    sal_memset(XXX_EXTEND_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
 
     /* filter command elements */
     if (vector_slot(vline, 0) != NULL)
@@ -2900,43 +2900,43 @@ ctc_cmd_describe_command(vector vline, ctc_vti_t* vti, int32* status)
         for (i = 0; i < vector_max(cmd_vector); i++)
         {
             match = 0;
-            if_CTC_EXACT_MATCH = 1;
+            if_XXX_EXACT_MATCH = 1;
             cmd_element = vector_slot(cmd_vector, i);
             if (cmd_element)
             {
-                match = ctc_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_CTC_EXACT_MATCH);
+                match = xxx_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_XXX_EXACT_MATCH);
                 if (!match)
                 {
                     vector_slot(cmd_vector, i) = NULL;
                     /*
                     if(cmd_debug)
                     {
-                        ctc_cli_out("cmd element %d filtered \n\r", i);
+                        xxx_cli_out("cmd element %d filtered \n\r", i);
                     }*/
                 }
                 else /* matched, save the exact match element*/
                 {
-                    best_match_type = ctc_cmd_best_match_check(vline, matched_desc_ptr, 1);
+                    best_match_type = xxx_cmd_best_match_check(vline, matched_desc_ptr, 1);
                     matched_count[best_match_type]++;
-                    if (best_match_type == CTC_CMD_PARTLY_MATCH)
+                    if (best_match_type == XXX_CMD_PARTLY_MATCH)
                     {
-                        CTC_PARTLY_MATCH_element[i] = 1;
-                        CTC_EXTEND_MATCH_element[i] = 0;
+                        XXX_PARTLY_MATCH_element[i] = 1;
+                        XXX_EXTEND_MATCH_element[i] = 0;
                     }
-                    else if (best_match_type == CTC_CMD_EXTEND_MATCH)
+                    else if (best_match_type == XXX_CMD_EXTEND_MATCH)
                     {
-                        CTC_EXTEND_MATCH_element[i] = 1;
-                        CTC_PARTLY_MATCH_element[i] = 0;
+                        XXX_EXTEND_MATCH_element[i] = 1;
+                        XXX_PARTLY_MATCH_element[i] = 0;
                     }
                     else
                     {
-                        CTC_EXTEND_MATCH_element[i] = 0;
-                        CTC_PARTLY_MATCH_element[i] = 0;
+                        XXX_EXTEND_MATCH_element[i] = 0;
+                        XXX_PARTLY_MATCH_element[i] = 0;
                     }
 
                     if (cmd_debug)
                     {
-                        ctc_cli_out("cmd element %d best matched %d: %s \n\r", i, best_match_type, cmd_element->string);
+                        xxx_cli_out("cmd element %d best matched %d: %s \n\r", i, best_match_type, cmd_element->string);
                     }
                 }
             }
@@ -2944,46 +2944,46 @@ ctc_cmd_describe_command(vector vline, ctc_vti_t* vti, int32* status)
 
     }
 
-    if (matched_count[CTC_CMD_EXACT_MATCH]) /* found exact match, filter all partly and extend match elements */
+    if (matched_count[XXX_CMD_EXACT_MATCH]) /* found exact match, filter all partly and extend match elements */
     {
         for (i = 0; i < vector_max(cmd_vector); i++)
         {
-            if (CTC_EXTEND_MATCH_element[i] || CTC_PARTLY_MATCH_element[i]) /* filter all other elements */
+            if (XXX_EXTEND_MATCH_element[i] || XXX_PARTLY_MATCH_element[i]) /* filter all other elements */
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d filterd for not exact match \n\r", i);
+                    xxx_cli_out("cmd element %d filterd for not exact match \n\r", i);
                 }
             }
         }
     }
-    else if (matched_count[CTC_CMD_PARTLY_MATCH]) /* found partly match, filter all extend match elements */
+    else if (matched_count[XXX_CMD_PARTLY_MATCH]) /* found partly match, filter all extend match elements */
     {
         for (i = 0; i < vector_max(cmd_vector); i++)
         {
-            if (CTC_EXTEND_MATCH_element[i]) /* filter all other elements */
+            if (XXX_EXTEND_MATCH_element[i]) /* filter all other elements */
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d filterd for not exact match \n\r", i);
+                    xxx_cli_out("cmd element %d filterd for not exact match \n\r", i);
                 }
             }
         }
     }
 
-    sal_free(CTC_PARTLY_MATCH_element);
-    sal_free(CTC_EXTEND_MATCH_element);
+    sal_free(XXX_PARTLY_MATCH_element);
+    sal_free(XXX_EXTEND_MATCH_element);
 
     /* make desc vector */
-    matchvec = ctc_cmd_describe_complete_cmd(vline, cmd_vector, matchvec, 1);
+    matchvec = xxx_cmd_describe_complete_cmd(vline, cmd_vector, matchvec, 1);
 
-    ctc_vti_vec_free(cmd_vector);
+    xxx_vti_vec_free(cmd_vector);
 
     if (vector_slot(matchvec, 0) == NULL)
     {
-        ctc_vti_vec_free(matchvec);
+        xxx_vti_vec_free(matchvec);
         *status = CMD_ERR_NO_MATCH;
     }
     else
@@ -2996,7 +2996,7 @@ ctc_cmd_describe_command(vector vline, ctc_vti_t* vti, int32* status)
 
 /* Check LCD of matched command. */
 int32
-ctc_cmd_lcd(char** matched)
+xxx_cmd_lcd(char** matched)
 {
     int32 i;
     int32 j;
@@ -3040,22 +3040,22 @@ ctc_cmd_lcd(char** matched)
 
 /* Command line completion support. */
 char**
-ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
+xxx_cmd_complete_command(vector vline, xxx_vti_t* vti, int32* status)
 {
     int32 i = 0;
-    int32 if_CTC_EXACT_MATCH = 0;
+    int32 if_XXX_EXACT_MATCH = 0;
     int32 index = vector_max(vline) - 1;
     int32 lcd = 0;
     vector cmd_vector = NULL;
     vector matchvec = NULL;
-    ctc_cmd_element_t* cmd_element = NULL;
-    ctc_match_type_t match = 0;
+    xxx_cmd_element_t* cmd_element = NULL;
+    xxx_match_type_t match = 0;
     char** match_str = NULL;
 
     int32 best_match_type = 0;
     unsigned short matched_count[3] = {0};
-    char* CTC_PARTLY_MATCH_element = NULL;
-    char* CTC_EXTEND_MATCH_element = NULL;
+    char* XXX_PARTLY_MATCH_element = NULL;
+    char* XXX_EXTEND_MATCH_element = NULL;
 
     if (vector_slot(vline, 0) == NULL)
     {
@@ -3063,21 +3063,21 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
         return match_str;
     }
 
-    CTC_PARTLY_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
-    CTC_EXTEND_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
-    if (!CTC_PARTLY_MATCH_element || !CTC_EXTEND_MATCH_element)
+    XXX_PARTLY_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
+    XXX_EXTEND_MATCH_element = (char*)sal_alloc(sizeof(char) * MAX_ELEMENT_NUM, "clicmd");
+    if (!XXX_PARTLY_MATCH_element || !XXX_EXTEND_MATCH_element)
     {
-        ctc_cli_out("Error: no memory!!\n\r");
+        xxx_cli_out("Error: no memory!!\n\r");
         return NULL;
     }
-    sal_memset(CTC_PARTLY_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
-    sal_memset(CTC_EXTEND_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
+    sal_memset(XXX_PARTLY_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
+    sal_memset(XXX_EXTEND_MATCH_element, 0, sizeof(char) * MAX_ELEMENT_NUM);
 
     /* Make copy of command elements. */
-    cmd_vector = ctc_vti_vec_copy(ctc_cmd_node_vector(cmdvec, vti->node));
+    cmd_vector = xxx_vti_vec_copy(xxx_cmd_node_vector(cmdvec, vti->node));
     if (!cmd_vector)
     {
-        ctc_cli_out("Error: no memory!!\n\r");
+        xxx_cli_out("Error: no memory!!\n\r");
         return NULL;
     }
 
@@ -3087,95 +3087,95 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
     {
         match = 0;
         cmd_element = vector_slot(cmd_vector, i);
-        if_CTC_EXACT_MATCH = 1;
+        if_XXX_EXACT_MATCH = 1;
         if (cmd_element)
         {
-            match = ctc_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_CTC_EXACT_MATCH);
+            match = xxx_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_XXX_EXACT_MATCH);
             if (!match)
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d filtered \n\r", i);
+                    xxx_cli_out("cmd element %d filtered \n\r", i);
                 }
             }
             else
             {
-                best_match_type = ctc_cmd_best_match_check(vline, matched_desc_ptr, 1);
+                best_match_type = xxx_cmd_best_match_check(vline, matched_desc_ptr, 1);
                 matched_count[best_match_type]++;
-                if (best_match_type == CTC_CMD_PARTLY_MATCH)
+                if (best_match_type == XXX_CMD_PARTLY_MATCH)
                 {
-                    CTC_PARTLY_MATCH_element[i] = 1;
-                    CTC_EXTEND_MATCH_element[i] = 0;
+                    XXX_PARTLY_MATCH_element[i] = 1;
+                    XXX_EXTEND_MATCH_element[i] = 0;
                 }
-                else if (best_match_type == CTC_CMD_EXTEND_MATCH)
+                else if (best_match_type == XXX_CMD_EXTEND_MATCH)
                 {
-                    CTC_EXTEND_MATCH_element[i] = 1;
-                    CTC_PARTLY_MATCH_element[i] = 0;
+                    XXX_EXTEND_MATCH_element[i] = 1;
+                    XXX_PARTLY_MATCH_element[i] = 0;
                 }
                 else
                 {
-                    CTC_EXTEND_MATCH_element[i] = 0;
-                    CTC_PARTLY_MATCH_element[i] = 0;
+                    XXX_EXTEND_MATCH_element[i] = 0;
+                    XXX_PARTLY_MATCH_element[i] = 0;
                 }
 
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d best match %d: %s \n\r", i, best_match_type, cmd_element->string);
+                    xxx_cli_out("cmd element %d best match %d: %s \n\r", i, best_match_type, cmd_element->string);
                 }
             }
         }
     } /* for cmd filtering */
 
-    if (matched_count[CTC_CMD_EXACT_MATCH]) /* found exact match, filter all partly and extend match elements */
+    if (matched_count[XXX_CMD_EXACT_MATCH]) /* found exact match, filter all partly and extend match elements */
     {
         for (i = 0; i < vector_max(cmd_vector); i++)
         {
-            if (CTC_EXTEND_MATCH_element[i] || CTC_PARTLY_MATCH_element[i]) /* filter all other elements */
+            if (XXX_EXTEND_MATCH_element[i] || XXX_PARTLY_MATCH_element[i]) /* filter all other elements */
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d filterd for not exact match \n\r", i);
+                    xxx_cli_out("cmd element %d filterd for not exact match \n\r", i);
                 }
             }
         }
     }
-    else if (matched_count[CTC_CMD_PARTLY_MATCH]) /* found partly match, filter all extend match elements */
+    else if (matched_count[XXX_CMD_PARTLY_MATCH]) /* found partly match, filter all extend match elements */
     {
         for (i = 0; i < vector_max(cmd_vector); i++)
         {
-            if (CTC_EXTEND_MATCH_element[i]) /* filter all other elements */
+            if (XXX_EXTEND_MATCH_element[i]) /* filter all other elements */
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd element %d filterd for not exact match \n\r", i);
+                    xxx_cli_out("cmd element %d filterd for not exact match \n\r", i);
                 }
             }
         }
     }
 
-    sal_free(CTC_PARTLY_MATCH_element);
-    sal_free(CTC_EXTEND_MATCH_element);
+    sal_free(XXX_PARTLY_MATCH_element);
+    sal_free(XXX_EXTEND_MATCH_element);
 
     /* Prepare match vector. */
-    matchvec = ctc_vti_vec_init(INIT_MATCHVEC_SIZE);
+    matchvec = xxx_vti_vec_init(INIT_MATCHVEC_SIZE);
     if (!matchvec)
     {
         *status = CMD_WARNING;
         return NULL;
     }
 
-    matchvec = ctc_cmd_describe_complete_cmd(vline, cmd_vector, matchvec, 0);
+    matchvec = xxx_cmd_describe_complete_cmd(vline, cmd_vector, matchvec, 0);
 
     /* We don't need cmd_vector any more. */
-    ctc_vti_vec_free(cmd_vector);
+    xxx_vti_vec_free(cmd_vector);
 
     /* No matched command */
     if (vector_slot(matchvec, 0) == NULL)
     {
-        ctc_vti_vec_free(matchvec);
+        xxx_vti_vec_free(matchvec);
 
         /* In case of 'command \t' pattern.  Do you need '?' command at
          the end of the line. */
@@ -3195,8 +3195,8 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
     if (vector_slot(matchvec, 1) == NULL)
     {
         match_str = (char**)matchvec->index;
-        ctc_vti_vec_only_wrapper_free(matchvec);
-        if ((sal_strcmp(match_str[0], "<cr>") == 0) || CTC_CMD_VARIABLE(match_str[0])) /* if only cr or VAR matched, dont show it*/
+        xxx_vti_vec_only_wrapper_free(matchvec);
+        if ((sal_strcmp(match_str[0], "<cr>") == 0) || XXX_CMD_VARIABLE(match_str[0])) /* if only cr or VAR matched, dont show it*/
         {
             sal_free(match_str);
             *status = CMD_ERR_NOTHING_TODO;
@@ -3208,12 +3208,12 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
     }
 
     /* Make it sure last element is NULL. */
-    ctc_vti_vec_set(matchvec, NULL);
+    xxx_vti_vec_set(matchvec, NULL);
 
     /* Check LCD of matched strings. */
     if (vector_slot(vline, index) != NULL)
     {
-        lcd = ctc_cmd_lcd((char**)matchvec->index);
+        lcd = xxx_cmd_lcd((char**)matchvec->index);
 
         if (lcd)
         {
@@ -3238,13 +3238,13 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
                     }
                 }
 
-                ctc_vti_vec_free(matchvec);
+                xxx_vti_vec_free(matchvec);
 
                 /* Make new matchvec. */
-                matchvec = ctc_vti_vec_init(INIT_MATCHVEC_SIZE);
-                ctc_vti_vec_set(matchvec, lcdstr);
+                matchvec = xxx_vti_vec_init(INIT_MATCHVEC_SIZE);
+                xxx_vti_vec_set(matchvec, lcdstr);
                 match_str = (char**)matchvec->index;
-                ctc_vti_vec_only_wrapper_free(matchvec);
+                xxx_vti_vec_only_wrapper_free(matchvec);
 
                 *status = CMD_COMPLETE_MATCH;
                 return match_str;
@@ -3253,19 +3253,19 @@ ctc_cmd_complete_command(vector vline, ctc_vti_t* vti, int32* status)
     }
 
     match_str = (char**)matchvec->index;
-    ctc_vti_vec_only_wrapper_free(matchvec);
+    xxx_vti_vec_only_wrapper_free(matchvec);
     *status = CMD_COMPLETE_LIST_MATCH;
     return match_str;
 
 }
 
-ctc_match_type_t
-ctc_cmd_is_cmd_incomplete(vector str_vec, vector vline, ctc_cmd_desc_t** matched_desc_ptr, int32* if_CTC_EXACT_MATCH)
+xxx_match_type_t
+xxx_cmd_is_cmd_incomplete(vector str_vec, vector vline, xxx_cmd_desc_t** matched_desc_ptr, int32* if_XXX_EXACT_MATCH)
 {
     int32 index = 0;
-    ctc_match_type_t match = 0;
+    xxx_match_type_t match = 0;
 
-    match = ctc_cmd_filter_command_tree(str_vec, vline, &index, matched_desc_ptr, 0, if_CTC_EXACT_MATCH);
+    match = xxx_cmd_filter_command_tree(str_vec, vline, &index, matched_desc_ptr, 0, if_XXX_EXACT_MATCH);
 
     return match;
 }
@@ -3300,20 +3300,20 @@ void *sal_realloc(void *ptr, size_t size)
 }
 /* Execute command by argument vline vector. */
 int32
-ctc_cmd_execute_command(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
+xxx_cmd_execute_command(vector vline, xxx_vti_t* vti, xxx_cmd_element_t** cmd)
 {
     int32 i = 0;
-    int32 if_CTC_EXACT_MATCH = 0;
+    int32 if_XXX_EXACT_MATCH = 0;
     int32 best_match_type = 0;
     vector cmd_vector = NULL;
-    ctc_cmd_element_t* cmd_element = NULL;
-    ctc_cmd_element_t* matched_element = NULL;
+    xxx_cmd_element_t* cmd_element = NULL;
+    xxx_cmd_element_t* matched_element = NULL;
     unsigned short matched_count[4] = {0};
     int32 matched_index[4] = {0};
     int32 argc;
     char** argv;
     int32 ret = 0;
-    ctc_match_type_t match = 0;
+    xxx_match_type_t match = 0;
 
     argv = (void*)sal_alloc(CMD_ARGC_MAX*sizeof(void*), "clicmd");
     if (NULL == argv)
@@ -3323,7 +3323,7 @@ ctc_cmd_execute_command(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
     
 
     /* Make copy of command elements. */
-    cmd_vector = ctc_vti_vec_copy(ctc_cmd_node_vector(cmdvec, vti->node));
+    cmd_vector = xxx_vti_vec_copy(xxx_cmd_node_vector(cmdvec, vti->node));
     if (!cmd_vector)
     {
         ret = CMD_SYS_ERROR;
@@ -3337,29 +3337,29 @@ ctc_cmd_execute_command(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
         cmd_element = vector_slot(cmd_vector, i);
         if (cmd_element)
         {
-            match = ctc_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_CTC_EXACT_MATCH);
+            match = xxx_cmd_filter_by_completion(cmd_element->strvec, vline, matched_desc_ptr, &if_XXX_EXACT_MATCH);
             if (!match)
             {
                 vector_slot(cmd_vector, i) = NULL;
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd: %d: filtered \n\r", i);
+                    xxx_cli_out("cmd: %d: filtered \n\r", i);
                 }
             }
             else
             {
                 if (cmd_debug)
                 {
-                    ctc_cli_out("cmd: %d matched type: %d: %s \n\r", i, match, cmd_element->string);
+                    xxx_cli_out("cmd: %d matched type: %d: %s \n\r", i, match, cmd_element->string);
                 }
 
-                if (CTC_INCOMPLETE_CMD == match)
+                if (XXX_INCOMPLETE_CMD == match)
                 {
-                    matched_count[CTC_CMD_IMCOMPLETE_MATCH]++;
+                    matched_count[XXX_CMD_IMCOMPLETE_MATCH]++;
                 }
                 else
                 {
-                    best_match_type = ctc_cmd_best_match_check(vline, matched_desc_ptr, 0);
+                    best_match_type = xxx_cmd_best_match_check(vline, matched_desc_ptr, 0);
                     matched_index[best_match_type] = i;
                     matched_count[best_match_type]++;
                 }
@@ -3367,58 +3367,58 @@ ctc_cmd_execute_command(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
         }
     }
 
-    if (!matched_count[CTC_CMD_EXACT_MATCH] && !matched_count[CTC_CMD_PARTLY_MATCH]
-        && !matched_count[CTC_CMD_EXTEND_MATCH] && !matched_count[CTC_CMD_IMCOMPLETE_MATCH])
+    if (!matched_count[XXX_CMD_EXACT_MATCH] && !matched_count[XXX_CMD_PARTLY_MATCH]
+        && !matched_count[XXX_CMD_EXTEND_MATCH] && !matched_count[XXX_CMD_IMCOMPLETE_MATCH])
     {
-        ctc_vti_vec_free(cmd_vector);
+        xxx_vti_vec_free(cmd_vector);
         ret = CMD_ERR_NO_MATCH;
         goto error;
     }
 
-    if (matched_count[CTC_CMD_IMCOMPLETE_MATCH] && !matched_count[CTC_CMD_EXACT_MATCH] && !matched_count[CTC_CMD_PARTLY_MATCH]
-        && !matched_count[CTC_CMD_EXTEND_MATCH])
+    if (matched_count[XXX_CMD_IMCOMPLETE_MATCH] && !matched_count[XXX_CMD_EXACT_MATCH] && !matched_count[XXX_CMD_PARTLY_MATCH]
+        && !matched_count[XXX_CMD_EXTEND_MATCH])
     {
-        ctc_vti_vec_free(cmd_vector);
+        xxx_vti_vec_free(cmd_vector);
         ret = CMD_ERR_INCOMPLETE;
         goto error;
     }
 
-    if ((matched_count[CTC_CMD_EXACT_MATCH] > 1) ||
-        (!matched_count[CTC_CMD_EXACT_MATCH]  && (matched_count[CTC_CMD_PARTLY_MATCH] > 1 || matched_count[CTC_CMD_EXTEND_MATCH] > 1) )) /* exact match found, can be 1 or more */
+    if ((matched_count[XXX_CMD_EXACT_MATCH] > 1) ||
+        (!matched_count[XXX_CMD_EXACT_MATCH]  && (matched_count[XXX_CMD_PARTLY_MATCH] > 1 || matched_count[XXX_CMD_EXTEND_MATCH] > 1) )) /* exact match found, can be 1 or more */
     {
-        ctc_vti_vec_free(cmd_vector);
+        xxx_vti_vec_free(cmd_vector);
         ret = CMD_ERR_AMBIGUOUS;
         goto error;
     }
 
 
-    if (matched_count[CTC_CMD_EXACT_MATCH]) /* single match */
+    if (matched_count[XXX_CMD_EXACT_MATCH]) /* single match */
     {
-        matched_element = vector_slot(cmd_vector, matched_index[CTC_CMD_EXACT_MATCH]);
+        matched_element = vector_slot(cmd_vector, matched_index[XXX_CMD_EXACT_MATCH]);
     }
-    else if (matched_count[CTC_CMD_PARTLY_MATCH])
+    else if (matched_count[XXX_CMD_PARTLY_MATCH])
     {
-        matched_element = vector_slot(cmd_vector, matched_index[CTC_CMD_PARTLY_MATCH]);
+        matched_element = vector_slot(cmd_vector, matched_index[XXX_CMD_PARTLY_MATCH]);
     }
     else
     {
-        matched_element = vector_slot(cmd_vector, matched_index[CTC_CMD_EXTEND_MATCH]);
+        matched_element = vector_slot(cmd_vector, matched_index[XXX_CMD_EXTEND_MATCH]);
     }
 
-    ctc_vti_vec_free(cmd_vector);
+    xxx_vti_vec_free(cmd_vector);
 
     /*retry to get new desc */
-    ctc_cmd_is_cmd_incomplete(matched_element->strvec, vline, matched_desc_ptr, &if_CTC_EXACT_MATCH);
+    xxx_cmd_is_cmd_incomplete(matched_element->strvec, vline, matched_desc_ptr, &if_XXX_EXACT_MATCH);
 
     /* Argument treatment */
     argc = 0;
 
     for (i = 0; i < vector_max(vline); i++)
     {
-        ctc_cmd_desc_t* desc = matched_desc_ptr [i];
+        xxx_cmd_desc_t* desc = matched_desc_ptr [i];
         if (desc->is_arg)
         {
-            if (!CTC_CMD_VARIABLE(desc->cmd)) /* keywords, use origina, user input can be partiall */
+            if (!XXX_CMD_VARIABLE(desc->cmd)) /* keywords, use origina, user input can be partiall */
             {
                 char* cp = vector_slot(vline, i);
                 if (cp)
@@ -3448,14 +3448,14 @@ ctc_cmd_execute_command(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
 
     if (cmd_arg_debug)
     {
-        ctc_cli_out("argc=%d, argv= \n\r", argc);
+        xxx_cli_out("argc=%d, argv= \n\r", argc);
 
         for (i = 0; i < argc; i++)
         {
-            ctc_cli_out("%s ", argv[i]);
+            xxx_cli_out("%s ", argv[i]);
         }
 
-        ctc_cli_out("\n\r");
+        xxx_cli_out("\n\r");
     }
 
     ret = (*matched_element->func)(matched_element, vti, argc, argv);
@@ -3468,22 +3468,22 @@ error:
 
 /* Execute command by argument readline. */
 int32
-ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t** cmd)
+xxx_cmd_execute_command_strict(vector vline, xxx_vti_t* vti, xxx_cmd_element_t** cmd)
 {
     int32 i;
     int32 index;
     vector cmd_vector;
-    ctc_cmd_element_t* cmd_element;
-    ctc_cmd_element_t* matched_element;
+    xxx_cmd_element_t* cmd_element;
+    xxx_cmd_element_t* matched_element;
     uint32 matched_count, incomplete_count;
     int32 argc;
     char* argv[CMD_ARGC_MAX];
     int32 varflag;
-    ctc_match_type_t match = 0;
+    xxx_match_type_t match = 0;
     char* command;
 
     /* Make copy of command element */
-    cmd_vector = ctc_vti_vec_copy(ctc_cmd_node_vector(cmdvec, vti->node));
+    cmd_vector = xxx_vti_vec_copy(xxx_cmd_node_vector(cmdvec, vti->node));
     if (!cmd_vector)
     {
         return CMD_SYS_ERROR;
@@ -3495,11 +3495,11 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
 
         command = vector_slot(vline, index);
 
-        match = ctc_cmd_filter_by_string(vector_slot(vline, index),
+        match = xxx_cmd_filter_by_string(vector_slot(vline, index),
                                          cmd_vector, index);
 
         /* If command meets '.VARARG' then finish matching. */
-        if (match == CTC_VARARG_MATCH)
+        if (match == XXX_VARARG_MATCH)
         {
             break;
         }
@@ -3507,13 +3507,13 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
         ret = is_cmd_ambiguous(command, cmd_vector, index, match);
         if (ret == 1)
         {
-            ctc_vti_vec_free(cmd_vector);
+            xxx_vti_vec_free(cmd_vector);
             return CMD_ERR_AMBIGUOUS;
         }
 
         if (ret == 2)
         {
-            ctc_vti_vec_free(cmd_vector);
+            xxx_vti_vec_free(cmd_vector);
             return CMD_ERR_NO_MATCH;
         }
     }
@@ -3529,7 +3529,7 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
         {
             cmd_element = vector_slot(cmd_vector, i);
 
-            if (match == CTC_VARARG_MATCH || index >= cmd_element->cmdsize)
+            if (match == XXX_VARARG_MATCH || index >= cmd_element->cmdsize)
             {
                 matched_element = cmd_element;
                 matched_count++;
@@ -3542,7 +3542,7 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
     }
 
     /* Finish of using cmd_vector. */
-    ctc_vti_vec_free(cmd_vector);
+    xxx_vti_vec_free(cmd_vector);
 
     /* To execute command, matched_count must be 1.*/
     if (matched_count == 0)
@@ -3578,15 +3578,15 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
 
             if (vector_max(descvec) == 1)
             {
-                ctc_cmd_desc_t* desc = vector_slot(descvec, 0);
+                xxx_cmd_desc_t* desc = vector_slot(descvec, 0);
                 char* str = desc->cmd;
 
-                if (CTC_CMD_VARARG(str))
+                if (XXX_CMD_VARARG(str))
                 {
                     varflag = 1;
                 }
 
-                if (varflag || CTC_CMD_VARIABLE(str) || CTC_CMD_OPTION(str))
+                if (varflag || XXX_CMD_VARIABLE(str) || XXX_CMD_OPTION(str))
                 {
                     argv[argc++] = vector_slot(vline, i);
                 }
@@ -3620,32 +3620,32 @@ ctc_cmd_execute_command_strict(vector vline, ctc_vti_t* vti, ctc_cmd_element_t**
 
 /* Initialize command interface. Install basic nodes and commands. */
 void
-ctc_cmd_init(int32 terminal)
+xxx_cmd_init(int32 terminal)
 {
     /* Allocate initial top vector of commands. */
-    cmdvec = ctc_vti_vec_init(VECTOR_MIN_SIZE);
-    matched_desc_ptr = (ctc_cmd_desc_t**)sal_alloc(sizeof(ctc_cmd_desc_t*) * CMD_ARGC_MAX, "clicmd");
+    cmdvec = xxx_vti_vec_init(VECTOR_MIN_SIZE);
+    matched_desc_ptr = (xxx_cmd_desc_t**)sal_alloc(sizeof(xxx_cmd_desc_t*) * CMD_ARGC_MAX, "clicmd");
     if (!cmdvec || !matched_desc_ptr)
     {
-        ctc_cli_out("\nError: no memory!!");
+        xxx_cli_out("\nError: no memory!!");
     }
-    sal_memset(matched_desc_ptr, 0 , sizeof(ctc_cmd_desc_t*) * CMD_ARGC_MAX);
+    sal_memset(matched_desc_ptr, 0 , sizeof(xxx_cmd_desc_t*) * CMD_ARGC_MAX);
 }
 
 void
-ctc_cli_enable_cmd_debug(int32 enable)
+xxx_cli_enable_cmd_debug(int32 enable)
 {
     cmd_debug = enable ? 1 : 0;
 }
 
 void
-ctc_cli_enable_arg_debug(int32 enable)
+xxx_cli_enable_arg_debug(int32 enable)
 {
     cmd_arg_debug = enable ? 1 : 0;
 }
 
 int32
-ctc_is_cmd_var(char* cmd)
+xxx_is_cmd_var(char* cmd)
 {
     int32 index = 0;
 

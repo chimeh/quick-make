@@ -1,33 +1,33 @@
 #ifdef SDK_IN_USERMODE
-#include "ctc_shell.h"
-#include "ctc_shell_server.h"
-#include "ctc_cli.h"
+#include "xxx_shell.h"
+#include "xxx_shell_server.h"
+#include "xxx_cli.h"
 
 int
-ctc_vti_read_cmd(ctc_vti_t* vty, const char* szbuf, const int buf_len);
+xxx_vti_read_cmd(xxx_vti_t* vty, const char* szbuf, const int buf_len);
 static int
-ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len);
+xxx_vty_sendto(xxx_vti_t* vti, const char *szPtr, const int szPtr_len);
 static int
-ctc_vty_send_quit(ctc_vti_t* vti);
+xxx_vty_send_quit(xxx_vti_t* vti);
 
-static sal_sock_t ctc_master_cli_fd = -1;
+static sal_sock_t xxx_master_cli_fd = -1;
 
-static ctc_vti_t* ctc_vty_lookup_by_pid_errno(unsigned int pid)
+static xxx_vti_t* xxx_vty_lookup_by_pid_errno(unsigned int pid)
 {
-    if(g_ctc_vti->pid != pid)
+    if(g_xxx_vti->pid != pid)
     {
-        g_ctc_vti->pid    = pid;
-        g_ctc_vti->printf = ctc_vty_sendto;
-        g_ctc_vti->quit   = ctc_vty_send_quit;
-        g_ctc_vti->node   = CTC_SDK_MODE;
-        ctc_vti_prompt(g_ctc_vti);
+        g_xxx_vti->pid    = pid;
+        g_xxx_vti->printf = xxx_vty_sendto;
+        g_xxx_vti->quit   = xxx_vty_send_quit;
+        g_xxx_vti->node   = XXX_SDK_MODE;
+        xxx_vti_prompt(g_xxx_vti);
     }
-    return g_ctc_vti;
+    return g_xxx_vti;
 }
 
-static int ctc_vty_send_quit(ctc_vti_t* vti)
+static int xxx_vty_send_quit(xxx_vti_t* vti)
 {
-	ctc_sdk_packet_t	packet;
+	xxx_sdk_packet_t	packet;
 	int					ret 	= -1;
 
 	sal_memset(&packet,0,sizeof(packet));
@@ -37,8 +37,8 @@ static int ctc_vty_send_quit(ctc_vti_t* vti)
 		return -1;
 	}
 
-	packet.hdr.msg_len		= sizeof(struct ctc_msg_hdr);
-	packet.hdr.msg_type		= CTC_SDK_CMD_QUIT;
+	packet.hdr.msg_len		= sizeof(struct xxx_msg_hdr);
+	packet.hdr.msg_type		= XXX_SDK_CMD_QUIT;
 	packet.hdr.msg_flags	= 0;
 	packet.hdr.msg_turnsize	= 0;
 	packet.hdr.msg_pid		= 0;
@@ -53,9 +53,9 @@ static int ctc_vty_send_quit(ctc_vti_t* vti)
 }
 
 
-static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len)
+static int xxx_vty_sendto(xxx_vti_t* vti, const char *szPtr, const int szPtr_len)
 {
-	ctc_sdk_packet_t	packet;
+	xxx_sdk_packet_t	packet;
 	int					ret 	= -1;
 
 	sal_memset(&packet,0,sizeof(packet));
@@ -65,7 +65,7 @@ static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len
 		return -1;
 	}
 
-	packet.hdr.msg_len		= sizeof(struct ctc_msg_hdr) + szPtr_len;
+	packet.hdr.msg_len		= sizeof(struct xxx_msg_hdr) + szPtr_len;
 	packet.hdr.msg_type		= 0;
 	packet.hdr.msg_flags	= 0;
 	packet.hdr.msg_turnsize	= szPtr_len;
@@ -77,11 +77,11 @@ static int ctc_vty_sendto(ctc_vti_t* vti, const char *szPtr, const int szPtr_len
 	return ret;
 }
 
-static void ctc_vty_recv_thread(void *arg)
+static void xxx_vty_recv_thread(void *arg)
 {
-    struct  ctc_msg_hdr *msgh 		= NULL;
+    struct  xxx_msg_hdr *msgh 		= NULL;
 	sal_sock_t			client_fd 	= (intptr)arg;
-	ctc_sdk_packet_t	packet;
+	xxx_sdk_packet_t	packet;
 	int32				len;
 
 	sal_memset(&packet,0,sizeof(packet));
@@ -89,11 +89,11 @@ static void ctc_vty_recv_thread(void *arg)
 	while(len = sal_recv(client_fd,&packet,sizeof(packet),0), len > 0)
 	{
 		msgh = &packet.hdr;
-		if((msgh->msg_len >= sizeof(struct ctc_msg_hdr))
+		if((msgh->msg_len >= sizeof(struct xxx_msg_hdr))
             && (len >= msgh->msg_len))
         {
 
-            ctc_vti_read_cmd(ctc_vty_lookup_by_pid_errno(client_fd),
+            xxx_vti_read_cmd(xxx_vty_lookup_by_pid_errno(client_fd),
                                  packet.msg,
                                  msgh->msg_turnsize);
         }
@@ -108,7 +108,7 @@ static void ctc_vty_recv_thread(void *arg)
 	return ;
 }
 
-int ctc_vty_socket()
+int xxx_vty_socket()
 {
 	sal_sock_t				tmp_fd 		= -1;
 	intptr				client_fd 	= -1;
@@ -127,7 +127,7 @@ int ctc_vty_socket()
 	}
 
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port   = htons(CTC_SDK_TCP_PORT);
+	serv_addr.sin_port   = htons(XXX_SDK_TCP_PORT);
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if(setsockopt(tmp_fd,SOL_SOCKET,SO_REUSEADDR,(char*)&reusraddr,sizeof(reusraddr)) < 0)
@@ -139,7 +139,7 @@ int ctc_vty_socket()
 
 	if(sal_bind(tmp_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
 	{
-	    snprintf(prompt,sizeof(prompt),"TCP port(%d) bind failed",CTC_SDK_TCP_PORT);
+	    snprintf(prompt,sizeof(prompt),"TCP port(%d) bind failed",XXX_SDK_TCP_PORT);
 		perror(prompt);
 		sal_close(tmp_fd);
 		return -1;
@@ -147,33 +147,33 @@ int ctc_vty_socket()
 
 	listen(tmp_fd, 1);
 
-	ctc_master_cli_fd = tmp_fd;
+	xxx_master_cli_fd = tmp_fd;
 
     sal_printf("Server is up and running ...\n");
 
 	sock_len = sizeof(client_addr);
-	while(client_fd = sal_accept(ctc_master_cli_fd,(struct sockaddr*)&client_addr,&sock_len), client_fd >= 0)
+	while(client_fd = sal_accept(xxx_master_cli_fd,(struct sockaddr*)&client_addr,&sock_len), client_fd >= 0)
 	{
-		sal_task_t* ctc_sdk_client_fd = NULL;
+		sal_task_t* xxx_sdk_client_fd = NULL;
 
-		if (0 != sal_task_create(&ctc_sdk_client_fd,
-								 "ctc_sdk_server",
-								 SAL_DEF_TASK_STACK_SIZE, 0, ctc_vty_recv_thread, (void*)client_fd))
+		if (0 != sal_task_create(&xxx_sdk_client_fd,
+								 "xxx_sdk_server",
+								 SAL_DEF_TASK_STACK_SIZE, 0, xxx_vty_recv_thread, (void*)client_fd))
 		{
 			sal_close(tmp_fd);
-			sal_task_destroy(ctc_sdk_client_fd);
+			sal_task_destroy(xxx_sdk_client_fd);
 			return -1;
 		}
 
-        sal_task_destroy(ctc_sdk_client_fd);
+        sal_task_destroy(xxx_sdk_client_fd);
 	}
 
 	return 0;
 }
 
-void ctc_vty_close()
+void xxx_vty_close()
 {
-	sal_close(ctc_master_cli_fd);
-	ctc_master_cli_fd = -1;
+	sal_close(xxx_master_cli_fd);
+	xxx_master_cli_fd = -1;
 }
 #endif

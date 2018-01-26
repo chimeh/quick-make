@@ -1,5 +1,5 @@
 /****************************************************************************
- * ctc_common_cli.c :         header
+ * xxx_common_cli.c :         header
  *
  * Copyright (C) 2010 Centec Networks Inc.  All rights reserved.
  *
@@ -11,16 +11,16 @@
 
 #include "sal/core/libc.h"
 #include "sal/core/alloc.h"
-#include "ctc_types.h"
-#include "ctc_sal.h"
+#include "xxx_types.h"
+#include "xxx_sal.h"
 #ifdef SDK_IN_KERNEL
 #include <linux/kernel.h>
 #endif
 #ifdef SDK_IN_USERMODE
 #include <dirent.h>
 #endif
-#include "ctc_cli.h"
-#include "ctc_common_cli.h"
+#include "xxx_cli.h"
+#include "xxx_common_cli.h"
 
 bool source_quiet_on = FALSE;
 
@@ -79,7 +79,7 @@ _parser_string_atrim(char* output, const char* input)
 }
 
 /* Cmd format: delay <M_SEC> */
-CTC_CLI(cli_com_delay,
+XXX_CLI(cli_com_delay,
         cli_com_delay_cmd,
         "delay M_SEC",
         "delay time",
@@ -87,14 +87,14 @@ CTC_CLI(cli_com_delay,
 {
     uint32 delay_val = 0;
 
-    CTC_CLI_GET_UINT32("million seconds", delay_val, argv[0]);
+    XXX_CLI_GET_UINT32("million seconds", delay_val, argv[0]);
     msleep(delay_val * 1000);
 
     return CLI_SUCCESS;
 }
 
 /* Cmd format: source quiet (on|off) */
-CTC_CLI(cli_com_source_quiet,
+XXX_CLI(cli_com_source_quiet,
         cli_com_source_quiet_cmd,
         "source quiet (on|off)",
         "Common cmd",
@@ -112,7 +112,7 @@ CTC_CLI(cli_com_source_quiet,
     }
     else
     {
-        ctc_cli_out("%% Error! The 1th para is Invalid, %s\n", argv[0]);
+        xxx_cli_out("%% Error! The 1th para is Invalid, %s\n", argv[0]);
         return CLI_ERROR;
     }
 
@@ -120,7 +120,7 @@ CTC_CLI(cli_com_source_quiet,
 }
 
 /* Cmd format: source <file_name> */
-//CTC_CLI(cli_com_source_file,
+//XXX_CLI(cli_com_source_file,
 //        cli_com_source_file_cmd,
 //        "source INPUT_FILE",
 //        "Common cmd",
@@ -138,7 +138,7 @@ CTC_CLI(cli_com_source_quiet,
 //    fp = sal_fopen(filename, "r");
 //    if (NULL == fp)
 //    {
-//        ctc_cli_out("%% Failed to open the file <%s>\n", filename);
+//        xxx_cli_out("%% Failed to open the file <%s>\n", filename);
 //        return CLI_ERROR;
 //    }
 //
@@ -155,7 +155,7 @@ CTC_CLI(cli_com_source_quiet,
 //        ret = _parser_string_atrim(line, string);
 //        if (ret < 0)
 //        {
-//            ctc_cli_out("ERROR! Fail to Paser line %s", string);
+//            xxx_cli_out("ERROR! Fail to Paser line %s", string);
 //        }
 //
 //        if (EMPTY_LINE(line[0]))
@@ -166,13 +166,13 @@ CTC_CLI(cli_com_source_quiet,
 //        sal_strcat(line, "\n");
 //        if (!source_quiet_on)
 //        {
-//            ctc_cli_out("%s", line);
+//            xxx_cli_out("%s", line);
 //        }
 //
-//        ret = ctc_vti_command(g_ctc_vti, line);
+//        ret = xxx_vti_command(g_xxx_vti, line);
 //        if (ret && source_quiet_on)
 //        {
-//            ctc_cli_out("%s", line);
+//            xxx_cli_out("%s", line);
 //        }
 //    }
 //
@@ -182,26 +182,26 @@ CTC_CLI(cli_com_source_quiet,
 //    return CLI_SUCCESS;
 //}
 
-CTC_CLI(cli_com_show_history,
+XXX_CLI(cli_com_show_history,
         cli_com_show_history_cmd,
         "show history",
-        CTC_CLI_SHOW_STR,
+        XXX_CLI_SHOW_STR,
         "Display the session command history")
 {
     int index;
     int print_index = 1;
 
-    for (index = g_ctc_vti->hindex + 1; index != g_ctc_vti->hindex;)
+    for (index = g_xxx_vti->hindex + 1; index != g_xxx_vti->hindex;)
     {
-        if (index == CTC_VTI_MAXHIST)
+        if (index == XXX_VTI_MAXHIST)
         {
             index = 0;
             continue;
         }
 
-        if (g_ctc_vti->hist[index] != NULL)
+        if (g_xxx_vti->hist[index] != NULL)
         {
-            ctc_cli_out("%d  %s%s", print_index, g_ctc_vti->hist[index], CTC_VTI_NEWLINE);
+            xxx_cli_out("%d  %s%s", print_index, g_xxx_vti->hist[index], XXX_VTI_NEWLINE);
             print_index++;
         }
 
@@ -212,7 +212,7 @@ CTC_CLI(cli_com_show_history,
 }
 
 int32
-ctc_com_cli_init(uint8 cli_tree_mode)
+xxx_com_cli_init(uint8 cli_tree_mode)
 {
     /* register some common cli */
 
