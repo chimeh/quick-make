@@ -180,6 +180,8 @@ int xxx_vty_socket()
     if(!xxx_master_cli_netlinkfd){
         printk("%s:%d can't create a netlink socket\n",__FUNCTION__,__LINE__);
         return -1;
+    } else {
+        printk("%s:%d netlink socket create OK \n",__FUNCTION__,__LINE__);
     }
 
     return 0;
@@ -188,5 +190,18 @@ int xxx_vty_socket()
 void xxx_vty_close()
 {
     sock_release(xxx_master_cli_netlinkfd->sk_socket);
+    printk("%s:%d sock_release \n",__FUNCTION__,__LINE__);
 }
 #endif
+
+int xxx_master_cli(unsigned int is_xxx_shell);
+int xxx_init (void)
+{
+    xxx_master_cli(1);
+    return ;
+}
+int xxx_deinit (void)
+{
+    xxx_vty_close();
+   return 0; 
+}

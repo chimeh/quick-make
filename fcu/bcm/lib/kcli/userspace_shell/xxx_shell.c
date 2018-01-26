@@ -1,5 +1,5 @@
 /**
- @file ctc_master_cli.h
+ @file xxx_master_cli.h
 
  @date 2014-12-22
 
@@ -26,38 +26,38 @@
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
-#include "ctc_shell.h"
+#include "xxx_shell.h"
 
 /****************************************************************
 *
 * Defines and Macros
 *
 ****************************************************************/
-typedef struct ctc_sdk_vty_base_s ctc_sdk_vty_base_t;
+typedef struct xxx_sdk_vty_base_s xxx_sdk_vty_base_t;
 
-typedef int (*ctc_socket)(ctc_sdk_vty_base_t *);
-typedef int (*ctc_recvfrom)(ctc_sdk_vty_base_t *);
-typedef int (*ctc_sendto)(ctc_sdk_vty_base_t *, char *, const int);
-typedef int (*ctc_close)(ctc_sdk_vty_base_t *);
-typedef int (*ctc_start_thread)(ctc_sdk_vty_base_t *);
+typedef int (*xxx_socket)(xxx_sdk_vty_base_t *);
+typedef int (*xxx_recvfrom)(xxx_sdk_vty_base_t *);
+typedef int (*xxx_sendto)(xxx_sdk_vty_base_t *, char *, const int);
+typedef int (*xxx_close)(xxx_sdk_vty_base_t *);
+typedef int (*xxx_start_thread)(xxx_sdk_vty_base_t *);
 
-struct ctc_sdk_vty_base_s
+struct xxx_sdk_vty_base_s
 {
     pthread_t             task_id;
     int                 socket_fd;
-    ctc_sdk_packet_t    socket_recv_buf;
-    ctc_sdk_packet_t    socket_send_buf;
-    ctc_socket            socket;
-    ctc_sendto            sendto;
-    ctc_recvfrom        recvfrom;
-    ctc_close            close;
-    ctc_start_thread    start_thread;
+    xxx_sdk_packet_t    socket_recv_buf;
+    xxx_sdk_packet_t    socket_send_buf;
+    xxx_socket            socket;
+    xxx_sendto            sendto;
+    xxx_recvfrom        recvfrom;
+    xxx_close            close;
+    xxx_start_thread    start_thread;
 };
 
-ctc_sdk_vty_base_t    *p_gctc_sdk_vty = NULL;
+xxx_sdk_vty_base_t    *p_gxxx_sdk_vty = NULL;
 
 
-static int ctc_sdk_start_thread(ctc_sdk_vty_base_t *pctc_sdk_vty);
+static int xxx_sdk_start_thread(xxx_sdk_vty_base_t *pxxx_sdk_vty);
 
 
 struct termios termios_old;
@@ -91,35 +91,35 @@ restore_terminal_mode(void)
 }
 
 
-static int ctc_socket_close(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_socket_close(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
-    if (pctc_sdk_vty->task_id)
+    if (pxxx_sdk_vty->task_id)
     {
-        //pthread_cancel(pctc_sdk_vty->task_id);
-        pctc_sdk_vty->task_id = - 1;
+        //pthread_cancel(pxxx_sdk_vty->task_id);
+        pxxx_sdk_vty->task_id = - 1;
     }
 
-    if ( - 1 != pctc_sdk_vty->socket_fd)
+    if ( - 1 != pxxx_sdk_vty->socket_fd)
     {
-        close(pctc_sdk_vty->socket_fd);
-        pctc_sdk_vty->socket_fd = - 1;
+        close(pxxx_sdk_vty->socket_fd);
+        pxxx_sdk_vty->socket_fd = - 1;
     }
     return 0;
 }
 
 #define ________NETLINK________
-typedef struct ctc_sdk_vty_netlink_s
+typedef struct xxx_sdk_vty_netlink_s
 {
-    ctc_sdk_vty_base_t            base;
+    xxx_sdk_vty_base_t            base;
     struct     sockaddr_nl         kpeer;
     int                             kpeer_len;
-}ctc_sdk_vty_netlink_t;
+}xxx_sdk_vty_netlink_t;
 
-static int ctc_netlink_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_netlink_create_socket(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
     int                        skfd = - 1;
     struct sockaddr_nl         local;
-    ctc_sdk_vty_netlink_t    *pvty_netlink = (ctc_sdk_vty_netlink_t*)pctc_sdk_vty;
+    xxx_sdk_vty_netlink_t    *pvty_netlink = (xxx_sdk_vty_netlink_t*)pxxx_sdk_vty;
     skfd = socket(PF_NETLINK, SOCK_RAW, XXX_SDK_NETLINK);
     if (skfd < 0)
     {
@@ -138,14 +138,14 @@ static int ctc_netlink_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
         return - 1;
     }
 
-    memset(&pctc_sdk_vty->socket_send_buf, 0, sizeof(ctc_sdk_packet_t));
-    pctc_sdk_vty->socket_send_buf.hdr.msg_len          = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_flags      = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_type          = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_turnsize     = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_pid          = local.nl_pid;
+    memset(&pxxx_sdk_vty->socket_send_buf, 0, sizeof(xxx_sdk_packet_t));
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_len          = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_flags      = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_type          = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_turnsize     = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_pid          = local.nl_pid;
 
-    pctc_sdk_vty->socket_fd = skfd;
+    pxxx_sdk_vty->socket_fd = skfd;
 
     pvty_netlink->kpeer.nl_family      = AF_NETLINK;
     pvty_netlink->kpeer.nl_pid          = 0;
@@ -156,18 +156,18 @@ static int ctc_netlink_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
     return 0;
 }
 
-static int ctc_netlink_sendto(ctc_sdk_vty_base_t *pctc_sdk_vty, char *send_buf, const int send_buf_count)
+static int xxx_netlink_sendto(xxx_sdk_vty_base_t *pxxx_sdk_vty, char *send_buf, const int send_buf_count)
 {
     int ret = - 1;
-    ctc_sdk_vty_netlink_t    *pvty_netlink = (ctc_sdk_vty_netlink_t*)pctc_sdk_vty;
+    xxx_sdk_vty_netlink_t    *pvty_netlink = (xxx_sdk_vty_netlink_t*)pxxx_sdk_vty;
 
-    memcpy(NLMSG_DATA(&pctc_sdk_vty->socket_send_buf), send_buf, send_buf_count);
-    pctc_sdk_vty->socket_send_buf.hdr.msg_len           = NLMSG_SPACE(send_buf_count);
-    pctc_sdk_vty->socket_send_buf.hdr.msg_turnsize      = send_buf_count;
+    memcpy(NLMSG_DATA(&pxxx_sdk_vty->socket_send_buf), send_buf, send_buf_count);
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_len           = NLMSG_SPACE(send_buf_count);
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_turnsize      = send_buf_count;
 
-    ret = sendto(pctc_sdk_vty->socket_fd,
-                 &pctc_sdk_vty->socket_send_buf,
-                 pctc_sdk_vty->socket_send_buf.hdr.msg_len,
+    ret = sendto(pxxx_sdk_vty->socket_fd,
+                 &pxxx_sdk_vty->socket_send_buf,
+                 pxxx_sdk_vty->socket_send_buf.hdr.msg_len,
                  0, (struct sockaddr *)&pvty_netlink->kpeer,
                  pvty_netlink->kpeer_len);
     if (ret < 0)
@@ -178,57 +178,57 @@ static int ctc_netlink_sendto(ctc_sdk_vty_base_t *pctc_sdk_vty, char *send_buf, 
     return ret;
 }
 
-static int ctc_netlink_recvfrom(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_netlink_recvfrom(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
     int     read_size = - 1;
-    //    ctc_sdk_vty_netlink_t        *pvty_netlink = (ctc_sdk_vty_netlink_t*)pctc_sdk_vty;
+    //    xxx_sdk_vty_netlink_t        *pvty_netlink = (xxx_sdk_vty_netlink_t*)pxxx_sdk_vty;
     struct     sockaddr_nl         kpeer;
     socklen_t     kpeerlen = sizeof(struct sockaddr_nl);
 
-    read_size = recvfrom(pctc_sdk_vty->socket_fd, &pctc_sdk_vty->socket_recv_buf,
-                         sizeof(pctc_sdk_vty->socket_recv_buf), 0,
+    read_size = recvfrom(pxxx_sdk_vty->socket_fd, &pxxx_sdk_vty->socket_recv_buf,
+                         sizeof(pxxx_sdk_vty->socket_recv_buf), 0,
                          (struct sockaddr*)&kpeer, &kpeerlen);
 
     if (read_size < 0)
     {
-        perror("ctc_netlink_recvfrom error:");
+        perror("xxx_netlink_recvfrom error:");
     }
 
     return read_size;
 }
 
-static ctc_sdk_vty_base_t* ctc_sdk_alloc_netlink()
+static xxx_sdk_vty_base_t* xxx_sdk_alloc_netlink()
 {
-    ctc_sdk_vty_base_t *tmp_ctc_sdk_netlink = NULL;
-    tmp_ctc_sdk_netlink = (ctc_sdk_vty_base_t *)malloc(sizeof(ctc_sdk_vty_netlink_t));
-    if (!tmp_ctc_sdk_netlink)
+    xxx_sdk_vty_base_t *tmp_xxx_sdk_netlink = NULL;
+    tmp_xxx_sdk_netlink = (xxx_sdk_vty_base_t *)malloc(sizeof(xxx_sdk_vty_netlink_t));
+    if (!tmp_xxx_sdk_netlink)
     {
         return NULL;
     }
 
-    memset(tmp_ctc_sdk_netlink, 0, sizeof(ctc_sdk_vty_netlink_t));
+    memset(tmp_xxx_sdk_netlink, 0, sizeof(xxx_sdk_vty_netlink_t));
 
-    tmp_ctc_sdk_netlink->socket = ctc_netlink_create_socket;
-    tmp_ctc_sdk_netlink->sendto = ctc_netlink_sendto;
-    tmp_ctc_sdk_netlink->recvfrom = ctc_netlink_recvfrom;
-    tmp_ctc_sdk_netlink->close    = ctc_socket_close;
-    tmp_ctc_sdk_netlink->start_thread = ctc_sdk_start_thread;
+    tmp_xxx_sdk_netlink->socket = xxx_netlink_create_socket;
+    tmp_xxx_sdk_netlink->sendto = xxx_netlink_sendto;
+    tmp_xxx_sdk_netlink->recvfrom = xxx_netlink_recvfrom;
+    tmp_xxx_sdk_netlink->close    = xxx_socket_close;
+    tmp_xxx_sdk_netlink->start_thread = xxx_sdk_start_thread;
 
-    return tmp_ctc_sdk_netlink;
+    return tmp_xxx_sdk_netlink;
 }
 
 #define ________TCP_IP________
-typedef struct ctc_sdk_vty_tcp_s
+typedef struct xxx_sdk_vty_tcp_s
 {
-    ctc_sdk_vty_base_t base;
+    xxx_sdk_vty_base_t base;
 }
-ctc_sdk_vty_tcp_t;
+xxx_sdk_vty_tcp_t;
 
-static int ctc_tcp_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_tcp_create_socket(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
     int skfd = - 1;
     struct sockaddr_in serv_addr;
-    //ctc_sdk_vty_tcp_t *pvty_tcp = (ctc_sdk_vty_tcp_t*)pctc_sdk_vty;
+    //xxx_sdk_vty_tcp_t *pvty_tcp = (xxx_sdk_vty_tcp_t*)pxxx_sdk_vty;
     skfd = socket(AF_INET, SOCK_STREAM, 0);
     if (skfd < 0)
     {
@@ -247,29 +247,29 @@ static int ctc_tcp_create_socket(ctc_sdk_vty_base_t *pctc_sdk_vty)
         return - 1;
     }
 
-    memset(&pctc_sdk_vty->socket_send_buf, 0, sizeof(ctc_sdk_packet_t));
-    pctc_sdk_vty->socket_send_buf.hdr.msg_len          = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_flags      = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_type          = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_turnsize     = 0;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_pid          = getpid();
+    memset(&pxxx_sdk_vty->socket_send_buf, 0, sizeof(xxx_sdk_packet_t));
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_len          = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_flags      = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_type          = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_turnsize     = 0;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_pid          = getpid();
 
-    pctc_sdk_vty->socket_fd = skfd;
+    pxxx_sdk_vty->socket_fd = skfd;
 
     return 0;
 }
 
-static int ctc_tcp_sendto(ctc_sdk_vty_base_t *pctc_sdk_vty, char *send_buf, const int send_buf_count)
+static int xxx_tcp_sendto(xxx_sdk_vty_base_t *pxxx_sdk_vty, char *send_buf, const int send_buf_count)
 {
     int ret = - 1;
 
-    memcpy(&pctc_sdk_vty->socket_send_buf.msg, send_buf, send_buf_count);
-    pctc_sdk_vty->socket_send_buf.hdr.msg_len           = sizeof(struct ctc_msg_hdr ) + send_buf_count;
-    pctc_sdk_vty->socket_send_buf.hdr.msg_turnsize      = send_buf_count;
+    memcpy(&pxxx_sdk_vty->socket_send_buf.msg, send_buf, send_buf_count);
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_len           = sizeof(struct xxx_msg_hdr ) + send_buf_count;
+    pxxx_sdk_vty->socket_send_buf.hdr.msg_turnsize      = send_buf_count;
 
-    ret = send(pctc_sdk_vty->socket_fd,
-               &pctc_sdk_vty->socket_send_buf,
-               pctc_sdk_vty->socket_send_buf.hdr.msg_len, 0);
+    ret = send(pxxx_sdk_vty->socket_fd,
+               &pxxx_sdk_vty->socket_send_buf,
+               pxxx_sdk_vty->socket_send_buf.hdr.msg_len, 0);
     if (!ret < 0)
     {
         perror("send pid:");
@@ -278,39 +278,39 @@ static int ctc_tcp_sendto(ctc_sdk_vty_base_t *pctc_sdk_vty, char *send_buf, cons
     return ret;
 }
 
-static int ctc_tcp_recvfrom(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_tcp_recvfrom(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
     int     read_size = - 1;
 
-    read_size = recv(pctc_sdk_vty->socket_fd, &pctc_sdk_vty->socket_recv_buf,
+    read_size = recv(pxxx_sdk_vty->socket_fd, &pxxx_sdk_vty->socket_recv_buf,
                      2048, 0);
 
     if (read_size <= 0)
     {
-        perror("ctc_tcp_recvfrom error:");
+        perror("xxx_tcp_recvfrom error:");
     }
 
     return read_size;
 }
 
-static ctc_sdk_vty_base_t* ctc_sdk_alloc_tcp()
+static xxx_sdk_vty_base_t* xxx_sdk_alloc_tcp()
 {
-    ctc_sdk_vty_base_t    *tmp_ctc_sdk_tcp = NULL;
-    tmp_ctc_sdk_tcp = (ctc_sdk_vty_base_t *)malloc(sizeof(ctc_sdk_vty_tcp_t));
-    if (!tmp_ctc_sdk_tcp)
+    xxx_sdk_vty_base_t    *tmp_xxx_sdk_tcp = NULL;
+    tmp_xxx_sdk_tcp = (xxx_sdk_vty_base_t *)malloc(sizeof(xxx_sdk_vty_tcp_t));
+    if (!tmp_xxx_sdk_tcp)
     {
         return NULL;
     }
 
-    memset(tmp_ctc_sdk_tcp, 0, sizeof(ctc_sdk_vty_tcp_t));
+    memset(tmp_xxx_sdk_tcp, 0, sizeof(xxx_sdk_vty_tcp_t));
 
-    tmp_ctc_sdk_tcp->socket = ctc_tcp_create_socket;
-    tmp_ctc_sdk_tcp->sendto = ctc_tcp_sendto;
-    tmp_ctc_sdk_tcp->recvfrom = ctc_tcp_recvfrom;
-    tmp_ctc_sdk_tcp->close    = ctc_socket_close;
-    tmp_ctc_sdk_tcp->start_thread = ctc_sdk_start_thread;
+    tmp_xxx_sdk_tcp->socket = xxx_tcp_create_socket;
+    tmp_xxx_sdk_tcp->sendto = xxx_tcp_sendto;
+    tmp_xxx_sdk_tcp->recvfrom = xxx_tcp_recvfrom;
+    tmp_xxx_sdk_tcp->close    = xxx_socket_close;
+    tmp_xxx_sdk_tcp->start_thread = xxx_sdk_start_thread;
 
-    return tmp_ctc_sdk_tcp;
+    return tmp_xxx_sdk_tcp;
 }
 
 
@@ -328,44 +328,44 @@ void set_signal()
     signal(SIGTERM, sig_handle);
 }
 
-static void* ctc_socket_recv_print_thread(void* arg)
+static void* xxx_socket_recv_print_thread(void* arg)
 {
-    ctc_sdk_vty_base_t     *pctc_sdk_vty = NULL;
+    xxx_sdk_vty_base_t     *pxxx_sdk_vty = NULL;
     int  recv_size      = 0;
 
-    pctc_sdk_vty = (ctc_sdk_vty_base_t*)arg;
+    pxxx_sdk_vty = (xxx_sdk_vty_base_t*)arg;
     while (1)
     {
-        recv_size = pctc_sdk_vty->recvfrom(pctc_sdk_vty);
+        recv_size = pxxx_sdk_vty->recvfrom(pxxx_sdk_vty);
 
         if (recv_size <= 0)
         {
             restore_terminal_mode();
-            pctc_sdk_vty->close(pctc_sdk_vty);
+            pxxx_sdk_vty->close(pxxx_sdk_vty);
             exit(0);
         }
 
-        if (XXX_SDK_CMD_QUIT == pctc_sdk_vty->socket_recv_buf.hdr.msg_type)
+        if (XXX_SDK_CMD_QUIT == pxxx_sdk_vty->socket_recv_buf.hdr.msg_type)
         {
             restore_terminal_mode();
-            pctc_sdk_vty->close(pctc_sdk_vty);
+            pxxx_sdk_vty->close(pxxx_sdk_vty);
             exit(0);
         }
-        write(STDOUT_FILENO, pctc_sdk_vty->socket_recv_buf.msg,
-              pctc_sdk_vty->socket_recv_buf.hdr.msg_turnsize);
+        write(STDOUT_FILENO, pxxx_sdk_vty->socket_recv_buf.msg,
+              pxxx_sdk_vty->socket_recv_buf.hdr.msg_turnsize);
         fflush(stdout);
 
-        memset(&pctc_sdk_vty->socket_recv_buf,
+        memset(&pxxx_sdk_vty->socket_recv_buf,
                0,
-               sizeof(pctc_sdk_vty->socket_recv_buf));
+               sizeof(pxxx_sdk_vty->socket_recv_buf));
     }
 
     return ;
 }
 
-static int ctc_sdk_start_thread(ctc_sdk_vty_base_t *pctc_sdk_vty)
+static int xxx_sdk_start_thread(xxx_sdk_vty_base_t *pxxx_sdk_vty)
 {
-    return pthread_create(&pctc_sdk_vty->task_id, NULL, ctc_socket_recv_print_thread, (void*)pctc_sdk_vty);
+    return pthread_create(&pxxx_sdk_vty->task_id, NULL, xxx_socket_recv_print_thread, (void*)pxxx_sdk_vty);
 }
 
 int main(int argc, char* argv[])
@@ -375,33 +375,33 @@ int main(int argc, char* argv[])
 
         if (1 != argc)
         {
-            p_gctc_sdk_vty = ctc_sdk_alloc_netlink();
+            p_gxxx_sdk_vty = xxx_sdk_alloc_netlink();
         }
         else
         {
-            p_gctc_sdk_vty = ctc_sdk_alloc_tcp();
+            p_gxxx_sdk_vty = xxx_sdk_alloc_tcp();
         }
 
-        if (!p_gctc_sdk_vty)
+        if (!p_gxxx_sdk_vty)
         {
             printf("Not Support\n");
             return 0;
         }
 
-        if (p_gctc_sdk_vty->socket(p_gctc_sdk_vty))
+        if (p_gxxx_sdk_vty->socket(p_gxxx_sdk_vty))
         {
             return 0;
         }
 
-        if (p_gctc_sdk_vty->start_thread(p_gctc_sdk_vty))
+        if (p_gxxx_sdk_vty->start_thread(p_gxxx_sdk_vty))
         {
-            p_gctc_sdk_vty->close(p_gctc_sdk_vty);
+            p_gxxx_sdk_vty->close(p_gxxx_sdk_vty);
             return 0;
         }
 
-        if (p_gctc_sdk_vty->sendto(p_gctc_sdk_vty, (char*)buf, nbytes) <= 0)
+        if (p_gxxx_sdk_vty->sendto(p_gxxx_sdk_vty, (char*)buf, nbytes) <= 0)
         {
-            p_gctc_sdk_vty->close(p_gctc_sdk_vty);
+            p_gxxx_sdk_vty->close(p_gxxx_sdk_vty);
             return 0;
         }
 
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
         {
             nbytes = read(STDIN_FILENO, buf, sizeof(buf));
 
-            if (p_gctc_sdk_vty->sendto(p_gctc_sdk_vty, (char*)buf, nbytes) <= 0)
+            if (p_gxxx_sdk_vty->sendto(p_gxxx_sdk_vty, (char*)buf, nbytes) <= 0)
             {
                 break;
             }
@@ -421,8 +421,8 @@ int main(int argc, char* argv[])
 
         restore_terminal_mode();
 
-        p_gctc_sdk_vty->close(p_gctc_sdk_vty);
-        free(p_gctc_sdk_vty);
+        p_gxxx_sdk_vty->close(p_gxxx_sdk_vty);
+        free(p_gxxx_sdk_vty);
 
         return 0;
     }

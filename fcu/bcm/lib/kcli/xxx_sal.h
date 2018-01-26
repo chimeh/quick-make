@@ -69,11 +69,19 @@
 #define _SDK_NOT_READLINE_
 #endif
 
-extern void sal_free(void *p);
-extern void *sal_malloc(size_t size);
-extern void *sal_calloc(size_t size);
 
 #define BOOLEAN_BIT(b) ((b) ? 1 : 0)
+
+#undef sal_malloc
+#define sal_malloc(s) kmalloc(s, GFP_KERNEL)
+
+
+#undef sal_free
+#define sal_free    kfree
+
+
+#undef sal_alloc
+#define sal_alloc(s, t) kmalloc(s, GFP_KERNEL)
 
 #undef sal_memcpy
 #define sal_memcpy    memcpy

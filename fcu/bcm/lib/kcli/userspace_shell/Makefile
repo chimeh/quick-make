@@ -1,31 +1,35 @@
-ifndef ARCH
-export ARCH = i686
-endif
+###################################################################
+#automatic detection SDK and LOCALDIR
+CUR_DIR := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+TRYSDK := $(shell if [ -n "$$SDK" ] ; then\
+        echo $$SDK;\
+        else\
+        cd $(CUR_DIR); while /usr/bin/test ! -e RELEASE ; do \
+        dir=`cd ../;pwd`;                       \
+        if [ "$$dir" = "/" ] ; then             \
+           echo Cannot find SDK in $(firstword $(MAKEFILE_LIST)) 1>&2; \
+           exit 1;                              \
+        fi ;                                    \
+        cd $$dir;                               \
+        done ;                                  \
+        pwd;                                    \
+        fi)
+SDK ?= $(realpath ${TRYSDK})
 
-ifeq ($(ARCH),powerpc)
-CROSS_COMPILE =ppc-linux-
+ifeq ($(SDK),)
+$(error Please run this in a tree)
 endif
+LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 
-ifeq ($(ARCH),mips)
-CROSS_COMPILE =mips64-octeon-linux-gnu-
-endif
+####################################################################
+include ${SDK}/mk/Make.config
 
-ifeq ($(ARCH),loongson)
-CROSS_COMPILE =mipsel-linux-
-endif
+CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
 
-ifeq ($(ARCH),freescale)
-CROSS_COMPILE =powerpc-linux-gnu-
-endif
-ifeq ($(ARCH),arm64)
-CROSS_COMPILE =aarch64_be-linux-gnu-
-endif
-ifeq ($(ARCH),i686)
-CROSS_COMPILE =
-endif
+LDFLAGS += -L$(LIBDIR)
+exec = cli
+LD_L_LISTS += -lpthread
+#LD_A_FILES += $(LIBDIR)/libquagga.a
+include ${SDK}/mk/Make.exec
+include ${SDK}/mk/Make.depend
 
-ctc_shell: ctc_shell.c
-	 $(CROSS_COMPILE)gcc -o $@ $^ -lpthread
-
-clean:
-	rm ctc_shell -rf

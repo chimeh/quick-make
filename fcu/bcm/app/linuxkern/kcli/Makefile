@@ -22,22 +22,12 @@ endif
 LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 ####################################################################
 
-CMD = V=0
-CMD += J=4
-# trying the latter
-build:
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/lib
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/lib/netl
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/lib/unixlib/quagga
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/lib/npas
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/app/linuxuser/npas clean all
-	$(MAKE) $(CMD) OVRT=native.linuxkern -C $(SDK)/lib/hsl
-	$(MAKE) $(CMD) OVRT=native.linuxkern -C $(SDK)/lib/netlk
-	$(MAKE) $(CMD) OVRT=native.linuxkern -C $(SDK)/app/linuxkern/hsl-core
-	$(MAKE) $(CMD) OVRT=native.linuxkern -C $(SDK)/lib/kcli
-	$(MAKE) $(CMD) OVRT=native.linuxuser -C $(SDK)/lib/kcli/userspace_shell
-	$(MAKE) $(CMD) OVRT=native.linuxkern -C $(SDK)/app/linuxkern/kcli
+include ${SDK}/mk/Make.config
 
+CFLAGS += -D"DEBUG_HASH=43" -D"DEBUG_HASH2=50"
+LD_A_FILES += $(wildcard $(LIBDIR)/*.a)
+#LD_L_LISTS += -lhsl -lnetlk
+kmod = kcli
+include ${SDK}/mk/Make.kmod
 
-
-.PHONY: build
+include ${SDK}/mk/Make.depend

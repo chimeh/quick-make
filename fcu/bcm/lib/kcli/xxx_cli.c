@@ -25,6 +25,7 @@
 #include <termios.h>
 #include <unistd.h>
 #endif
+#include "xxx_sal.h"
 
 #define DECIMAL_STRLEN_MIN 1
 #define DECIMAL_STRLEN_MAX 10

@@ -1,5 +1,5 @@
 /**
- @file ctc_master_cli.h
+ @file xxx_master_cli.h
 
  @date 2014-12-22
 
@@ -28,7 +28,7 @@ extern "C" {
 *
 ****************************************************************/
 /**
- @defgroup ctc_master XXX_MASTER
+ @defgroup xxx_master XXX_MASTER
  @{
 */
 /**
@@ -51,7 +51,7 @@ extern "C" {
 */
 #define XXX_SDK_CMD_QUIT        0x0001
 
-struct ctc_msg_hdr {
+struct xxx_msg_hdr {
 	uint32_t		msg_len;		/* Length of message including header */
 	uint16_t		msg_type;		/* Message content */
 	uint16_t		msg_flags;		/* Additional flags */
@@ -62,13 +62,13 @@ struct ctc_msg_hdr {
 /**
  @brief packet
 */
-typedef struct ctc_sdk_packet_s
+typedef struct xxx_sdk_packet_s
 {
-    struct 	ctc_msg_hdr hdr;
+    struct 	xxx_msg_hdr hdr;
     char 				msg[XXX_SDK_NETLINK_MSG_LEN];
-}ctc_sdk_packet_t;
+}xxx_sdk_packet_t;
 
-/**@} end of @defgroup ctc_master  */
+/**@} end of @defgroup xxx_master  */
 
 #ifdef __cplusplus
 }
