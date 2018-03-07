@@ -27,7 +27,7 @@ endif
 
 build: $(BLD_MODBUILDIN) $(BLD_MOD_FINAL)
 
-$(BLD_MODBUILDIN): $(BLDDIR)/.tree ${LD_O_FILES}
+$(BLD_MODBUILDIN): $(BLDDIR)/.tree ${LD_O_FILES} ${LD_A_FILES}
 	$(Q)rm -f $@
 	$(Q)$(ECHO) "[$(target)] LINK BLOB    $(subst $(SDK)/,,$@)" 
 	$(Q)$(LD) -o $@  -L${LIBDIR} -r -d \

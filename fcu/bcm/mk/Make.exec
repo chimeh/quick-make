@@ -19,7 +19,7 @@ LD_INFO_OPTS := -Wl,--warn-common -Wl,-Map,${OUTDIR}/${exec}.map  -Wl,--verbose
 endif
 
 
-$(targetexec): $(BLDDIR)/.tree $(OUTDIR)/strip/.tree ${LD_O_FILES}
+$(targetexec): $(BLDDIR)/.tree $(OUTDIR)/strip/.tree ${LD_O_FILES} ${LD_A_FILES}
 	@rm -f $@       # Prevent core dump if currently running
 	@$(ECHO) "[$(target)] LINK    $@" # This is needed for error parsing
 	$(Q)$(CC) \
