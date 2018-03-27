@@ -1,0 +1,25 @@
+CROSS_COMPILE ?=mips64el-linux-
+CC       = $(CROSS_COMPILE)gcc
+CXX      = $(CROSS_COMPILE)g++
+AR       = $(CROSS_COMPILE)ar
+ARFLAGS  = -rc
+STRIP    = $(CROSS_COMPILE)strip
+RANLIB   = $(CROSS_COMPILE)ranlib
+
+CFGFLAGS += -DLINUX
+
+# endian compile flags
+ENDIAN_CFGFLAGS = -DBE_HOST=1 -DLE_HOST=\(!BE_HOST\)
+#ENDIAN_CFGFLAGS = -DBE_HOST=0 -DLE_HOST=\(!BE_HOST\)
+CFGFLAGS += $(ENDIAN_CFGFLAGS)
+
+
+
+ifeq (linuxkern,$(targetos))
+LD       = $(CROSS_COMPILE)ld -m elf64ltsmip
+include ${SDK}/mk/plat.$(targetplat).linuxkern
+endif
+ifeq (linuxuser,$(targetos))
+LD       = $(CROSS_COMPILE)ld -m elf64btsmip_sym32
+include ${SDK}/mk/plat.$(targetplat).linuxuser
+endif

@@ -1,0 +1,106 @@
+# Default kernel source directory
+ifeq ($(LINUX_KDIR),)
+$(error "build kernel module, but $(CUR_MAKEFILE) can't detection LINUX_KDIR")
+endif
+# Default Linux include directory
+ifeq (,$(LINUX_INCLUDE))
+LINUX_INCLUDE := $(LINUX_KDIR)/include
+endif
+# Default architecture
+
+ARCH = mips
+
+
+# By default we exclude -Werror from arm kernel builds
+CFGFLAGS += -Wall
+CFGFLAGS += -I$(SDK)/app/linuxkern/include 
+
+
+
+# Noisy kernel build
+KBUILD_VERBOSE = 1
+
+export ARCH KBUILD_VERBOSE LINUX_KDIR
+
+
+# autoconf.h was moved in later kernels
+AUTOCONF = $(LINUX_KDIR)/include/generated/autoconf.h
+ifeq (,$(shell ls $(AUTOCONF) 2>/dev/null))
+AUTOCONF = $(LINUX_KDIR)/include/linux/autoconf.h
+endif
+
+KCONFIG_H = $(LINUX_KDIR)/include/linux/kconfig.h
+ifeq (,$(shell ls $(KCONFIG_H) 2>/dev/null))
+KCONFIG_H = 
+endif
+# gcc system include path
+SYSINC = $(shell $(CC) -print-search-dirs | grep install | cut -c 10-)include
+ifeq (,$(KFLAGS))
+KFLAGS := -nostdinc -isystem $(SYSINC) \
+  -I$(LINUX_KDIR)/include \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/uapi \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/generated/uapi \
+  -I$(LINUX_KDIR)/include/uapi \
+  -I$(LINUX_KDIR)/include/generated/uapi \
+  $(if $(AUTOCONF),-include $(AUTOCONF)) \
+  $(if ${KCONFIG_H}, -include $(KCONFIG_H)) \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/asm/mach-loongson2k \
+  -I$(LINUX_KDIR)/arch/$(ARCH)/include/asm/mach-generic \
+ -D__KERNEL__ \
+ -DMODULE \
+ -mlong-calls \
+ -DVMLINUX_LOAD_ADDRESS=0xffffffff80200000 \
+ -DDATAOFFSET=0 \
+ -Wall \
+ -Wundef \
+ -Wstrict-prototypes \
+ -Wno-trigraphs \
+ -fno-strict-aliasing \
+ -fno-common \
+ -Werror-implicit-function-declaration \
+ -Wno-format-security \
+ -fno-delete-null-pointer-checks \
+ -std=gnu89 \
+ -Os \
+ -Wno-maybe-uninitialized \
+ -mno-check-zero-division \
+ -mabi=64 \
+ -G 0 \
+ -mno-abicalls \
+ -fno-pic \
+ -pipe \
+ -msoft-float \
+ -mxgot \
+ -ffreestanding \
+ -mno-branch-likely \
+ -msym32 \
+ -DKBUILD_64BIT_SYM32 \
+ -Wframe-larger-than=1024 \
+ -fno-stack-protector \
+ -Wno-unused-but-set-variable \
+ -fomit-frame-pointer \
+ -fno-var-tracking-assignments \
+ -Wdeclaration-after-statement \
+ -Wno-pointer-sign \
+ -fno-strict-overflow \
+ -fconserve-stack \
+ -DCC_HAVE_ASM_GOTO
+endif
+
+
+# Extra variables.
+EXTRA_CFLAGS = -D"KBUILD_STR(s)=\#s" $(basename_flags) $(modname_flags)
+
+comma = ,
+basetarget = $(basename $(notdir $@))
+modname = $(basetarget)
+
+name-fix = $(subst $(comma),_,$(subst -,_,$1))
+basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
+modname_flags  = $(if $(filter 1,$(words $(modname))),\
+-D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
+
+STD_CFLAGS += $(KFLAGS)
+
