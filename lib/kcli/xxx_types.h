@@ -89,7 +89,7 @@ typedef int32    intptr; /**< intptr define */
  * xxx_greatbelt_port_get_mac_link_up(), cast between (bool*) and (uint32*) lead to linkstate lost
  * sizeof(bool)>=4, don't use kernel's bool(which is _Bool, sizeof(_Bool)=1)
  */
-#define bool           int  
+//#define bool           int  
 typedef float          float32; /**< 32-bit signed float */
 typedef double         float64; /**< 64-bit signed float */
 #if defined(CONFIG_RESOURCES_64BIT) || defined(CONFIG_PHYS_ADDR_T_64BIT)

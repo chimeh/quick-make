@@ -4,6 +4,7 @@
 #include <linux/uaccess.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
+#include <linux/slab.h>
 
 #define kconfig_alloc(s, t) kmalloc(s, GFP_KERNEL)
 #define kconfig_free(p) kfree(p)

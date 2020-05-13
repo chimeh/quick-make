@@ -25,6 +25,7 @@ LOCALDIR = $(patsubst %/,%,$(subst $(realpath $(SDK))/,,$(CUR_DIR)))
 # trying the latter
 build:
 	$(MAKE) -C $(SDK)/box/native_box
+	@ls --color $(SDK)/build/*/out
 
 
 

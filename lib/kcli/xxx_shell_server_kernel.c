@@ -174,9 +174,9 @@ int xxx_vty_socket()
     //struct netlink_kernel_cfg cfg = {0};
     //cfg.input = xxx_vty_recvfrom;
 
-    xxx_master_cli_netlinkfd = netlink_kernel_create(&init_net, XXX_SDK_NETLINK, 0, xxx_vty_recvfrom, NULL, THIS_MODULE);
+    //xxx_master_cli_netlinkfd = netlink_kernel_create(&init_net, XXX_SDK_NETLINK, 0, xxx_vty_recvfrom, NULL, THIS_MODULE);
 
-    //xxx_master_cli_netlinkfd = __netlink_kernel_create(&init_net, XXX_SDK_NETLINK, THIS_MODULE, NULL);
+    xxx_master_cli_netlinkfd = __netlink_kernel_create(&init_net, XXX_SDK_NETLINK, THIS_MODULE, NULL);
     if(!xxx_master_cli_netlinkfd){
         printk("%s:%d can't create a netlink socket\n",__FUNCTION__,__LINE__);
         return -1;

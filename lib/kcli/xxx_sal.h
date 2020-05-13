@@ -18,6 +18,8 @@
 #include <linux/ctype.h>
 #include <linux/fcntl.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
+#include <linux/delay.h>
 #elif defined(_SAL_LINUX_UM)
 #include <sys/types.h>
 #include <sys/stat.h>

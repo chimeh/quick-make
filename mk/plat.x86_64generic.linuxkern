@@ -1,6 +1,10 @@
 # Default kernel source directory
+KERNEL_RELEASE=$(shell uname -r)
+KERNEL_RELEASE_VERSION=$(shell uname -r | cut -d'-' -f 1)
+EXIST_KERNEL_RELEASE_DEVEL=$(wildcard /lib/modules/${KERNEL_RELEASE_VERSION}*.x86_64)
+$(info $(EXIST_KERNEL_RELEASE_DEVEL))
 ifeq (,$(LINUX_KDIR))
-LINUX_KDIR := /lib/modules/$(shell uname -r)/build
+LINUX_KDIR := $(EXIST_KERNEL_RELEASE_DEVEL)/build
 $(info LINUX_KDIR=$(LINUX_KDIR))
 export LINUX_KDIR
 endif
